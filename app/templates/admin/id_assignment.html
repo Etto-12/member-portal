@@ -1,0 +1,747 @@
+{% extends "layout/base.html" %}
+{% block title %}ID Assignment{% endblock %}
+
+{% block content %}
+
+<style>
+  .id-page {
+    max-width: 1320px;
+    margin: 26px auto;
+    padding: 0 18px 40px;
+  }
+
+  .page-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .page-subtitle {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .stat-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  }
+
+  .stat-label {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .stat-value {
+    margin-top: 4px;
+    font-size: 24px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .access-box {
+    background: #ffffff;
+    border: 2px solid #4f46e5;
+    border-radius: 20px;
+    padding: 18px;
+    box-shadow: 0 14px 36px rgba(79, 70, 229, 0.13);
+    margin-bottom: 18px;
+  }
+
+  .access-title {
+    font-size: 16px;
+    font-weight: 950;
+    color: #0f172a;
+    margin-bottom: 4px;
+  }
+
+  .access-note {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .access-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .access-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 13px;
+    min-width: 0;
+  }
+
+  .access-dot {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 3px solid white;
+    box-shadow: 0 0 0 1px #cbd5e1;
+    flex-shrink: 0;
+  }
+
+  .access-name {
+    font-weight: 950;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .access-details {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 800;
+    margin-top: 3px;
+  }
+
+  .access-tag {
+    display: inline-flex;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 950;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+  }
+
+  .legend-box {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    margin-bottom: 18px;
+  }
+
+  .legend-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-bottom: 10px;
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .legend-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px #cbd5e1;
+    flex-shrink: 0;
+  }
+
+  .toolbar {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .input,
+  .select {
+    height: 44px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 0 12px;
+    background: white;
+    font-size: 14px;
+  }
+
+  .btn {
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+  }
+
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+  }
+
+  .confirm-box {
+    background: #0f172a;
+    color: white;
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .confirm-text {
+    font-weight: 900;
+  }
+
+  .confirm-note {
+    color: #cbd5e1;
+    font-size: 13px;
+    margin-top: 3px;
+  }
+
+  .id-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+  }
+
+  .id-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    position: relative;
+    min-height: 122px;
+    overflow: hidden;
+  }
+
+  .id-card.assigned {
+    color: white;
+    border-color: transparent;
+  }
+
+  .id-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: start;
+  }
+
+  .id-number {
+    font-size: 22px;
+    font-weight: 950;
+    letter-spacing: -0.03em;
+  }
+
+  .id-status {
+    font-size: 11px;
+    font-weight: 900;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .id-card.assigned .id-status {
+    background: rgba(255,255,255,0.18);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.25);
+  }
+
+  .id-meta {
+    margin-top: 10px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .id-card.assigned .id-meta {
+    color: rgba(255,255,255,0.88);
+  }
+
+  .id-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .id-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  }
+
+  .release-btn {
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    padding: 0 10px;
+    font-size: 12px;
+    font-weight: 900;
+    background: rgba(255,255,255,0.18);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.25);
+    cursor: pointer;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 22px;
+    flex-wrap: wrap;
+  }
+
+  .page-link {
+    text-decoration: none;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #0f172a;
+    font-weight: 800;
+  }
+
+  .page-link.active {
+    background: #4f46e5;
+    color: white;
+  }
+
+  @media(max-width: 1100px) {
+    .id-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stats-grid,
+    .access-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .toolbar {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media(max-width: 700px) {
+    .id-grid,
+    .stats-grid,
+    .access-grid,
+    .toolbar {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="id-page">
+  <div class="page-head">
+    <div>
+      <h1 class="page-title">ID Assignment</h1>
+      <div class="page-subtitle">
+        Assign IDs starting from 162687. Only Admin and Super Admin can access this page.
+      </div>
+    </div>
+
+    <form method="post" action="{{ url_for('id_assignment.generate_more') }}">
+      <button class="btn btn-secondary" type="submit">
+        Generate Next 500 IDs
+      </button>
+    </form>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Total IDs</div>
+      <div class="stat-value">{{ total_ids }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Assigned</div>
+      <div class="stat-value">{{ assigned_count }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Available</div>
+      <div class="stat-value">{{ available_count }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Highest Generated ID</div>
+      <div class="stat-value">{{ highest_id }}</div>
+    </div>
+  </div>
+
+  <div class="access-box">
+    <div class="access-title">
+      Users With ID Assignment Access
+    </div>
+    <div class="access-note">
+      These are all accounts currently allowed to open this page. Their colour is the colour used when they assign an ID.
+    </div>
+
+    <div class="access-grid">
+      {% for user in access_users %}
+        <div class="access-card">
+          <span class="access-dot" style="background: {{ user.color }};"></span>
+
+          <div>
+            <div class="access-name">{{ user.username }}</div>
+            <div class="access-details">role: {{ user.role }}</div>
+            <div class="access-tag">{{ user.access_type }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="legend-box">
+    <div class="legend-title">Assigned Colour Legend</div>
+
+    <div class="legend-row">
+      <div class="legend-item">
+        <span class="legend-dot" style="background: {{ current_admin_color }};"></span>
+        Your colour: {{ current_user.username }}
+      </div>
+
+      {% for username, color in assigned_legend %}
+        <div class="legend-item">
+          <span class="legend-dot" style="background: {{ color or '#334155' }};"></span>
+          {{ username }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <form method="get" class="toolbar">
+    <input
+      class="input"
+      type="text"
+      name="q"
+      value="{{ search or '' }}"
+      placeholder="Search exact ID..."
+    >
+
+    <select class="select" name="status">
+      <option value="" {% if not status %}selected{% endif %}>All Status</option>
+      <option value="available" {% if status == "available" %}selected{% endif %}>Available Only</option>
+      <option value="assigned" {% if status == "assigned" %}selected{% endif %}>Assigned Only</option>
+    </select>
+
+    <button class="btn btn-primary" type="submit">Search / Filter</button>
+
+    <a class="btn btn-secondary" href="{{ url_for('id_assignment.index') }}">Reset</a>
+  </form>
+
+  <div class="confirm-box">
+    <div>
+      <div class="confirm-text">
+        Selected IDs: <span id="selectedCount">0</span>
+      </div>
+      <div class="confirm-note">
+        Tick available IDs, then confirm. The system checks again before assigning to avoid duplicate IDs.
+      </div>
+    </div>
+
+    <button class="btn btn-primary" type="button" onclick="confirmSelectedIds()">
+      Confirm Selected IDs
+    </button>
+  </div>
+
+  <div class="id-grid" id="idGrid">
+    {% for row in rows %}
+      <div
+        class="id-card {% if row.is_assigned %}assigned{% endif %}"
+        data-noid="{{ row.noid }}"
+        {% if row.is_assigned %}
+          style="background: {{ row.assigned_color or '#334155' }};"
+        {% endif %}
+      >
+        <div class="id-top">
+          <div class="id-number">{{ row.noid }}</div>
+          <div class="id-status">
+            {% if row.is_assigned %}
+              Assigned
+            {% else %}
+              Available
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="id-meta">
+          {% if row.is_assigned %}
+            Assigned by: <strong>{{ row.assigned_by_username or '-' }}</strong><br>
+            Time: {{ row.assigned_at.strftime('%Y-%m-%d %H:%M:%S') if row.assigned_at else '-' }}
+          {% else %}
+            Not assigned yet.
+          {% endif %}
+        </div>
+
+        <div class="id-actions">
+          {% if row.is_assigned %}
+            <button
+              class="release-btn"
+              type="button"
+              onclick="releaseId({{ row.noid }})"
+            >
+              Release
+            </button>
+          {% else %}
+            <input
+              class="id-checkbox"
+              type="checkbox"
+              value="{{ row.noid }}"
+              onchange="updateSelectedCount()"
+            >
+            <span class="id-meta">Select this ID</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="pagination">
+    {% if pagination.has_prev %}
+      <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.prev_num, status=status, q=search) }}">Prev</a>
+    {% endif %}
+
+    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <a class="page-link {% if p == pagination.page %}active{% endif %}"
+           href="{{ url_for('id_assignment.index', page=p, status=status, q=search) }}">
+          {{ p }}
+        </a>
+      {% else %}
+        <span class="page-link">...</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if pagination.has_next %}
+      <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.next_num, status=status, q=search) }}">Next</a>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+function updateSelectedCount() {
+  const count = document.querySelectorAll(".id-checkbox:checked").length;
+  document.getElementById("selectedCount").textContent = count;
+}
+
+function updateCardAsAssigned(noid, username, color, assignedAt) {
+  const card = document.querySelector(`.id-card[data-noid="${noid}"]`);
+  if (!card) return;
+
+  card.classList.add("assigned");
+  card.style.background = color || "#334155";
+
+  const status = card.querySelector(".id-status");
+  const meta = card.querySelector(".id-meta");
+  const actions = card.querySelector(".id-actions");
+
+  if (status) status.textContent = "Assigned";
+
+  if (meta) {
+    meta.innerHTML = `
+      Assigned by: <strong>${username || "-"}</strong><br>
+      Time: ${assignedAt || "-"}
+    `;
+  }
+
+  if (actions) {
+    actions.innerHTML = `
+      <button class="release-btn" type="button" onclick="releaseId(${noid})">
+        Release
+      </button>
+    `;
+  }
+}
+
+function updateCardAsAvailable(noid) {
+  const card = document.querySelector(`.id-card[data-noid="${noid}"]`);
+  if (!card) return;
+
+  card.classList.remove("assigned");
+  card.style.background = "";
+
+  const status = card.querySelector(".id-status");
+  const meta = card.querySelector(".id-meta");
+  const actions = card.querySelector(".id-actions");
+
+  if (status) status.textContent = "Available";
+  if (meta) meta.innerHTML = "Not assigned yet.";
+
+  if (actions) {
+    actions.innerHTML = `
+      <input
+        class="id-checkbox"
+        type="checkbox"
+        value="${noid}"
+        onchange="updateSelectedCount()"
+      >
+      <span class="id-meta">Select this ID</span>
+    `;
+  }
+
+  updateSelectedCount();
+}
+
+async function confirmSelectedIds() {
+  const selected = Array.from(document.querySelectorAll(".id-checkbox:checked"))
+    .map(input => input.value);
+
+  if (selected.length === 0) {
+    alert("Please tick at least one available ID first.");
+    return;
+  }
+
+  if (!confirm(`Confirm assigning ${selected.length} selected ID(s)?`)) {
+    return;
+  }
+
+  for (const noid of selected) {
+    const res = await fetch("{{ url_for('id_assignment.assign_id') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ noid: noid })
+    });
+
+    const data = await res.json();
+
+    if (data.ok) {
+      updateCardAsAssigned(
+        data.noid,
+        data.assigned_by_username,
+        data.assigned_color,
+        data.assigned_at
+      );
+    } else {
+      alert(data.message || `ID ${noid} could not be assigned.`);
+      await refreshVisibleIds();
+    }
+  }
+
+  updateSelectedCount();
+}
+
+async function releaseId(noid) {
+  if (!confirm(`Release ID ${noid}?`)) {
+    return;
+  }
+
+  const res = await fetch("{{ url_for('id_assignment.release_id') }}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ noid: noid })
+  });
+
+  const data = await res.json();
+
+  if (data.ok) {
+    updateCardAsAvailable(noid);
+  } else {
+    alert(data.message || "Could not release this ID.");
+    await refreshVisibleIds();
+  }
+}
+
+async function refreshVisibleIds() {
+  const ids = Array.from(document.querySelectorAll(".id-card"))
+    .map(card => card.dataset.noid)
+    .filter(Boolean);
+
+  if (ids.length === 0) return;
+
+  const url = "{{ url_for('id_assignment.status') }}" + "?ids=" + ids.join(",");
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data.ok) return;
+
+  data.rows.forEach(row => {
+    const card = document.querySelector(`.id-card[data-noid="${row.noid}"]`);
+    if (!card) return;
+
+    const cardIsAssigned = card.classList.contains("assigned");
+
+    if (row.is_assigned) {
+      updateCardAsAssigned(
+        row.noid,
+        row.assigned_by_username,
+        row.assigned_color,
+        row.assigned_at
+      );
+    } else {
+      /*
+        Do not rebuild available cards during auto-refresh.
+        Rebuilding available cards recreates the checkbox and clears the tick.
+        Only rebuild it if it was previously assigned and has now been released.
+      */
+      if (cardIsAssigned) {
+        updateCardAsAvailable(row.noid);
+      }
+    }
+  });
+}
+
+setInterval(refreshVisibleIds, 1500);
+</script>
+
+{% endblock %}

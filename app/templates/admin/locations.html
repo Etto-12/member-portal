@@ -1,0 +1,310 @@
+{% extends "layout/base.html" %}
+{% block content %}
+
+<style>
+/* ===============================
+   LOCATION MANAGEMENT – UPKO UI
+================================ */
+
+.location-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.location-title {
+  font-size: 1.4rem;
+  margin-bottom: 5px;
+}
+
+.location-subtitle {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  border-left: 4px solid #6c4cff;
+  padding-left: 10px;
+}
+
+.control-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.control-row input,
+.control-row select {
+  flex: 1;
+}
+
+.location-input,
+.location-select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
+
+.location-input:focus,
+.location-select:focus {
+  outline: none;
+  border-color: #6c4cff;
+}
+
+.location-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.location-table th {
+  background: #f4f5fb;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #555;
+  padding: 8px;
+  text-align: left;
+}
+
+.location-table td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.location-table tr:hover {
+  background: #fafaff;
+}
+
+.btn-primary {
+  background: #6c4cff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-primary:hover {
+  background: #5a3ae6;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.btn-danger:hover {
+  background: #bb2d3b;
+}
+
+.action-cell {
+  display: flex;
+  gap: 6px;
+}
+
+hr {
+  margin: 25px 0;
+}
+</style>
+
+<div class="location-card">
+  <h2 class="location-title">Location Management</h2>
+  <p class="location-subtitle">
+    Locked hierarchy: Bahagian → DUN → Cawangan → Pusat Mengundi
+  </p>
+
+  <!-- ========================= -->
+  <!-- BAHAGIAN -->
+  <!-- ========================= -->
+  <div class="section-header">
+    <h3>Bahagian</h3>
+  </div>
+
+  <form method="POST" action="{{ url_for('admin.add_bahagian') }}" class="control-row">
+    <input name="name" class="location-input" placeholder="New Bahagian name" required>
+    <button class="btn-primary">Add</button>
+  </form>
+
+  <input class="location-input" placeholder="Search Bahagian..." onkeyup="filterTable(this,'bahagianTable')">
+
+  <table class="location-table" id="bahagianTable">
+    <tr><th>Name</th><th>Action</th></tr>
+    {% for b in bahagians %}
+    <tr>
+      <form method="POST" action="{{ url_for('admin.edit_bahagian', id=b.id) }}">
+        <td><input name="name" value="{{ b.name }}" class="location-input"></td>
+        <td class="action-cell">
+          <button class="btn-primary">Save</button>
+          <a class="btn-danger" href="{{ url_for('admin.delete_bahagian', id=b.id) }}"
+             onclick="return confirm('Delete this Bahagian?')">Delete</a>
+        </td>
+      </form>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <hr>
+
+  <!-- ========================= -->
+  <!-- DUN -->
+  <!-- ========================= -->
+  <div class="section-header">
+    <h3>DUN</h3>
+  </div>
+
+  <div class="control-row">
+    <select id="bahagianSelect" class="location-select">
+      <option value="">Select Bahagian</option>
+      {% for b in bahagians %}
+        <option value="{{ b.id }}">{{ b.name }}</option>
+      {% endfor %}
+    </select>
+    <input id="newDunName" class="location-input" placeholder="New DUN name">
+    <button class="btn-primary" onclick="addDun()">Add</button>
+  </div>
+
+  <table class="location-table" id="dunTable"></table>
+
+  <hr>
+
+  <!-- ========================= -->
+  <!-- CAWANGAN -->
+  <!-- ========================= -->
+  <div class="section-header">
+    <h3>Cawangan</h3>
+  </div>
+
+  <div class="control-row">
+    <select id="dunSelect" class="location-select">
+      <option value="">Select DUN</option>
+    </select>
+    <input id="newCawanganName" class="location-input" placeholder="New Cawangan name">
+    <button class="btn-primary" onclick="addCawangan()">Add</button>
+  </div>
+
+  <table class="location-table" id="cawanganTable"></table>
+
+  <hr>
+
+  <!-- ========================= -->
+  <!-- PUSAT MENGUNDI -->
+  <!-- ========================= -->
+  <div class="section-header">
+    <h3>Pusat Mengundi</h3>
+  </div>
+
+  <div class="control-row">
+    <select id="cawanganSelect" class="location-select">
+      <option value="">Select Cawangan</option>
+    </select>
+    <input id="newPusatName" class="location-input" placeholder="New Pusat Mengundi name">
+    <button class="btn-primary" onclick="addPusat()">Add</button>
+  </div>
+
+  <table class="location-table" id="pusatTable"></table>
+
+</div>
+
+<script>
+function filterTable(input, tableId) {
+  const f = input.value.toUpperCase();
+  document.querySelectorAll(`#${tableId} tr`).forEach((r,i)=>{
+    if(i===0) return;
+    r.style.display = r.innerText.toUpperCase().includes(f) ? "" : "none";
+  });
+}
+
+/* =========================
+   LOAD DUN
+========================= */
+bahagianSelect.onchange = () => {
+  fetch(`/admin/api/duns?bahagian_id=${bahagianSelect.value}`)
+    .then(r=>r.json()).then(rows=>{
+      dunSelect.innerHTML = '<option value="">Select DUN</option>';
+      dunTable.innerHTML = '<tr><th>Name</th><th>Action</th></tr>';
+      rows.forEach(r=>{
+        dunSelect.innerHTML += `<option value="${r.id}">${r.name}</option>`;
+        dunTable.innerHTML += `
+          <tr>
+            <form method="POST" action="/admin/locations/dun/${r.id}/edit">
+              <td><input name="name" value="${r.name}" class="location-input"></td>
+              <td class="action-cell">
+                <button class="btn-primary">Save</button>
+                <a class="btn-danger" href="/admin/locations/dun/${r.id}/delete"
+                   onclick="return confirm('Delete this DUN?')">Delete</a>
+              </td>
+            </form>
+          </tr>`;
+      });
+    });
+};
+
+/* =========================
+   LOAD CAWANGAN
+========================= */
+dunSelect.onchange = () => {
+  fetch(`/admin/api/cawangans?dun_id=${dunSelect.value}`)
+    .then(r=>r.json()).then(rows=>{
+      cawanganSelect.innerHTML = '<option value="">Select Cawangan</option>';
+      cawanganTable.innerHTML = '<tr><th>Name</th><th>Action</th></tr>';
+      rows.forEach(r=>{
+        cawanganSelect.innerHTML += `<option value="${r.id}">${r.name}</option>`;
+        cawanganTable.innerHTML += `
+          <tr>
+            <form method="POST" action="/admin/locations/cawangan/${r.id}/edit">
+              <td><input name="name" value="${r.name}" class="location-input"></td>
+              <td class="action-cell">
+                <button class="btn-primary">Save</button>
+                <a class="btn-danger" href="/admin/locations/cawangan/${r.id}/delete"
+                   onclick="return confirm('Delete this Cawangan?')">Delete</a>
+              </td>
+            </form>
+          </tr>`;
+      });
+    });
+};
+
+/* =========================
+   LOAD PUSAT
+========================= */
+cawanganSelect.onchange = () => {
+  fetch(`/admin/api/pusats?cawangan_id=${cawanganSelect.value}`)
+    .then(r=>r.json()).then(rows=>{
+      pusatTable.innerHTML = '<tr><th>Name</th><th>Action</th></tr>';
+      rows.forEach(r=>{
+        pusatTable.innerHTML += `
+          <tr>
+            <form method="POST" action="/admin/locations/pusat/${r.id}/edit">
+              <td><input name="name" value="${r.name}" class="location-input"></td>
+              <td class="action-cell">
+                <button class="btn-primary">Save</button>
+                <a class="btn-danger" href="/admin/locations/pusat/${r.id}/delete"
+                   onclick="return confirm('Delete this Pusat?')">Delete</a>
+              </td>
+            </form>
+          </tr>`;
+      });
+    });
+};
+</script>
+
+{% endblock %}

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}UPKO Member Portal{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/upko.png') }}">
+  <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='img/upko.png') }}">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/upko.png') }}">
+
+  <style>
+    :root {
+      --brand-blue: #234a93;
+      --brand-blue-dark: #13294f;
+      --brand-blue-soft: #eaf1ff;
+      --brand-red: #d91c29;
+      --brand-red-soft: #fff1f2;
+      --brand-white: #ffffff;
+
+      --primary: #234a93;
+      --primary-2: #3b63b3;
+      --accent: #d91c29;
+
+      --bg: #f4f7fb;
+      --bg-soft: #f8fbff;
+      --card-bg: #ffffff;
+
+      --text: #0f172a;
+      --muted: #64748b;
+
+      --line: #dbe4f0;
+      --line-soft: #ebf1f7;
+
+      --nav-bg: linear-gradient(90deg, #10213f, #17356b);
+      --sidebar-bg: rgba(255, 255, 255, 0.96);
+
+      --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 10px 24px rgba(15, 23, 42, 0.06);
+
+      --sidebar-width: 260px;
+      --sidebar-collapsed-width: 88px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top left, #f8fbff 0%, #f4f7fb 45%, #eef3fa 100%);
+      color: var(--text);
+    }
+
+    body {
+      overflow-x: hidden;
+    }
+
+    .navbar {
+      height: 68px;
+      background: var(--nav-bg);
+      color: white;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1100;
+      box-shadow: 0 10px 26px rgba(10, 20, 40, 0.22);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand {
+      color: white;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.08rem;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 2px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+    }
+
+    .sidebar-toggle {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.08);
+      color: white;
+      border-radius: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+
+    .sidebar-toggle:hover {
+      background: rgba(255,255,255,0.14);
+      transform: translateY(-1px);
+    }
+
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .navbar-links a {
+      color: rgba(255,255,255,0.94);
+      text-decoration: none;
+      font-weight: 700;
+      padding: 10px 12px;
+      border-radius: 12px;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .navbar-links a:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .app-shell {
+      display: flex;
+      min-height: calc(100vh - 68px);
+      position: relative;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--line);
+      padding: 18px 16px;
+      position: sticky;
+      top: 68px;
+      height: calc(100vh - 68px);
+      overflow-y: auto;
+      transition: width 0.22s ease, transform 0.22s ease, padding 0.22s ease;
+      z-index: 1000;
+      flex-shrink: 0;
+      box-shadow: 8px 0 28px rgba(15, 23, 42, 0.03);
+    }
+
+    .sidebar-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .sidebar-profile {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 14px 10px 18px;
+      border-bottom: 1px solid var(--line-soft);
+      transition: padding 0.2s ease;
+    }
+
+    .avatar {
+      width: 86px;
+      height: 86px;
+      border-radius: 24px;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      box-shadow: 0 14px 24px rgba(35, 74, 147, 0.12);
+      border: 1px solid #dce6f6;
+      padding: 6px;
+      overflow: hidden;
+      transition: all 0.22s ease;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      border-radius: 18px;
+      background: #ffffff;
+    }
+
+    .sidebar-name {
+      font-weight: 800;
+      font-size: 1rem;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .sidebar-role {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 3px;
+      letter-spacing: 0.05em;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 15px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.18s ease;
+      min-height: 48px;
+    }
+
+    .sidebar-link:hover {
+      background: #f2f6fc;
+      color: var(--brand-blue);
+    }
+
+    .sidebar-link.active {
+      background: linear-gradient(135deg, #325bb3, #5a48e2);
+      color: white;
+      box-shadow: 0 12px 22px rgba(60, 82, 180, 0.18);
+    }
+
+    .sidebar-icon {
+      width: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.18s ease;
+    }
+
+    body.sidebar-collapsed .sidebar {
+      width: var(--sidebar-collapsed-width);
+      padding: 16px 10px;
+    }
+
+    body.sidebar-collapsed .sidebar-profile {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    body.sidebar-collapsed .avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      margin-bottom: 0;
+    }
+
+    body.sidebar-collapsed .sidebar-name,
+    body.sidebar-collapsed .sidebar-role,
+    body.sidebar-collapsed .sidebar-label {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.sidebar-collapsed .sidebar-link {
+      justify-content: center;
+      padding: 12px 10px;
+    }
+
+    body.sidebar-collapsed .sidebar-icon {
+      width: auto;
+      font-size: 18px;
+    }
+
+    .content {
+      flex: 1;
+      min-width: 0;
+      padding: 22px 24px 28px;
+      overflow-x: auto;
+    }
+
+    .table-wrap {
+      width: 100%;
+      background: white;
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+      overflow: auto;
+      border: 1px solid var(--line);
+    }
+
+    .members-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    .members-table th {
+      background: linear-gradient(90deg, #10213f, #17356b);
+      color: white;
+      padding: 12px 10px;
+      text-align: left;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .members-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    .members-table tr:hover {
+      background: #f9fbff;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #325bb3, #5a48e2);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: none;
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(60, 82, 180, 0.18);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      color: var(--brand-blue);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-edit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #16a34a;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-delete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #d91c29;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow-soft);
+      padding: 18px;
+    }
+
+    .input,
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: 14px;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .sidebar-overlay {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .navbar {
+        padding: 0 14px;
+      }
+
+      .brand {
+        font-size: 0.98rem;
+      }
+
+      .navbar-links {
+        gap: 2px;
+      }
+
+      .navbar-links a {
+        padding: 8px 10px;
+        font-size: 0.92rem;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 68px;
+        left: 0;
+        width: min(280px, 82vw);
+        height: calc(100vh - 68px);
+        transform: translateX(-100%);
+        box-shadow: 18px 0 40px rgba(15, 23, 42, 0.18);
+        border-right: 1px solid var(--line);
+      }
+
+      body.sidebar-mobile-open .sidebar {
+        transform: translateX(0);
+      }
+
+      body.sidebar-collapsed .sidebar {
+        width: min(280px, 82vw);
+        padding: 18px 16px;
+      }
+
+      body.sidebar-collapsed .sidebar-name,
+      body.sidebar-collapsed .sidebar-role,
+      body.sidebar-collapsed .sidebar-label {
+        opacity: 1;
+        width: auto;
+        height: auto;
+      }
+
+      body.sidebar-collapsed .sidebar-link {
+        justify-content: flex-start;
+        padding: 12px 14px;
+      }
+
+      body.sidebar-collapsed .sidebar-icon {
+        width: 20px;
+      }
+
+      .sidebar-overlay {
+        position: fixed;
+        inset: 68px 0 0 0;
+        background: rgba(15, 23, 42, 0.38);
+        z-index: 999;
+      }
+
+      body.sidebar-mobile-open .sidebar-overlay {
+        display: block;
+      }
+
+      .content {
+        padding: 16px 14px 22px;
+      }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+  {% set user_role = current_user.role|default('')|lower if current_user.is_authenticated else '' %}
+  {% set username_lower = current_user.username|default('')|lower if current_user.is_authenticated else '' %}
+  {% set display_role_lower = current_user.display_role|default('')|lower if current_user.is_authenticated else '' %}
+  {% set can_access_id_assignment = current_user.is_authenticated and (current_user.is_admin or user_role in ['su', 'setiausaha', 'secretary'] or username_lower in ['su', 'setiausaha'] or display_role_lower in ['su', 'setiausaha', 'secretary']) %}
+
+  <div class="navbar">
+    <div class="navbar-left">
+      {% if current_user.is_authenticated %}
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Toggle sidebar">☰</button>
+      {% endif %}
+
+      <a class="brand" href="{% if current_user.is_authenticated %}
+                              {% if current_user.role in ['bahagian', 'cawangan'] %}
+                                {{ url_for('applications.dashboard') }}
+                              {% else %}
+                                {{ url_for('admin.dashboard') }}
+                              {% endif %}
+                            {% else %}#{% endif %}">
+        <img class="brand-logo" src="{{ url_for('static', filename='img/upko.png') }}" alt="UPKO">
+        <span>UPKO Member Portal</span>
+      </a>
+    </div>
+
+    <div class="navbar-links">
+      {% if current_user.is_authenticated %}
+
+        {% if current_user.role in ['bahagian', 'cawangan'] %}
+          <a href="{{ url_for('applications.dashboard') }}">Application Portal</a>
+          <a href="{{ url_for('applications.my_submissions') }}">My Submissions</a>
+          <a href="{{ url_for('admin.member_report') }}">Member Report</a>
+          <a href="{{ url_for('hierarchy.view_hierarchy') }}">Hierarchy</a>
+        {% else %}
+          <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('admin.members') }}">Members</a>
+
+          {% if can_access_id_assignment %}
+            <a href="{{ url_for('id_assignment.index') }}">ID Assignment</a>
+          {% endif %}
+        {% endif %}
+
+        <a href="{{ url_for('auth.logout') }}">Logout</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Login</a>
+        <a href="{{ url_for('applications.login') }}">Application Login</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="app-shell">
+    {% if current_user.is_authenticated %}
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+          <div class="sidebar-profile">
+            <div class="avatar">
+              <img src="{{ url_for('static', filename='img/upko.png') }}" alt="UPKO Logo">
+            </div>
+
+            <div class="sidebar-name">{{ current_user.username }}</div>
+
+            <div class="sidebar-role">
+              {% if current_user.display_role is defined %}
+                {{ current_user.display_role }}
+              {% elif current_user.is_admin %}
+                ADMIN
+              {% elif user_role in ['su', 'setiausaha', 'secretary'] or username_lower in ['su', 'setiausaha'] %}
+                SU
+              {% elif current_user.role == "bahagian" %}
+                BAHAGIAN
+              {% elif current_user.role == "cawangan" %}
+                CAWANGAN
+              {% else %}
+                USER
+              {% endif %}
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+
+            {% if current_user.role in ['bahagian', 'cawangan'] %}
+
+              <a href="{{ url_for('applications.dashboard') }}"
+                 class="sidebar-link {% if request.endpoint == 'applications.dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">🏠</span>
+                <span class="sidebar-label">Application Dashboard</span>
+              </a>
+
+              <a href="{{ url_for('applications.new_application') }}"
+                 class="sidebar-link {% if request.endpoint == 'applications.new_application' %}active{% endif %}">
+                <span class="sidebar-icon">📝</span>
+                <span class="sidebar-label">Submit Application</span>
+              </a>
+
+              <a href="{{ url_for('applications.my_submissions') }}"
+                 class="sidebar-link {% if request.endpoint == 'applications.my_submissions' %}active{% endif %}">
+                <span class="sidebar-icon">📄</span>
+                <span class="sidebar-label">My Submissions</span>
+              </a>
+
+              <a href="{{ url_for('admin.member_report') }}"
+                 class="sidebar-link {% if request.endpoint == 'admin.member_report' %}active{% endif %}">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">Member Report</span>
+              </a>
+
+              <a href="{{ url_for('hierarchy.view_hierarchy') }}"
+                 class="sidebar-link {% if request.endpoint and request.endpoint == 'hierarchy.view_hierarchy' %}active{% endif %}">
+                <span class="sidebar-icon">🗂</span>
+                <span class="sidebar-label">View Hierarchy</span>
+              </a>
+
+            {% else %}
+
+              <a href="{{ url_for('admin.dashboard') }}"
+                 class="sidebar-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                <span class="sidebar-icon">🏠</span>
+                <span class="sidebar-label">Dashboard</span>
+              </a>
+
+              <a href="{{ url_for('admin.members') }}"
+                 class="sidebar-link {% if request.endpoint and request.endpoint.startswith('admin.members') %}active{% endif %}">
+                <span class="sidebar-icon">👥</span>
+                <span class="sidebar-label">Members</span>
+              </a>
+
+              {% if can_access_id_assignment %}
+                <a href="{{ url_for('id_assignment.index') }}"
+                   class="sidebar-link {% if request.endpoint and request.endpoint.startswith('id_assignment.') %}active{% endif %}">
+                  <span class="sidebar-icon">🆔</span>
+                  <span class="sidebar-label">ID Assignment</span>
+                </a>
+              {% endif %}
+
+              {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.list_users') }}"
+                   class="sidebar-link {% if request.endpoint and (request.endpoint == 'admin.list_users' or request.endpoint == 'admin.add_user' or request.endpoint == 'admin.update_user_role' or request.endpoint == 'admin.delete_user') %}active{% endif %}">
+                  <span class="sidebar-icon">👤</span>
+                  <span class="sidebar-label">Users</span>
+                </a>
+              {% endif %}
+
+              <a href="{{ url_for('admin.member_report') }}"
+                 class="sidebar-link {% if request.endpoint == 'admin.member_report' %}active{% endif %}">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">Member Report</span>
+              </a>
+
+              {% if current_user.is_admin %}
+                <a href="{{ url_for('applications.admin_applications') }}"
+                   class="sidebar-link {% if request.endpoint and (request.endpoint == 'applications.admin_applications' or request.endpoint == 'applications.admin_review_application') %}active{% endif %}">
+                  <span class="sidebar-icon">📝</span>
+                  <span class="sidebar-label">Applications</span>
+                </a>
+
+                <a href="{{ url_for('applications.application_accounts') }}"
+                   class="sidebar-link {% if request.endpoint == 'applications.application_accounts' %}active{% endif %}">
+                  <span class="sidebar-icon">🔐</span>
+                  <span class="sidebar-label">Bahagian Accounts</span>
+                </a>
+              {% endif %}
+
+              <a href="{{ url_for('hierarchy.view_hierarchy') }}"
+                 class="sidebar-link {% if request.endpoint and request.endpoint == 'hierarchy.view_hierarchy' %}active{% endif %}">
+                <span class="sidebar-icon">🗂</span>
+                <span class="sidebar-label">View Hierarchy</span>
+              </a>
+
+              {% if current_user.is_admin %}
+                <a href="{{ url_for('hierarchy.admin_list') }}"
+                   class="sidebar-link {% if request.endpoint and request.endpoint.startswith('hierarchy.admin') %}active{% endif %}">
+                  <span class="sidebar-icon">⚙️</span>
+                  <span class="sidebar-label">Manage Hierarchy</span>
+                </a>
+              {% endif %}
+
+            {% endif %}
+
+          </nav>
+        </div>
+      </aside>
+
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    {% endif %}
+
+    <main class="content">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div style="margin-bottom:16px;">
+            {% for category, message in messages %}
+              <div style="
+                padding:12px 14px;
+                border-radius:12px;
+                margin-bottom:10px;
+                font-weight:600;
+                border:1px solid #e5e7eb;
+                background:
+                  {% if category == 'success' %}#ecfdf3
+                  {% elif category == 'danger' %}#fef2f2
+                  {% elif category == 'warning' %}#fff7ed
+                  {% else %}#eff6ff{% endif %};
+                color:
+                  {% if category == 'success' %}#166534
+                  {% elif category == 'danger' %}#991b1b
+                  {% elif category == 'warning' %}#9a3412
+                  {% else %}#1d4ed8{% endif %};
+              ">
+                {{ message }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const body = document.body;
+      const toggleBtn = document.getElementById("sidebarToggle");
+      const overlay = document.getElementById("sidebarOverlay");
+      const mobileBreakpoint = 900;
+
+      function isMobile() {
+        return window.innerWidth <= mobileBreakpoint;
+      }
+
+      function applySavedSidebarState() {
+        const saved = localStorage.getItem("upko_sidebar_collapsed");
+        if (!isMobile() && saved === "1") {
+          body.classList.add("sidebar-collapsed");
+        } else if (!isMobile()) {
+          body.classList.remove("sidebar-collapsed");
+        }
+      }
+
+      function closeMobileSidebar() {
+        body.classList.remove("sidebar-mobile-open");
+      }
+
+      function toggleSidebar() {
+        if (isMobile()) {
+          body.classList.toggle("sidebar-mobile-open");
+        } else {
+          body.classList.toggle("sidebar-collapsed");
+          localStorage.setItem(
+            "upko_sidebar_collapsed",
+            body.classList.contains("sidebar-collapsed") ? "1" : "0"
+          );
+        }
+      }
+
+      applySavedSidebarState();
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", toggleSidebar);
+      }
+
+      if (overlay) {
+        overlay.addEventListener("click", closeMobileSidebar);
+      }
+
+      window.addEventListener("resize", function () {
+        if (isMobile()) {
+          body.classList.remove("sidebar-collapsed");
+        } else {
+          body.classList.remove("sidebar-mobile-open");
+          applySavedSidebarState();
+        }
+      });
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

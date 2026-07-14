@@ -1,0 +1,362 @@
+{% extends "layout/base.html" %}
+{% block title %}View Hierarchy{% endblock %}
+
+{% block content %}
+
+<style>
+.hierarchy-page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-card {
+  background: linear-gradient(135deg, #173b75, #315bb3);
+  color: white;
+  border-radius: 26px;
+  padding: 30px;
+  box-shadow: 0 18px 42px rgba(23,59,117,.22);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  right: -70px;
+  top: -70px;
+  width: 210px;
+  height: 210px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.12);
+}
+
+.hero-title {
+  font-size: 36px;
+  font-weight: 900;
+  margin: 0 0 8px;
+}
+
+.hero-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,.9);
+  margin: 0;
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 10px 28px rgba(15,23,42,.07);
+}
+
+.summary-label {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 32px;
+  font-weight: 900;
+  color: #173b75;
+}
+
+.section-card {
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 22px;
+  padding: 24px;
+  box-shadow: 0 12px 30px rgba(15,23,42,.08);
+  margin-bottom: 24px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #173b75;
+  margin: 0 0 5px;
+}
+
+.section-subtitle {
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.badge {
+  background: #eef4ff;
+  color: #234a93;
+  border: 1px solid #dbeafe;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.main-doc {
+  display: block;
+  text-decoration: none;
+  color: #0f172a;
+  background: linear-gradient(135deg, #f8fbff, #eef4ff);
+  border: 1px solid #cfe0ff;
+  border-radius: 20px;
+  padding: 22px;
+  margin-bottom: 16px;
+  transition: .18s ease;
+}
+
+.main-doc:hover {
+  transform: translateY(-2px);
+  border-color: #234a93;
+  box-shadow: 0 12px 26px rgba(35,74,147,.12);
+}
+
+.main-doc-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #173b75;
+  margin-bottom: 6px;
+}
+
+.main-doc-desc {
+  color: #475569;
+  line-height: 1.5;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.preview-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.preview-position {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.preview-name {
+  color: #173b75;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.item-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.item-card {
+  display: block;
+  text-decoration: none;
+  color: #0f172a;
+  background: white;
+  border: 1px solid #dbe4f0;
+  border-radius: 18px;
+  padding: 18px;
+  transition: .18s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-2px);
+  background: #f8fbff;
+  border-color: #234a93;
+  box-shadow: 0 10px 22px rgba(15,23,42,.08);
+}
+
+.item-icon {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.item-name {
+  font-size: 18px;
+  font-weight: 900;
+  color: #173b75;
+  margin-bottom: 6px;
+}
+
+.item-meta {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.empty-box {
+  padding: 28px;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  color: #64748b;
+  font-weight: 800;
+  background: #f8fafc;
+}
+
+@media(max-width: 1000px) {
+  .summary-grid,
+  .preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media(max-width: 700px) {
+  .summary-grid,
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+}
+</style>
+
+<div class="hierarchy-page">
+
+  <div class="hero-card">
+    <h1 class="hero-title">UPKO Hierarchy</h1>
+    <p class="hero-subtitle">
+      View the party leadership structure, Bahagian committee documents and Cawangan committee documents in one place.
+    </p>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-label">Majlis Tertinggi</div>
+      <div class="summary-value">{% if majlis %}1{% else %}0{% endif %}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Bahagian Documents</div>
+      <div class="summary-value">{{ bahagian_names|length }}</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-label">Cawangan Documents</div>
+      <div class="summary-value">{{ cawangan_names|length }}</div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Majlis Tertinggi Parti</h2>
+        <p class="section-subtitle">Main party leadership document. This is always shown first.</p>
+      </div>
+      <span class="badge">Primary Document</span>
+    </div>
+
+    {% if majlis %}
+      <a class="main-doc" href="{{ url_for('hierarchy.document_view', type='MAJLIS_TERTINGGI') }}">
+        <div class="main-doc-title">Open Majlis Tertinggi Parti Document</div>
+        <div class="main-doc-desc">
+          View the full list of party leadership positions and names in document format.
+        </div>
+      </a>
+
+      <div class="preview-grid">
+        {% for row in majlis[:4] %}
+          <div class="preview-card">
+            <div class="preview-position">{{ row.position }}</div>
+            <div class="preview-name">{{ row.candidate_name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">No Majlis Tertinggi Parti data added yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Bahagian</h2>
+        <p class="section-subtitle">Choose a Bahagian to view its committee document.</p>
+      </div>
+      <span class="badge">{{ bahagian_names|length }} Total</span>
+    </div>
+
+    {% if bahagian_names %}
+      <div class="item-grid">
+        {% for b in bahagian_names %}
+          <a class="item-card"
+             href="{{ url_for('hierarchy.document_view', type='BAHAGIAN', bahagian=b[0]) }}">
+            <div class="item-icon">📘</div>
+            <div class="item-name">{{ b[0] }}</div>
+            <div class="item-meta">View Bahagian committee hierarchy document.</div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">No Bahagian data added yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Cawangan</h2>
+        <p class="section-subtitle">Choose a Cawangan to view its committee document.</p>
+      </div>
+      <span class="badge">{{ cawangan_names|length }} Total</span>
+    </div>
+
+    {% if cawangan_names %}
+      <div class="item-grid">
+        {% for c in cawangan_names %}
+          <a class="item-card"
+             href="{{ url_for('hierarchy.document_view', type='CAWANGAN', bahagian=c[1], cawangan=c[0]) }}">
+            <div class="item-icon">📍</div>
+            <div class="item-name">{{ c[0] }}</div>
+            <div class="item-meta">
+              Bahagian: <strong>{{ c[1] }}</strong><br>
+              View Cawangan committee hierarchy document.
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">No Cawangan data added yet.</div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "layout/base.html" %}
+{% block title %}My Applications{% endblock %}
+{% block content %}
+<style>
+  .page{max-width:1100px;margin:0 auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.btn{display:inline-block;text-decoration:none;border-radius:10px;padding:10px 14px;font-weight:800;background:#4f46e5;color:white}.table-wrap{background:white;border:1px solid #e5e7eb;border-radius:18px;overflow:auto;box-shadow:0 10px 30px rgba(15,23,42,.06)}table{width:100%;border-collapse:collapse}th{background:#111827;color:white;text-align:left;padding:12px;font-size:13px}td{padding:12px;border-bottom:1px solid #e5e7eb;font-size:13px}.badge{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900}.pending{background:#fef3c7;color:#92400e}.approved{background:#dcfce7;color:#166534}.rejected{background:#fee2e2;color:#991b1b}.reviewed{background:#dbeafe;color:#1e40af}
+</style>
+<div class="page">
+  <div class="top"><h2>My Submitted Applications</h2><a class="btn" href="{{ url_for('applications.new_application') }}">+ New Application</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Date</th><th>Name</th><th>IC</th><th>Bahagian</th><th>Cawangan</th><th>Status</th><th>No ID</th></tr></thead><tbody>
+    {% for a in applications %}<tr><td>{{ a.created_at.strftime('%d/%m/%Y') if a.created_at else '-' }}</td><td>{{ a.fullname }}</td><td>{{ a.ic }}</td><td>{{ a.apply_bahagian or '-' }}</td><td>{{ a.apply_cawangan or '-' }}</td><td><span class="badge {{ a.status }}">{{ a.status|upper }}</span></td><td>{{ a.approved_noid or '-' }}</td></tr>{% else %}<tr><td colspan="7">No applications submitted yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% endblock %}

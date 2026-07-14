@@ -1,0 +1,648 @@
+{% extends "layout/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+  .dashboard-page {
+    max-width: 1400px;
+    margin: 26px auto;
+    padding: 0 4px 30px;
+  }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .dashboard-title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+  }
+
+  .dashboard-subtitle {
+    margin: 7px 0 0;
+    color: #6b7280;
+    font-size: 0.96rem;
+  }
+
+  .dashboard-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  .dashboard-topbar {
+    height: 6px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  }
+
+  .dashboard-body {
+    padding: 22px;
+  }
+
+  .filter-card {
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    border: 1px solid #eef2f7;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .filter-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .filter-title h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .filter-title p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 0.88rem;
+  }
+
+  .scope-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    border-radius: 14px;
+    font-size: 0.93rem;
+    color: #111827;
+    padding: 0 14px;
+    transition: all 0.18s ease;
+    box-sizing: border-box;
+  }
+
+  .filter-input:focus,
+  .filter-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  }
+
+  .btn-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+    border: 0;
+    color: #ffffff;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.2);
+  }
+
+  .btn-apply:hover {
+    filter: brightness(1.02);
+    transform: translateY(-1px);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+    border: 1px solid #eef2f7;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+  }
+
+  .stat-label {
+    font-size: 0.88rem;
+    color: #6b7280;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    line-height: 1;
+    font-weight: 800;
+    color: #4f46e5;
+    letter-spacing: -0.03em;
+  }
+
+  .stat-value.dark {
+    color: #111827;
+  }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.4fr;
+    gap: 18px;
+  }
+
+  .panel-card {
+    border: 1px solid #eef2f7;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef2f7;
+    background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+  }
+
+  .panel-head h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .panel-head p {
+    margin: 3px 0 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .scope-summary {
+    padding: 16px;
+  }
+
+  .summary-box {
+    border: 1px solid #eef2f7;
+    border-radius: 16px;
+    padding: 14px 16px;
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    margin-bottom: 12px;
+  }
+
+  .summary-box:last-child {
+    margin-bottom: 0;
+  }
+
+  .summary-kicker {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .summary-main {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 8px;
+  }
+
+  .summary-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+  }
+
+  .table-scroll {
+    overflow: auto;
+  }
+
+  .breakdown-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 560px;
+  }
+
+  .breakdown-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #0f172a;
+    color: #ffffff;
+    text-align: left;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    padding: 13px 12px;
+    white-space: nowrap;
+  }
+
+  .breakdown-table tbody td {
+    padding: 13px 12px;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: top;
+    font-size: 0.9rem;
+    color: #111827;
+    line-height: 1.45;
+  }
+
+  .breakdown-table tbody tr:nth-child(even) {
+    background: #fcfcfe;
+  }
+
+  .breakdown-table tbody tr:hover {
+    background: #f8faff;
+  }
+
+  .breakdown-table tbody tr.clickable {
+    cursor: pointer;
+  }
+
+  .name-cell {
+    font-weight: 700;
+  }
+
+  .empty-state {
+    padding: 22px;
+    text-align: center;
+    color: #6b7280;
+    font-weight: 600;
+  }
+
+  @media (max-width: 1200px) {
+    .stats-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .filter-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .dashboard-page {
+      padding: 0 0 24px;
+    }
+
+    .dashboard-title {
+      font-size: 1.65rem;
+    }
+
+    .dashboard-body {
+      padding: 16px;
+    }
+
+    .filter-head,
+    .panel-head {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-apply {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle">Monitor member totals and view detailed breakdowns by Bahagian, DUN and Cawangan.</p>
+    </div>
+  </div>
+
+  <div class="dashboard-card">
+    <div class="dashboard-topbar"></div>
+
+    <div class="dashboard-body">
+      <form method="GET" class="filter-card">
+        <div class="filter-head">
+          <div class="filter-title">
+            <h3>Dashboard Filters</h3>
+            <p>Focus the dashboard on a specific Bahagian or DUN and switch the detail table view.</p>
+          </div>
+
+          <div class="scope-chip">
+            <span>View:</span>
+            <span>
+              {% if view_mode == "bahagian" %}
+                Bahagian Breakdown
+              {% elif view_mode == "dun" %}
+                DUN Breakdown
+              {% else %}
+                Cawangan Breakdown
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <div class="filter-grid">
+          <div class="filter-field">
+            <label class="filter-label">Bahagian</label>
+            <select class="filter-select" name="bahagian_id">
+              <option value="">All Bahagian</option>
+              {% for b in bahagians %}
+                <option value="{{ b.id }}" {{ "selected" if selected_bahagian_id == b.id else "" }}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">DUN</label>
+            <select class="filter-select" name="dun_id">
+              <option value="">All DUN</option>
+              {% for d in duns %}
+                <option value="{{ d.id }}" {{ "selected" if selected_dun_id == d.id else "" }}>
+                  {{ d.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Detail View</label>
+            <select class="filter-select" name="view">
+              <option value="bahagian" {{ "selected" if view_mode == "bahagian" else "" }}>Bahagian Breakdown</option>
+              <option value="dun" {{ "selected" if view_mode == "dun" else "" }}>DUN Breakdown</option>
+              <option value="cawangan" {{ "selected" if view_mode == "cawangan" else "" }}>Cawangan Breakdown</option>
+            </select>
+          </div>
+
+          <button class="btn-apply" type="submit">Apply</button>
+        </div>
+      </form>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Members</div>
+          <div class="stat-value">{{ total_members }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Active Members</div>
+          <div class="stat-value">{{ active_members }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Non-Active Members</div>
+          <div class="stat-value dark">{{ non_active_members }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total Bahagian</div>
+          <div class="stat-value dark">{{ total_bahagian }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total DUN</div>
+          <div class="stat-value dark">{{ total_dun }}</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Total Cawangan</div>
+          <div class="stat-value dark">{{ total_cawangan or 0 }}</div>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h3>Selected Scope</h3>
+              <p>Current dashboard filter context.</p>
+            </div>
+          </div>
+
+          <div class="scope-summary">
+            <div class="summary-box">
+              <div class="summary-kicker">Bahagian Filter</div>
+              <div class="summary-main">{{ selected_bahagian.name if selected_bahagian else "All Bahagian" }}</div>
+              <div class="summary-meta">
+                <span class="meta-pill">Members: {{ total_members }}</span>
+                <span class="meta-pill">Active: {{ active_members }}</span>
+                <span class="meta-pill">Non-Active: {{ non_active_members }}</span>
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <div class="summary-kicker">DUN Filter</div>
+              <div class="summary-main">{{ selected_dun.name if selected_dun else "All DUN" }}</div>
+              <div class="summary-meta">
+                <span class="meta-pill">Members: {{ total_members }}</span>
+                <span class="meta-pill">Active: {{ active_members }}</span>
+                <span class="meta-pill">Non-Active: {{ non_active_members }}</span>
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <div class="summary-kicker">Cawangan Filter</div>
+              <div class="summary-main">{{ selected_cawangan or "All Cawangan" }}</div>
+              <div class="summary-meta">
+                <span class="meta-pill">Members: {{ total_members }}</span>
+                <span class="meta-pill">Active: {{ active_members }}</span>
+                <span class="meta-pill">Non-Active: {{ non_active_members }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-head">
+            <div>
+              <h3>
+                {% if view_mode == "bahagian" %}
+                  Bahagian Breakdown
+                {% elif view_mode == "dun" %}
+                  DUN Breakdown
+                {% else %}
+                  Cawangan Breakdown
+                {% endif %}
+              </h3>
+              <p>
+                {% if view_mode == "bahagian" %}
+                  Click a Bahagian row to drill down into DUN.
+                {% elif view_mode == "dun" %}
+                  Click a DUN row to drill down into Cawangan.
+                {% else %}
+                  Click a Cawangan row to open the filtered member list.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          <div class="table-scroll">
+            {% if view_mode == "bahagian" %}
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">#</th>
+                    <th>Bahagian</th>
+                    <th style="width: 120px;">Total</th>
+                    <th style="width: 120px;">Active</th>
+                    <th style="width: 140px;">Non-Active</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in bahagian_rows %}
+                    <tr class="clickable" onclick="window.location='{{ row.link }}'">
+                      <td>{{ loop.index }}</td>
+                      <td class="name-cell">{{ row.name }}</td>
+                      <td>{{ row.total }}</td>
+                      <td>{{ row.active }}</td>
+                      <td>{{ row.inactive }}</td>
+                    </tr>
+                  {% else %}
+                    <tr>
+                      <td colspan="5" class="empty-state">No Bahagian data found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            {% elif view_mode == "dun" %}
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">#</th>
+                    <th>DUN</th>
+                    <th style="width: 120px;">Total</th>
+                    <th style="width: 120px;">Active</th>
+                    <th style="width: 140px;">Non-Active</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in dun_rows %}
+                    <tr class="clickable" onclick="window.location='{{ row.link }}'">
+                      <td>{{ loop.index }}</td>
+                      <td class="name-cell">{{ row.name }}</td>
+                      <td>{{ row.total }}</td>
+                      <td>{{ row.active }}</td>
+                      <td>{{ row.inactive }}</td>
+                    </tr>
+                  {% else %}
+                    <tr>
+                      <td colspan="5" class="empty-state">No DUN data found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            {% else %}
+              <table class="breakdown-table">
+                <thead>
+                  <tr>
+                    <th style="width: 60px;">#</th>
+                    <th>Cawangan</th>
+                    <th style="width: 120px;">Total</th>
+                    <th style="width: 120px;">Active</th>
+                    <th style="width: 140px;">Non-Active</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for row in cawangan_rows %}
+                    <tr class="clickable" onclick="window.location='{{ row.link }}'">
+                      <td>{{ loop.index }}</td>
+                      <td class="name-cell">{{ row.name }}</td>
+                      <td>{{ row.total }}</td>
+                      <td>{{ row.active }}</td>
+                      <td>{{ row.inactive }}</td>
+                    </tr>
+                  {% else %}
+                    <tr>
+                      <td colspan="5" class="empty-state">No Cawangan data found.</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

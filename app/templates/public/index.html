@@ -1,0 +1,50 @@
+{% extends "layout/base.html" %}
+{% block title %}Dashboard | UPKO Member Portal{% endblock %}
+
+{% block content %}
+<h3 class="mb-4">Dashboard</h3>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Total Members</h6>
+                <h3>{{ total_members }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Active Members</h6>
+                <h3>{{ active_members }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Bahagian</h6>
+                <h3>{{ total_bahagian }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">DUN</h6>
+                <h3>{{ total_dun }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<p class="text-muted">
+    Welcome to the UPKO Member Management System.
+</p>
+{% endblock %}

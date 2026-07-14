@@ -1,0 +1,559 @@
+{% extends "layout/base.html" %}
+{% block title %}Submit Membership Application{% endblock %}
+
+{% block content %}
+<style>
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+
+  .head {
+    margin-bottom: 14px;
+  }
+
+  .head h1 {
+    font-size: 28px;
+    margin: 0;
+    color: #0f172a;
+  }
+
+  .head p {
+    margin: 4px 0 0;
+    color: #64748b;
+  }
+
+  .form-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, .07);
+    border-top: 5px solid #4f46e5;
+  }
+
+  .section {
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 13px;
+  }
+
+  .num {
+    width: 28px;
+    height: 28px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .section h3 {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 13px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 12px;
+    font-weight: 900;
+    color: #334155;
+  }
+
+  .input,
+  select,
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: white;
+  }
+
+  .input,
+  select {
+    height: 42px;
+  }
+
+  textarea {
+    min-height: 86px;
+    resize: vertical;
+  }
+
+  .span-2 {
+    grid-column: span 2;
+  }
+
+  .span-3 {
+    grid-column: span 3;
+  }
+
+  .check {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    color: #334155;
+  }
+
+  .important {
+    border-color: #fed7aa;
+    background: #fff7ed;
+  }
+
+  .important .num {
+    background: #ffedd5;
+    color: #c2410c;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    border: 0;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-weight: 900;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .primary {
+    background: #4f46e5;
+    color: white;
+  }
+
+  .secondary {
+    background: #f1f5f9;
+    color: #0f172a;
+  }
+
+  @media(max-width:900px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .span-2,
+    .span-3 {
+      grid-column: span 1;
+    }
+  }
+</style>
+
+<div class="page">
+  <div class="head">
+    <h1>Borang Permohonan Keahlian</h1>
+    <p>Fill the application form and submit it for Admin review. No Keahlian / No ID is entered by Admin only.</p>
+  </div>
+
+  <form class="form-card" method="post">
+
+    <!-- =========================
+         A. ORGANISATION STRUCTURE
+    ========================== -->
+    <div class="section">
+      <div class="section-title">
+        <div class="num">A</div>
+        <div>
+          <h3>Saya Memohon Menjadi Ahli Parti Di</h3>
+          <div class="hint">Organisation structure</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Cawangan</label>
+          <input class="input" name="apply_cawangan" value="{{ current_user.cawangan_name or '' }}">
+        </div>
+
+        <div class="field">
+          <label>Bahagian</label>
+          <input class="input" name="apply_bahagian" value="{{ current_user.bahagian_name or '' }}">
+        </div>
+
+        <div class="field">
+          <label>Negeri</label>
+          <input class="input" name="apply_negeri" value="SABAH">
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         B. APPLICANT DETAILS
+    ========================== -->
+    <div class="section">
+      <div class="section-title">
+        <div class="num">B</div>
+        <div>
+          <h3>Butir-Butir Pemohon</h3>
+          <div class="hint">Applicant details</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field span-2">
+          <label>Nama Penuh</label>
+          <input class="input" name="fullname" required>
+        </div>
+
+        <div class="field">
+          <label>No. KP Baru</label>
+          <input class="input" name="ic" required>
+        </div>
+
+        <div class="field">
+          <label>No. KP Lama</label>
+          <input class="input" name="old_ic">
+        </div>
+
+        <div class="field">
+          <label>Tarikh Lahir</label>
+          <input class="input" type="date" name="birthdate">
+        </div>
+
+        <div class="field">
+          <label>Jantina</label>
+          <select name="jantina">
+            <option value="">Select</option>
+            <option value="L">Lelaki</option>
+            <option value="P">Perempuan</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Warganegara</label>
+          <input class="input" name="warganegara" value="WARGANEGARA">
+        </div>
+
+        <div class="field">
+          <label>Bangsa</label>
+          <input class="input" name="bangsa">
+        </div>
+
+        <div class="field">
+          <label>Kelulusan Akademik</label>
+          <input class="input" name="kelulusan_akademik">
+        </div>
+
+        <div class="field">
+          <label>Pekerjaan</label>
+          <input class="input" name="pekerjaan">
+        </div>
+
+        <div class="field span-3">
+          <label>Alamat Surat Menyurat</label>
+          <textarea name="alamat_surat"></textarea>
+        </div>
+
+        <div class="field span-3">
+          <label>Alamat Rumah Kediaman</label>
+          <textarea name="alamat_rumah"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+          <input class="input" type="email" name="emel">
+        </div>
+
+        <div class="field">
+          <label>No. Tel Rumah</label>
+          <input class="input" name="notelefon_rumah">
+        </div>
+
+        <div class="field">
+          <label>No. Tel Pejabat</label>
+          <input class="input" name="notelefon_pejabat">
+        </div>
+
+        <div class="field">
+          <label>No. H/P</label>
+          <input class="input" name="notelefon_hp">
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         C. DECLARATION
+    ========================== -->
+    <div class="section">
+      <div class="section-title">
+        <div class="num">C</div>
+        <div>
+          <h3>Pengakuan Pemohon</h3>
+          <div class="hint">Declaration</div>
+        </div>
+      </div>
+
+      <label class="check">
+        <input type="checkbox" name="pengakuan_accepted" required>
+        <span>Saya mengaku bahawa maklumat yang diberikan adalah benar dan saya bersetuju mematuhi dasar, peraturan dan tindakan pertubuhan ini.</span>
+      </label>
+    </div>
+
+    <!-- =========================
+         D. PUSAT PENGUNDIAN / SPR
+         Removed duplicate SPR text columns.
+         Internal structure is renamed as SPR.
+    ========================== -->
+    <div class="section">
+      <div class="section-title">
+        <div class="num">D</div>
+        <div>
+          <h3>Pusat Pengundian</h3>
+          <div class="hint">SPR structure using the internal location mapping.</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Negeri SPR</label>
+          <input class="input" name="negeri_spr" value="SABAH" readonly>
+        </div>
+
+        <div class="field">
+          <label>Parlimen SPR</label>
+          <select id="parlimenSelect" name="parlimen" required>
+            <option value="">Select</option>
+            {% for p in parlimens %}
+              <option value="{{ p.name }}" data-id="{{ p.id }}">{{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Daerah SPR</label>
+          <select id="daerahSelect" name="daerah_id" required>
+            <option value="">Select</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>DUN SPR</label>
+          <select id="dunSelect" name="dun_id" required>
+            <option value="">Select</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Bahagian</label>
+          <select name="bahagian_id" required>
+            <option value="">Select</option>
+            {% for b in bahagians %}
+              <option value="{{ b.id }}" {% if current_user.bahagian_id == b.id %}selected{% endif %}>
+                {{ b.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Pusat Mengundi</label>
+          <input class="input" name="pusat_mengundi" placeholder="Contoh:SK TAMPASAK">
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         E. SOKONGAN
+    ========================== -->
+    <div class="section important">
+      <div class="section-title">
+        <div class="num">E</div>
+        <div>
+          <h3>Sokongan</h3>
+          <div class="hint">Required before submission</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Nama Pencadang</label>
+          <input class="input" name="nama_pencadang" required>
+        </div>
+
+        <div class="field">
+          <label>No. Keahlian Pencadang</label>
+          <input class="input" name="no_keahlian_pencadang" required>
+        </div>
+
+        <div class="field">
+          <label>Tarikh Sokongan</label>
+          <input class="input" type="date" name="tarikh_sokongan">
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         F. CAWANGAN
+    ========================== -->
+    <div class="section important">
+      <div class="section-title">
+        <div class="num">F</div>
+        <div>
+          <h3>Untuk Kegunaan Jawatankuasa Cawangan</h3>
+          <div class="hint">Required before submission</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Tarikh Permohonan Diterima</label>
+          <input class="input" type="date" name="f_tarikh_diterima" required>
+        </div>
+
+        <div class="field">
+          <label>Tarikh Dikemukakan kepada Jawatankuasa Bahagian</label>
+          <input class="input" type="date" name="f_tarikh_dikemukakan" required>
+        </div>
+
+        <div class="field">
+          <label>Setiausaha Cawangan</label>
+          <input class="input" name="f_setiausaha_cawangan" required>
+        </div>
+
+        <div class="field span-3">
+          <label>Nota</label>
+          <textarea name="f_nota"></textarea>
+        </div>
+
+        <div class="field span-3">
+          <label class="check">
+            <input type="checkbox" name="f_signed" required>
+            <span>Confirmed signed and stamped by Setiausaha Cawangan</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================
+         G. BAHAGIAN
+    ========================== -->
+    <div class="section important">
+      <div class="section-title">
+        <div class="num">G</div>
+        <div>
+          <h3>Untuk Kegunaan Jawatankuasa Bahagian</h3>
+          <div class="hint">Required before submission</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label>Tarikh Permohonan Diterima</label>
+          <input class="input" type="date" name="g_tarikh_diterima" required>
+        </div>
+
+        <div class="field">
+          <label>Tarikh Dikemukakan kepada Ibu Pejabat UPKO</label>
+          <input class="input" type="date" name="g_tarikh_dikemukakan" required>
+        </div>
+
+        <div class="field">
+          <label>Setiausaha Bahagian</label>
+          <input class="input" name="g_setiausaha_bahagian" required>
+        </div>
+
+        <div class="field span-3">
+          <label>Nota</label>
+          <textarea name="g_nota"></textarea>
+        </div>
+
+        <div class="field span-3">
+          <label class="check">
+            <input type="checkbox" name="g_signed" required>
+            <span>Confirmed signed and stamped by Setiausaha Bahagian</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn secondary" href="{{ url_for('applications.dashboard') }}">Cancel</a>
+      <button class="btn primary" type="submit">Submit for Admin Review</button>
+    </div>
+  </form>
+</div>
+
+<script>
+const parlimenSelect = document.getElementById("parlimenSelect");
+const daerahSelect = document.getElementById("daerahSelect");
+const dunSelect = document.getElementById("dunSelect");
+
+function resetSelect(selectElement) {
+  if (!selectElement) return;
+  selectElement.innerHTML = '<option value="">Select</option>';
+}
+
+if (parlimenSelect && daerahSelect && dunSelect) {
+  parlimenSelect.addEventListener("change", async () => {
+    resetSelect(daerahSelect);
+    resetSelect(dunSelect);
+
+    const selectedOption = parlimenSelect.options[parlimenSelect.selectedIndex];
+    const parlimenId = selectedOption ? selectedOption.dataset.id : null;
+
+    if (!parlimenId) return;
+
+    const response = await fetch(`/admin/api/daerahs?parlimen_id=${parlimenId}`);
+    const rows = await response.json();
+
+    rows.forEach(row => {
+      const option = document.createElement("option");
+      option.value = row.id;
+      option.textContent = row.name;
+      daerahSelect.appendChild(option);
+    });
+  });
+
+  daerahSelect.addEventListener("change", async () => {
+    resetSelect(dunSelect);
+
+    const daerahId = daerahSelect.value;
+    if (!daerahId) return;
+
+    const response = await fetch(`/admin/api/duns?daerah_id=${daerahId}`);
+    const rows = await response.json();
+
+    rows.forEach(row => {
+      const option = document.createElement("option");
+      option.value = row.id;
+      option.textContent = row.name;
+      dunSelect.appendChild(option);
+    });
+  });
+}
+</script>
+{% endblock %}

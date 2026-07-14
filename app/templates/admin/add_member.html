@@ -1,0 +1,660 @@
+{% extends "layout/base.html" %}
+{% block content %}
+
+<style>
+  :root {
+    --bg-soft: #f8fafc;
+    --card-bg: #ffffff;
+    --line: #e5e7eb;
+    --line-soft: #eef2f7;
+    --text: #111827;
+    --muted: #6b7280;
+    --label: #374151;
+    --primary: #4f46e5;
+    --primary-2: #7c3aed;
+    --danger: #dc2626;
+    --danger-soft: #fff1f2;
+    --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  }
+
+  .member-page {
+    max-width: 1320px;
+    margin: 26px auto;
+    padding: 0 18px 30px;
+  }
+
+  .page-header {
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .page-subtitle {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 0.96rem;
+  }
+
+  .member-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-topbar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  }
+
+  .card-body {
+    padding: 26px;
+  }
+
+  .section {
+    margin-bottom: 26px;
+    padding: 18px;
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .section:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .section.basic { background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); }
+  .section.upko { background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); }
+  .section.spr { background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%); }
+  .section.other { background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%); }
+
+  .section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .section-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex: 0 0 auto;
+  }
+
+  .section.basic .section-badge { background: #eef2ff; color: #4338ca; }
+  .section.upko .section-badge { background: #eef6ff; color: #1d4ed8; }
+  .section.spr .section-badge { background: #fff1dd; color: #c2410c; }
+  .section.other .section-badge { background: #f3f4f6; color: #374151; }
+
+  .section-title {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .section-note {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 0.89rem;
+    line-height: 1.45;
+  }
+
+  .helper-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .helper-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .chip-upko { background: #eef6ff; color: #1d4ed8; border-color: #dbeafe; }
+  .chip-spr { background: #fff1dd; color: #c2410c; border-color: #fed7aa; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .field.span-2 { grid-column: span 2; }
+  .field.span-3 { grid-column: span 3; }
+
+  .field label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--label);
+    letter-spacing: 0.01em;
+  }
+
+  .input, .select, .textarea {
+    width: 100%;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: var(--text);
+    transition: all 0.18s ease;
+    box-sizing: border-box;
+  }
+
+  .input, .select {
+    height: 48px;
+    padding: 0 14px;
+  }
+
+  .textarea {
+    min-height: 118px;
+    padding: 12px 14px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  .input:hover, .select:hover, .textarea:hover {
+    border-color: #cbd5e1;
+  }
+
+  .input:focus, .select:focus, .textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  }
+
+  .input.invalid-date {
+    border-color: var(--danger) !important;
+    background: var(--danger-soft) !important;
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10) !important;
+  }
+
+  .field-hint {
+    font-size: 0.76rem;
+    color: #64748b;
+    line-height: 1.35;
+  }
+
+  .date-error {
+    display: none;
+    color: var(--danger);
+    font-size: 0.78rem;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
+  .date-error.show {
+    display: block;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 18px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 14px;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.22);
+    cursor: pointer;
+  }
+
+  @media (max-width: 1024px) {
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .field.span-3 { grid-column: span 2; }
+  }
+
+  @media (max-width: 720px) {
+    .member-page { padding: 0 12px 24px; }
+    .page-title { font-size: 1.65rem; }
+    .card-body { padding: 16px; }
+    .section { padding: 14px; border-radius: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .field.span-2, .field.span-3 { grid-column: span 1; }
+    .actions { flex-direction: column-reverse; align-items: stretch; }
+    .btn-secondary, .btn-primary { width: 100%; }
+  }
+</style>
+
+<div class="member-page">
+  <div class="page-header">
+    <h1 class="page-title">Add Member</h1>
+    <p class="page-subtitle">Create a new member record with organisation details and SPR mapping.</p>
+  </div>
+
+  <div class="member-card">
+    <div class="card-topbar"></div>
+    <div class="card-body">
+      <form method="POST" id="addMemberForm" novalidate>
+
+        <div class="section basic">
+          <div class="section-heading">
+            <div class="section-badge">1</div>
+            <div>
+              <h3 class="section-title">Basic Information</h3>
+              <p class="section-note">Main identity and member profile details.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>IC Number</label>
+              <input class="input" name="ic" required>
+            </div>
+
+            <div class="field">
+              <label>No ID</label>
+              <input class="input" name="noid" required>
+            </div>
+
+            <div class="field">
+              <label>Title</label>
+              <input class="input" name="title">
+            </div>
+
+            <div class="field span-2">
+              <label>Full Name</label>
+              <input class="input" name="fullname">
+            </div>
+
+            <div class="field">
+              <label>Jantina</label>
+              <select class="select" name="jantina">
+                <option value="">Select</option>
+                <option value="Lelaki">Lelaki</option>
+                <option value="Perempuan">Perempuan</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Negeri</label>
+              <input class="input" name="negeri">
+            </div>
+          </div>
+        </div>
+
+        <div class="section upko">
+          <div class="section-heading">
+            <div class="section-badge">2</div>
+            <div>
+              <h3 class="section-title">UPKO / Organisation Structure</h3>
+              <p class="section-note">Internal party structure using Bahagian-based DUN filtering.</p>
+              <div class="helper-chip-row">
+                <span class="helper-chip chip-upko">UPKO flow</span>
+                <span class="helper-chip chip-upko">Bahagian → DUN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Bahagian</label>
+              <select class="select" id="bahagianSelect" name="bahagian_id">
+                <option value="">Select</option>
+                {% for b in bahagians %}
+                  <option value="{{ b.id }}">{{ b.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>DUN</label>
+              <select class="select" id="dunSelect" name="dun_id">
+                <option value="">Select</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Cawangan</label>
+              <input class="input" name="cawangan">
+            </div>
+
+            <div class="field">
+              <label>Pusat Mengundi</label>
+              <input class="input" name="pusatmengundi">
+            </div>
+          </div>
+        </div>
+
+        <div class="section spr">
+          <div class="section-heading">
+            <div class="section-badge">3</div>
+            <div>
+              <h3 class="section-title">SPR Structure</h3>
+              <p class="section-note">Separate SPR mapping using the same cascading selection flow.</p>
+              <div class="helper-chip-row">
+                <span class="helper-chip chip-spr">SPR flow</span>
+                <span class="helper-chip chip-spr">Saved separately</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Parlimen SPR</label>
+              <select class="select" id="sprParlimenSelect" name="parlimen_spr">
+                <option value="">Select</option>
+                {% for p in parlimens %}
+                  <option value="{{ p.name }}" data-id="{{ p.id }}">{{ p.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Daerah SPR</label>
+              <select class="select" id="sprDaerahSelect" name="daerah_spr">
+                <option value="">Select</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>DUN SPR</label>
+              <select class="select" id="sprDunSelect" name="dun_spr">
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section other">
+          <div class="section-heading">
+            <div class="section-badge">4</div>
+            <div>
+              <h3 class="section-title">Other Details</h3>
+              <p class="section-note">Additional background, contact, and registration information.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Tarikh Lahir</label>
+              <input
+                class="input date-check"
+                type="date"
+                name="birthdate"
+                data-label="Tarikh Lahir"
+              >
+              <div class="field-hint">Allowed year: 1900 until 2099</div>
+              <div class="date-error">Tarikh Lahir must be between 1900 and 2099.</div>
+            </div>
+
+            <div class="field">
+              <label>Warganegara</label>
+              <input class="input" name="warganegara" value="WARGANEGARA">
+            </div>
+
+            <div class="field">
+              <label>Bangsa</label>
+              <input class="input" name="bangsa">
+            </div>
+
+            <div class="field">
+              <label>Kelulusan Akademik</label>
+              <input class="input" name="kelulusan_akademik">
+            </div>
+
+            <div class="field">
+              <label>Pekerjaan</label>
+              <input class="input" name="pekerjaan">
+            </div>
+
+            <div class="field">
+              <label>No Telefon</label>
+              <input class="input" name="notelefon">
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input class="input" type="email" name="emel">
+            </div>
+
+            <div class="field">
+              <label>Status Ahli</label>
+              <input class="input" name="memberstatus" value="Aktif">
+            </div>
+
+            <div class="field">
+              <label>Registration Date</label>
+              <input
+                class="input date-check"
+                type="date"
+                name="registration_date"
+                data-label="Registration Date"
+              >
+              <div class="field-hint">Allowed year: 1900 until 2099</div>
+              <div class="date-error">Registration Date must be between 1900 and 2099.</div>
+            </div>
+
+            <div class="field span-3">
+              <label>Alamat</label>
+              <textarea class="textarea" name="alamat"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="btn-secondary" href="{{ url_for('admin.members') }}">Cancel</a>
+          <button class="btn-primary" type="submit">Save Member</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function resetSelect(sel) {
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Select</option>';
+}
+
+async function loadDunsByBahagian(bahagianId, dunSelectEl, selectedDunId = "") {
+  resetSelect(dunSelectEl);
+  if (!bahagianId || !dunSelectEl) return;
+
+  const res = await fetch(`/admin/api/duns-by-bahagian?bahagian_id=${bahagianId}`);
+  const rows = await res.json();
+
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.id;
+    o.textContent = r.name;
+
+    if (selectedDunId && String(r.id) === String(selectedDunId)) {
+      o.selected = true;
+    }
+
+    dunSelectEl.appendChild(o);
+  });
+}
+
+async function loadDaerahs(parlimenSelectEl, daerahSelectEl, dunSelectEl) {
+  resetSelect(daerahSelectEl);
+  resetSelect(dunSelectEl);
+
+  if (!parlimenSelectEl || !daerahSelectEl) return;
+
+  const opt = parlimenSelectEl.options[parlimenSelectEl.selectedIndex];
+  const parlimenId = opt ? opt.dataset.id : null;
+
+  if (!parlimenId) return;
+
+  const res = await fetch(`/admin/api/daerahs?parlimen_id=${parlimenId}`);
+  const rows = await res.json();
+
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.name;
+    o.textContent = r.name;
+    o.dataset.id = r.id;
+    daerahSelectEl.appendChild(o);
+  });
+}
+
+async function loadDuns(daerahSelectEl, dunSelectEl, useTextValue = false) {
+  resetSelect(dunSelectEl);
+
+  if (!daerahSelectEl || !dunSelectEl) return;
+
+  const daerahId = useTextValue
+    ? daerahSelectEl.options[daerahSelectEl.selectedIndex]?.dataset?.id || ""
+    : daerahSelectEl.value;
+
+  if (!daerahId) return;
+
+  const res = await fetch(`/admin/api/duns?daerah_id=${daerahId}`);
+  const rows = await res.json();
+
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = useTextValue ? r.name : r.id;
+    o.textContent = r.name;
+    dunSelectEl.appendChild(o);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const bahagianSelect = document.getElementById("bahagianSelect");
+  const dunSelect = document.getElementById("dunSelect");
+
+  if (bahagianSelect && dunSelect) {
+    bahagianSelect.addEventListener("change", async function () {
+      await loadDunsByBahagian(bahagianSelect.value, dunSelect);
+    });
+  }
+
+  const sprParlimenSelect = document.getElementById("sprParlimenSelect");
+  const sprDaerahSelect = document.getElementById("sprDaerahSelect");
+  const sprDunSelect = document.getElementById("sprDunSelect");
+
+  if (sprParlimenSelect && sprDaerahSelect && sprDunSelect) {
+    sprParlimenSelect.addEventListener("change", async function () {
+      await loadDaerahs(sprParlimenSelect, sprDaerahSelect, sprDunSelect);
+    });
+
+    sprDaerahSelect.addEventListener("change", async function () {
+      await loadDuns(sprDaerahSelect, sprDunSelect, true);
+    });
+  }
+
+  const form = document.getElementById("addMemberForm");
+  const dateInputs = document.querySelectorAll(".date-check");
+
+  function showDateError(input, message) {
+    const field = input.closest(".field");
+    const errorBox = field ? field.querySelector(".date-error") : null;
+
+    input.classList.add("invalid-date");
+
+    if (errorBox) {
+      errorBox.textContent = message;
+      errorBox.classList.add("show");
+    }
+  }
+
+  function clearDateError(input) {
+    const field = input.closest(".field");
+    const errorBox = field ? field.querySelector(".date-error") : null;
+
+    input.classList.remove("invalid-date");
+
+    if (errorBox) {
+      errorBox.classList.remove("show");
+    }
+  }
+
+  function validateDateOnlyOnSave(input) {
+    const label = input.dataset.label || "Date";
+    const value = input.value;
+
+    clearDateError(input);
+
+    if (!value) {
+      return true;
+    }
+
+    const parts = value.split("-");
+    const year = parseInt(parts[0], 10);
+
+    if (
+      parts.length !== 3 ||
+      isNaN(year) ||
+      year < 1900 ||
+      year > 2099
+    ) {
+      const message = label + " is invalid. Please enter a date between 1900 and 2099.";
+      showDateError(input, message);
+      alert(message);
+      input.focus();
+      return false;
+    }
+
+    return true;
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (event) {
+      for (const input of dateInputs) {
+        if (!validateDateOnlyOnSave(input)) {
+          event.preventDefault();
+          return false;
+        }
+      }
+    });
+  }
+});
+</script>
+
+{% endblock %}

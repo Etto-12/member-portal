@@ -1,0 +1,13 @@
+<form method="post" action="{{ url_for('admin.add_user') }}" class="card">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <input name="username" placeholder="Username" required>
+  <input name="password" type="password" placeholder="Password" required>
+
+  <select name="role">
+    <option value="user">User</option>
+    <option value="admin">Admin</option>
+  </select>
+
+  <button class="btn-primary" type="submit">Add User</button>
+</form>

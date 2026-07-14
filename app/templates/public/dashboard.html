@@ -1,0 +1,30 @@
+{% extends "layout/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="card-grid">
+  <div class="card">
+    <h3>Total Members</h3>
+    <p>{{ total_members }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Active Members</h3>
+    <p>{{ active_members }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Bahagian</h3>
+    <p>{{ total_bahagian }}</p>
+  </div>
+
+  <div class="card">
+    <h3>DUN</h3>
+    <p>{{ total_dun }}</p>
+  </div>
+</div>
+
+<p>Welcome to the UPKO Member Management System.</p>
+{% endblock %}

@@ -1,0 +1,583 @@
+{% extends "layout/base.html" %}
+{% block content %}
+
+<style>
+  :root {
+    --bg-soft: #f8fafc;
+    --card-bg: #ffffff;
+    --line: #e5e7eb;
+    --line-soft: #eef2f7;
+    --text: #111827;
+    --muted: #6b7280;
+    --label: #374151;
+    --primary: #4f46e5;
+    --primary-2: #7c3aed;
+    --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+  }
+
+  .member-page {
+    max-width: 1320px;
+    margin: 26px auto;
+    padding: 0 18px 30px;
+  }
+
+  .page-header {
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+
+  .page-subtitle {
+    margin: 7px 0 0;
+    color: var(--muted);
+    font-size: 0.96rem;
+  }
+
+  .member-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .card-topbar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  }
+
+  .card-body {
+    padding: 26px;
+  }
+
+  .section {
+    margin-bottom: 26px;
+    padding: 18px;
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    background: #fff;
+  }
+
+  .section:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .section.basic { background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); }
+  .section.upko { background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); }
+  .section.spr { background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%); }
+  .section.other { background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%); }
+
+  .section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .section-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    flex: 0 0 auto;
+  }
+
+  .section.basic .section-badge { background: #eef2ff; color: #4338ca; }
+  .section.upko .section-badge { background: #eef6ff; color: #1d4ed8; }
+  .section.spr .section-badge { background: #fff1dd; color: #c2410c; }
+  .section.other .section-badge { background: #f3f4f6; color: #374151; }
+
+  .section-title {
+    margin: 0;
+    font-size: 1.06rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .section-note {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 0.89rem;
+    line-height: 1.45;
+  }
+
+  .helper-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .helper-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+  }
+
+  .chip-upko { background: #eef6ff; color: #1d4ed8; border-color: #dbeafe; }
+  .chip-spr { background: #fff1dd; color: #c2410c; border-color: #fed7aa; }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .field.span-2 { grid-column: span 2; }
+  .field.span-3 { grid-column: span 3; }
+
+  .field label {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--label);
+    letter-spacing: 0.01em;
+  }
+
+  .input, .select, .textarea {
+    width: 100%;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    color: var(--text);
+    transition: all 0.18s ease;
+    box-sizing: border-box;
+  }
+
+  .input, .select {
+    height: 48px;
+    padding: 0 14px;
+  }
+
+  .textarea {
+    min-height: 118px;
+    padding: 12px 14px;
+    resize: vertical;
+    line-height: 1.45;
+  }
+
+  .input:hover, .select:hover, .textarea:hover {
+    border-color: #cbd5e1;
+  }
+
+  .input:focus, .select:focus, .textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 18px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 22px;
+    border: 0;
+    border-radius: 14px;
+    font-weight: 800;
+    color: #ffffff;
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.22);
+    cursor: pointer;
+  }
+
+  @media (max-width: 1024px) {
+    .form-grid { grid-template-columns: 1fr 1fr; }
+    .field.span-3 { grid-column: span 2; }
+  }
+
+  @media (max-width: 720px) {
+    .member-page { padding: 0 12px 24px; }
+    .page-title { font-size: 1.65rem; }
+    .card-body { padding: 16px; }
+    .section { padding: 14px; border-radius: 16px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .field.span-2, .field.span-3 { grid-column: span 1; }
+    .actions { flex-direction: column-reverse; align-items: stretch; }
+    .btn-secondary, .btn-primary { width: 100%; }
+  }
+</style>
+
+<div class="member-page">
+  <div class="page-header">
+    <h1 class="page-title">Edit Member</h1>
+    <p class="page-subtitle">Update member information, organisation details, and SPR details in one place.</p>
+  </div>
+
+  <div class="member-card">
+    <div class="card-topbar"></div>
+    <div class="card-body">
+      <form method="POST">
+
+        <div class="section basic">
+          <div class="section-heading">
+            <div class="section-badge">1</div>
+            <div>
+              <h3 class="section-title">Basic Information</h3>
+              <p class="section-note">Main identity and member profile details.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>IC Number</label>
+              <input class="input" name="ic" value="{{ member.ic or '' }}">
+            </div>
+
+            <div class="field">
+              <label>No ID</label>
+              <input class="input" name="noid" value="{{ '%05d'|format(member.noid) if member.noid is not none else '' }}">
+            </div>
+
+            <div class="field">
+              <label>Title</label>
+              <input class="input" name="title" value="{{ member.title or '' }}">
+            </div>
+
+            <div class="field span-2">
+              <label>Full Name</label>
+              <input class="input" name="fullname" value="{{ member.fullname or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Jantina</label>
+              <select class="select" name="jantina">
+                <option value="">Select</option>
+                <option value="Lelaki" {{ "selected" if member.jantina == "Lelaki" else "" }}>Lelaki</option>
+                <option value="Perempuan" {{ "selected" if member.jantina == "Perempuan" else "" }}>Perempuan</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Negeri</label>
+              <input class="input" name="negeri" value="{{ member.negeri or '' }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="section upko">
+          <div class="section-heading">
+            <div class="section-badge">2</div>
+            <div>
+              <h3 class="section-title">UPKO / Organisation Structure</h3>
+              <p class="section-note">Internal party structure using Bahagian-based DUN filtering.</p>
+              <div class="helper-chip-row">
+                <span class="helper-chip chip-upko">UPKO flow</span>
+                <span class="helper-chip chip-upko">Bahagian → DUN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Bahagian</label>
+              <select class="select" id="bahagianSelect" name="bahagian_id" data-selected="{{ member.bahagian_id or '' }}">
+                <option value="">Select</option>
+                {% for b in bahagians %}
+                  <option value="{{ b.id }}" {{ "selected" if member.bahagian_id == b.id else "" }}>
+                    {{ b.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>DUN</label>
+              <select class="select" id="dunSelect" name="dun_id" data-selected="{{ member.dun_id or '' }}">
+                <option value="">Select</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Cawangan</label>
+              <input class="input" name="cawangan" value="{{ member.cawangan or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Pusat Mengundi</label>
+              <input class="input" name="pusatmengundi" value="{{ member.pusatmengundi or '' }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="section spr">
+          <div class="section-heading">
+            <div class="section-badge">3</div>
+            <div>
+              <h3 class="section-title">SPR Structure</h3>
+              <p class="section-note">Separate SPR mapping using the same cascading selection flow.</p>
+              <div class="helper-chip-row">
+                <span class="helper-chip chip-spr">SPR flow</span>
+                <span class="helper-chip chip-spr">Saved separately</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Parlimen SPR</label>
+              <select class="select" id="sprParlimenSelect" name="parlimen_spr">
+                <option value="">Select</option>
+                {% for p in parlimens %}
+                  <option value="{{ p.name }}" data-id="{{ p.id }}" {{ "selected" if member.parlimen_spr == p.name else "" }}>
+                    {{ p.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Daerah SPR</label>
+              <select class="select" id="sprDaerahSelect" name="daerah_spr" data-selected-name="{{ member.daerah_spr or '' }}">
+                <option value="">Select</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>DUN SPR</label>
+              <select class="select" id="sprDunSelect" name="dun_spr" data-selected-name="{{ member.dun_spr or '' }}">
+                <option value="">Select</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="section other">
+          <div class="section-heading">
+            <div class="section-badge">4</div>
+            <div>
+              <h3 class="section-title">Other Details</h3>
+              <p class="section-note">Additional background, contact, and registration information.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Tarikh Lahir</label>
+              <input class="input" type="date" name="birthdate" value="{{ member.birthdate.strftime('%Y-%m-%d') if member.birthdate else '' }}">
+            </div>
+
+            <div class="field">
+              <label>Warganegara</label>
+              <input class="input" name="warganegara" value="{{ member.warganegara or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Bangsa</label>
+              <input class="input" name="bangsa" value="{{ member.bangsa or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Kelulusan Akademik</label>
+              <input class="input" name="kelulusan_akademik" value="{{ member.kelulusan_akademik or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Pekerjaan</label>
+              <input class="input" name="pekerjaan" value="{{ member.pekerjaan or '' }}">
+            </div>
+
+            <div class="field">
+              <label>No Telefon</label>
+              <input class="input" name="notelefon" value="{{ member.notelefon or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Email</label>
+              <input class="input" name="emel" value="{{ member.emel or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Status Ahli</label>
+              <input class="input" name="memberstatus" value="{{ member.memberstatus or '' }}">
+            </div>
+
+            <div class="field">
+              <label>Registration Date</label>
+              <input class="input" type="date" name="registration_date" value="{{ member.registration_date.strftime('%Y-%m-%d') if member.registration_date else '' }}">
+            </div>
+
+            <div class="field span-3">
+              <label>Alamat</label>
+              <textarea class="textarea" name="alamat">{{ member.alamat or '' }}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <a class="btn-secondary" href="{{ url_for('admin.members') }}">Cancel</a>
+          <button class="btn-primary" type="submit">Update Member</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function resetSelect(sel) {
+  sel.innerHTML = '<option value="">Select</option>';
+}
+
+async function loadDunsByBahagian(bahagianId, dunSelectEl, selectedDunId = "") {
+  resetSelect(dunSelectEl);
+  if (!bahagianId) return;
+
+  const res = await fetch(`/admin/api/duns-by-bahagian?bahagian_id=${bahagianId}`);
+  const rows = await res.json();
+
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.id;
+    o.textContent = r.name;
+    if (selectedDunId && String(r.id) === String(selectedDunId)) {
+      o.selected = true;
+    }
+    dunSelectEl.appendChild(o);
+  });
+}
+
+async function initSprDaerahs() {
+  const sprParlimenSelect = document.getElementById("sprParlimenSelect");
+  const sprDaerahSelect = document.getElementById("sprDaerahSelect");
+  const sprDunSelect = document.getElementById("sprDunSelect");
+
+  resetSelect(sprDaerahSelect);
+  resetSelect(sprDunSelect);
+
+  const opt = sprParlimenSelect.options[sprParlimenSelect.selectedIndex];
+  const parlimenId = opt ? opt.dataset.id : null;
+  if (!parlimenId) return;
+
+  const res = await fetch(`/admin/api/daerahs?parlimen_id=${parlimenId}`);
+  const rows = await res.json();
+
+  const selectedDaerahName = sprDaerahSelect.dataset.selectedName || "";
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.name;
+    o.textContent = r.name;
+    o.dataset.id = r.id;
+
+    if (selectedDaerahName && r.name.toUpperCase() === selectedDaerahName.toUpperCase()) {
+      o.selected = true;
+    }
+
+    sprDaerahSelect.appendChild(o);
+  });
+}
+
+async function initSprDuns() {
+  const sprDaerahSelect = document.getElementById("sprDaerahSelect");
+  const sprDunSelect = document.getElementById("sprDunSelect");
+
+  resetSelect(sprDunSelect);
+
+  const selectedOption = sprDaerahSelect.options[sprDaerahSelect.selectedIndex];
+  const daerahId = selectedOption ? selectedOption.dataset.id : null;
+  if (!daerahId) return;
+
+  const res = await fetch(`/admin/api/duns?daerah_id=${daerahId}`);
+  const rows = await res.json();
+
+  const selectedDunName = sprDunSelect.dataset.selectedName || "";
+  rows.forEach(r => {
+    const o = document.createElement("option");
+    o.value = r.name;
+    o.textContent = r.name;
+
+    if (selectedDunName && r.name.toUpperCase() === selectedDunName.toUpperCase()) {
+      o.selected = true;
+    }
+
+    sprDunSelect.appendChild(o);
+  });
+}
+
+const bahagianSelect = document.getElementById("bahagianSelect");
+const dunSelect = document.getElementById("dunSelect");
+
+bahagianSelect.addEventListener("change", async () => {
+  await loadDunsByBahagian(bahagianSelect.value, dunSelect);
+});
+
+window.addEventListener("load", async () => {
+  const selectedBahagianId = bahagianSelect.dataset.selected || bahagianSelect.value || "";
+  const selectedDunId = dunSelect.dataset.selected || "";
+
+  if (selectedBahagianId) {
+    await loadDunsByBahagian(selectedBahagianId, dunSelect, selectedDunId);
+  }
+
+  const sprParlimenSelect = document.getElementById("sprParlimenSelect");
+  const sprDaerahSelect = document.getElementById("sprDaerahSelect");
+
+  if (sprParlimenSelect.value) {
+    await initSprDaerahs();
+    if (sprDaerahSelect.value) {
+      await initSprDuns();
+    }
+  }
+});
+
+const sprParlimenSelect = document.getElementById("sprParlimenSelect");
+const sprDaerahSelect = document.getElementById("sprDaerahSelect");
+const sprDunSelect = document.getElementById("sprDunSelect");
+
+sprParlimenSelect.addEventListener("change", async () => {
+  sprDaerahSelect.dataset.selectedName = "";
+  sprDunSelect.dataset.selectedName = "";
+  await initSprDaerahs();
+});
+
+sprDaerahSelect.addEventListener("change", async () => {
+  sprDunSelect.dataset.selectedName = "";
+  await initSprDuns();
+});
+</script>
+
+{% endblock %}

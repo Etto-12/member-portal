@@ -1,0 +1,20 @@
+{% extends "layout/base.html" %}
+{% block title %}Membership Application Login{% endblock %}
+{% block content %}
+<style>
+  .login-wrap{max-width:440px;margin:60px auto;background:#fff;border:1px solid #e5e7eb;border-radius:22px;padding:28px;box-shadow:0 16px 40px rgba(15,23,42,.08)}
+  .login-title{font-size:26px;font-weight:900;color:#111827;margin:0 0 6px}
+  .login-sub{color:#64748b;margin:0 0 22px;font-size:14px}
+  .field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}.field label{font-size:13px;font-weight:800;color:#334155}
+  .input{height:42px;border:1px solid #cbd5e1;border-radius:11px;padding:0 12px}.btn{width:100%;height:44px;border:0;border-radius:12px;background:#4f46e5;color:white;font-weight:900;cursor:pointer}
+</style>
+<div class="login-wrap">
+  <h1 class="login-title">Membership Application Login</h1>
+  <p class="login-sub">For Cawangan and Bahagian submission accounts only.</p>
+  <form method="post">
+    <div class="field"><label>Username</label><input class="input" name="username" required></div>
+    <div class="field"><label>Password</label><input class="input" type="password" name="password" required></div>
+    <button class="btn" type="submit">Login</button>
+  </form>
+</div>
+{% endblock %}

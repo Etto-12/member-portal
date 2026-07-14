@@ -1,0 +1,604 @@
+{% extends "layout/base.html" %}
+{% block content %}
+
+<style>
+  .report-page {
+    max-width: 1400px;
+    margin: 26px auto;
+    padding: 0 4px 30px;
+  }
+
+  .report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .report-title {
+    margin: 0;
+    font-size: 2rem;
+    line-height: 1.1;
+    font-weight: 800;
+    color: #111827;
+    letter-spacing: -0.02em;
+  }
+
+  .report-subtitle {
+    margin: 7px 0 0;
+    color: #6b7280;
+    font-size: 0.96rem;
+  }
+
+  .report-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  .report-topbar {
+    height: 6px;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  }
+
+  .report-body {
+    padding: 22px;
+  }
+
+  .filter-card {
+    background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%);
+    border: 1px solid #eef2f7;
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .filter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .filter-title-wrap h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .filter-title-wrap p {
+    margin: 4px 0 0;
+    color: #6b7280;
+    font-size: 0.88rem;
+  }
+
+  .summary-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #eef2ff;
+    color: #4338ca;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    padding: 9px 12px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1.1fr 1fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .filter-grid.application-user {
+    grid-template-columns: 1.2fr 1.1fr 1fr 1fr auto auto;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #dbe3ee;
+    background: #ffffff;
+    border-radius: 14px;
+    font-size: 0.93rem;
+    color: #111827;
+    padding: 0 14px;
+    transition: all 0.18s ease;
+    box-sizing: border-box;
+  }
+
+  .filter-select:disabled {
+    background: #f1f5f9;
+    color: #475569;
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  .filter-input:focus,
+  .filter-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  }
+
+  .btn-apply,
+  .btn-print {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn-apply {
+    border: 0;
+    color: #ffffff;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.2);
+  }
+
+  .btn-print {
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    color: #374151;
+  }
+
+  .btn-apply:hover,
+  .btn-print:hover {
+    filter: brightness(1.02);
+    transform: translateY(-1px);
+  }
+
+  .table-card {
+    border: 1px solid #eef2f7;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eef2f7;
+    background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+  }
+
+  .table-toolbar h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #111827;
+  }
+
+  .table-toolbar p {
+    margin: 3px 0 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  .table-scroll {
+    overflow: auto;
+  }
+
+  .report-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 950px;
+  }
+
+  .report-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #0f172a;
+    color: #ffffff;
+    text-align: left;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    padding: 14px 12px;
+    white-space: nowrap;
+  }
+
+  .report-table tbody td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: top;
+    font-size: 0.9rem;
+    color: #111827;
+    line-height: 1.45;
+  }
+
+  .report-table tbody tr:nth-child(even) {
+    background: #fcfcfe;
+  }
+
+  .report-table tbody tr:hover {
+    background: #f8faff;
+  }
+
+  .cell-muted {
+    color: #6b7280;
+  }
+
+  .cell-strong {
+    font-weight: 700;
+  }
+
+  .pagination-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 2px 0;
+    flex-wrap: wrap;
+  }
+
+  .pagination-info {
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .page-link.active {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.18);
+  }
+
+  .page-link:hover {
+    background: #f9fafb;
+  }
+
+  @media (max-width: 1100px) {
+    .filter-grid,
+    .filter-grid.application-user {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .report-page {
+      padding: 0 0 24px;
+    }
+
+    .report-title {
+      font-size: 1.65rem;
+    }
+
+    .report-body {
+      padding: 16px;
+    }
+
+    .filter-card,
+    .table-card {
+      border-radius: 16px;
+    }
+
+    .filter-head,
+    .table-toolbar,
+    .pagination-wrap {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .filter-grid,
+    .filter-grid.application-user {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-apply,
+    .btn-print {
+      width: 100%;
+    }
+  }
+
+  @media print {
+    .filter-card,
+    .pagination-wrap,
+    .navbar,
+    .sidebar,
+    .sidebar-overlay {
+      display: none !important;
+    }
+
+    .report-page,
+    .report-card,
+    .report-body,
+    .table-card {
+      margin: 0;
+      padding: 0;
+      box-shadow: none;
+      border: 0;
+      max-width: 100%;
+    }
+
+    .report-table thead th {
+      position: static;
+      background: #111827 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>
+
+<div class="report-page">
+  <div class="report-header">
+    <div>
+      <h1 class="report-title">Member Report</h1>
+      <p class="report-subtitle">
+        {% if is_application_user %}
+          Browse and print members under your assigned Bahagian only.
+        {% else %}
+          Browse, filter, and print the current member listing.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <div class="report-card">
+    <div class="report-topbar"></div>
+
+    <div class="report-body">
+      <form method="GET" class="filter-card">
+        <div class="filter-head">
+          <div class="filter-title-wrap">
+            <h3>Filters</h3>
+            <p>
+              {% if is_application_user %}
+                This report is locked to your assigned Bahagian.
+              {% else %}
+                Refine the report by member details and organisational structure.
+              {% endif %}
+            </p>
+          </div>
+
+          <div class="summary-chip">
+            <span>Total Members:</span>
+            <span>{{ total }}</span>
+          </div>
+        </div>
+
+        <div class="filter-grid {% if is_application_user %}application-user{% endif %}">
+          <div class="filter-field">
+            <label class="filter-label">Search</label>
+            <input
+              class="filter-input"
+              type="text"
+              name="q"
+              value="{{ search or '' }}"
+              placeholder="Search Name / IC / ID"
+            >
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Cawangan</label>
+            <input
+              class="filter-input"
+              type="text"
+              name="cawangan"
+              value="{{ selected_cawangan or '' }}"
+              placeholder="Search Cawangan"
+            >
+          </div>
+
+          {% if not is_application_user %}
+            <div class="filter-field">
+              <label class="filter-label">Parlimen</label>
+              <select class="filter-select" name="parlimen">
+                <option value="">All Parlimen</option>
+                {% for p in parlimens %}
+                  <option value="{{ p.name }}" {{ "selected" if selected_parlimen == p.name else "" }}>
+                    {{ p.name }}
+                  </option>
+                {% endfor %}
+              </select>
+            </div>
+          {% endif %}
+
+          <div class="filter-field">
+            <label class="filter-label">DUN</label>
+            <select class="filter-select" name="dun_id">
+              <option value="">All DUN</option>
+              {% for d in duns %}
+                <option value="{{ d.id }}" {{ "selected" if selected_dun_id == d.id else "" }}>
+                  {{ d.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Bahagian</label>
+            <select
+              class="filter-select"
+              name="bahagian_id"
+              {% if is_application_user %}disabled{% endif %}
+            >
+              {% if not is_application_user %}
+                <option value="">All Bahagian</option>
+              {% endif %}
+
+              {% for b in bahagians %}
+                <option value="{{ b.id }}" {{ "selected" if selected_bahagian_id == b.id else "" }}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+
+            {% if is_application_user %}
+              <input type="hidden" name="bahagian_id" value="{{ selected_bahagian_id }}">
+            {% endif %}
+          </div>
+
+          <button class="btn-apply" type="submit">Apply</button>
+          <button class="btn-print" type="button" onclick="window.print()">Print</button>
+        </div>
+      </form>
+
+      <div class="table-card">
+        <div class="table-toolbar">
+          <div>
+            <h3>Member Listing</h3>
+            <p>
+              {% if is_application_user %}
+                Showing members for your assigned Bahagian only.
+              {% else %}
+                Showing the current filtered result set.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th style="width:190px;">IC</th>
+                <th>Name</th>
+                <th style="width:120px;">Gender</th>
+                <th style="width:150px;">DUN</th>
+                <th style="width:190px;">Bahagian</th>
+                <th style="width:180px;">Cawangan</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for m in members %}
+                <tr>
+                  <td class="cell-strong">
+                    {{ "%05d"|format(m.noid) if m.noid is not none else "-" }}
+                  </td>
+                  <td>{{ m.ic or "-" }}</td>
+                  <td class="cell-strong">{{ m.fullname or "-" }}</td>
+                  <td>{{ m.jantina or "-" }}</td>
+                  <td>{{ m.dun or "-" }}</td>
+                  <td>{{ m.bahagian or "-" }}</td>
+                  <td>{{ m.cawangan or "-" }}</td>
+                </tr>
+              {% else %}
+                <tr>
+                  <td colspan="7" class="cell-muted" style="text-align:center; padding:24px;">
+                    No members found for the selected filters.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% if pagination.pages > 1 %}
+        <div class="pagination-wrap">
+          <div class="pagination-info">
+            Page {{ pagination.page }} of {{ pagination.pages }}
+          </div>
+
+          <div class="pagination">
+            {% if pagination.has_prev %}
+              <a
+                class="page-link"
+                href="{{ url_for('admin.member_report',
+                  page=pagination.prev_num,
+                  q=search,
+                  parlimen=selected_parlimen if not is_application_user else '',
+                  dun_id=selected_dun_id,
+                  bahagian_id=selected_bahagian_id,
+                  cawangan=selected_cawangan) }}"
+              >
+                Prev
+              </a>
+            {% endif %}
+
+            {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=1) %}
+              {% if p %}
+                <a
+                  class="page-link {% if p == pagination.page %}active{% endif %}"
+                  href="{{ url_for('admin.member_report',
+                    page=p,
+                    q=search,
+                    parlimen=selected_parlimen if not is_application_user else '',
+                    dun_id=selected_dun_id,
+                    bahagian_id=selected_bahagian_id,
+                    cawangan=selected_cawangan) }}"
+                >
+                  {{ p }}
+                </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+              <a
+                class="page-link"
+                href="{{ url_for('admin.member_report',
+                  page=pagination.next_num,
+                  q=search,
+                  parlimen=selected_parlimen if not is_application_user else '',
+                  dun_id=selected_dun_id,
+                  bahagian_id=selected_bahagian_id,
+                  cawangan=selected_cawangan) }}"
+              >
+                Next
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

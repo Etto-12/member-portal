@@ -1,0 +1,164 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<style>
+/* =========================
+   USERS PAGE STYLES
+========================= */
+.users-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  padding: 20px;
+  max-width: 900px;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.users-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+/* =========================
+   ADD USER FORM
+========================= */
+.add-user-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr 140px;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-user-form input,
+.add-user-form select {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.add-user-form button {
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-user-form button:hover {
+  background: #4338ca;
+}
+
+/* =========================
+   USERS TABLE
+========================= */
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.users-table th {
+  background: #111827;
+  color: white;
+  text-align: left;
+  padding: 10px;
+}
+
+.users-table td {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.users-table tr:hover {
+  background: #f9fafb;
+}
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+.btn-edit {
+  background: #22c55e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-edit:hover {
+  background: #16a34a;
+}
+
+.role-select {
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 12px;
+}
+</style>
+
+<div class="users-card">
+
+  <div class="users-header">
+    <h2>System Users</h2>
+  </div>
+
+  {% if current_user.is_admin %}
+  <!-- ADD USER -->
+  <form class="add-user-form" method="POST" action="{{ url_for('admin_users.add_user') }}">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <select name="role">
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button type="submit">Add User</button>
+  </form>
+  {% endif %}
+
+  <!-- USERS TABLE -->
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th style="width:140px;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td>
+          {% if current_user.is_admin and u.username != current_user.username %}
+          <form method="POST" action="{{ url_for('admin_users.update_user', user_id=u.id) }}">
+            <select name="role" class="role-select" onchange="this.form.submit()">
+              <option value="user" {% if u.role == 'user' %}selected{% endif %}>USER</option>
+              <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>ADMIN</option>
+            </select>
+          </form>
+          {% else %}
+            {{ u.role|upper }}
+          {% endif %}
+        </td>
+        <td>
+          —
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+</div>
+{% endblock %}

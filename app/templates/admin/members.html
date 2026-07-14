@@ -1,0 +1,650 @@
+{% extends "layout/base.html" %}
+{% block title %}Members | UPKO Member Portal{% endblock %}
+
+{% block content %}
+<style>
+  .members-page {
+    max-width: 1500px;
+    margin: 24px auto;
+    padding: 0 4px 28px;
+  }
+
+  .members-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .members-title {
+    margin: 0;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+
+  .members-subtitle {
+    margin: 6px 0 0;
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+
+  .members-card {
+    background: #ffffff;
+    border: 1px solid #dbe4f0;
+    border-radius: 22px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+
+  .members-topbar {
+    height: 6px;
+    background: linear-gradient(90deg, #234a93, #3b63b3, #d91c29);
+  }
+
+  .members-body {
+    padding: 20px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .filter-form {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .filter-input,
+  .filter-select {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #dbe3ee;
+    border-radius: 14px;
+    background: #ffffff;
+    padding: 0 14px;
+    font-size: 0.93rem;
+    color: #0f172a;
+  }
+
+  .filter-input:focus,
+  .filter-select:focus {
+    outline: none;
+    border-color: #3b63b3;
+    box-shadow: 0 0 0 4px rgba(35, 74, 147, 0.12);
+  }
+
+  .btn-filter {
+    height: 46px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #325bb3, #5a48e2);
+    color: #ffffff;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 22px rgba(60, 82, 180, 0.18);
+  }
+
+  .btn-add {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #325bb3, #5a48e2);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px rgba(60, 82, 180, 0.18);
+  }
+
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #234a93;
+    text-decoration: none;
+    font-weight: 800;
+    white-space: nowrap;
+    border: 1px solid #cfdcf0;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  }
+
+  .table-wrap {
+    border: 1px solid #eaf0f6;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #ffffff;
+  }
+
+  .members-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    font-size: 13px;
+  }
+
+  .members-table thead th {
+    background: linear-gradient(90deg, #10213f, #17356b);
+    color: #ffffff;
+    text-align: left;
+    padding: 13px 10px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .members-table tbody td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: top;
+    line-height: 1.45;
+    color: #0f172a;
+    word-break: break-word;
+  }
+
+  .main-row {
+    cursor: pointer;
+    transition: background 0.16s ease;
+  }
+
+  .main-row:nth-child(4n-3) {
+    background: #ffffff;
+  }
+
+  .main-row:hover {
+    background: #f7faff;
+  }
+
+  .expand-row {
+    display: none;
+    background: #f8fbff;
+  }
+
+  .expand-row td {
+    padding: 0;
+    border-bottom: 1px solid #e3ebf5;
+  }
+
+  .expand-content {
+    padding: 14px 16px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #334155;
+  }
+
+  .expand-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 16px;
+  }
+
+  .detail-item {
+    min-width: 0;
+  }
+
+  .detail-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .detail-value {
+    color: #0f172a;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .id-cell {
+    font-weight: 800;
+    color: #17356b;
+    white-space: nowrap;
+    width: 86px;
+  }
+
+  .name-cell {
+    font-weight: 700;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+  }
+
+  .status-aktif {
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+
+  .status-keluar {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+  }
+
+  .status-meninggal {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+
+  .status-default {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+  }
+
+  .actions-cell {
+    white-space: nowrap;
+  }
+
+  .btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #16a34a;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    margin-right: 6px;
+  }
+
+  .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #d91c29;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .expand-hint {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+
+  .pagination-wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .page-info {
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid #dbe4f0;
+    background: #ffffff;
+    color: #334155;
+    text-decoration: none;
+    font-weight: 700;
+  }
+
+  .page-link.active {
+    background: linear-gradient(135deg, #325bb3, #5a48e2);
+    color: #ffffff;
+    border-color: transparent;
+  }
+
+  @media (max-width: 1100px) {
+    .filter-form {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .expand-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .members-body {
+      padding: 14px;
+    }
+
+    .members-title {
+      font-size: 1.6rem;
+    }
+
+    .filter-form {
+      grid-template-columns: 1fr;
+    }
+
+    .expand-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .btn-add,
+    .btn-filter {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="members-page">
+  <div class="members-header">
+    <div>
+      <h1 class="members-title">Members</h1>
+      <p class="members-subtitle">Browse and manage all registered members.</p>
+    </div>
+  </div>
+
+  <div class="members-card">
+    <div class="members-topbar"></div>
+
+    <div class="members-body">
+      <div class="toolbar">
+
+        <!-- ================= FILTER FORM ================= -->
+        <form method="GET" class="filter-form">
+
+          <div class="filter-field">
+            <label class="filter-label">Search</label>
+            <input class="filter-input" type="text" name="q"
+                   value="{{ search or '' }}"
+                   placeholder="Search name / IC / No ID">
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">DUN</label>
+            <select class="filter-select" name="dun_id">
+              <option value="">All DUN</option>
+              {% for d in duns %}
+                <option value="{{ d.id }}"
+                  {{ "selected" if selected_dun_id == d.id else "" }}>
+                  {{ d.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label class="filter-label">Bahagian</label>
+            <select class="filter-select" name="bahagian_id">
+              <option value="">All Bahagian</option>
+              {% for b in bahagians %}
+                <option value="{{ b.id }}"
+                  {{ "selected" if selected_bahagian_id == b.id else "" }}>
+                  {{ b.name }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- NEW: CAWANGAN FILTER -->
+          <div class="filter-field">
+            <label class="filter-label">Cawangan</label>
+            <input class="filter-input" type="text" name="cawangan"
+                   value="{{ request.args.get('cawangan','') }}"
+                   placeholder="Search Cawangan">
+          </div>
+
+          <button class="btn-filter" type="submit">Filter</button>
+        </form>
+
+        <!-- ================= BUTTONS ================= -->
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+
+          {% if current_user.is_super_admin or current_user.username.strip().lower() == "upko" %}
+          <a class="btn-export"
+             href="{{ url_for('admin.export_members_csv',
+                q=search,
+                dun_id=selected_dun_id,
+                bahagian_id=selected_bahagian_id,
+                cawangan=request.args.get('cawangan','')
+             ) }}">
+             Export CSV
+          </a>
+          {% endif %}
+
+          <a class="btn-add" href="{{ url_for('admin.add_member') }}">
+            + Add Member
+          </a>
+
+        </div>
+      </div>
+
+      <!-- ================= TABLE ================= -->
+      <div class="table-wrap">
+        <table class="members-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">ID</th>
+              <th style="width: 190px;">Name</th>
+              <th style="width: 150px;">IC</th>
+              <th style="width: 90px;">Gender</th>
+              <th style="width: 150px;">Bahagian</th>
+              <th style="width: 140px;">DUN</th>
+              <th style="width: 130px;">Status</th>
+              <th style="width: 130px;">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {% for m in members %}
+            <tr class="main-row" onclick="toggleRow(this)">
+              <td class="id-cell">
+                {{ "%05d"|format(m.noid) if m.noid is not none else "-" }}
+              </td>
+              <td class="name-cell">{{ m.fullname or "-" }}</td>
+              <td>{{ m.ic or "-" }}</td>
+              <td>{{ m.jantina or "-" }}</td>
+              <td>{{ m.bahagian or "-" }}</td>
+              <td>{{ m.dun or "-" }}</td>
+
+              <td>
+                {% set status = (m.memberstatus or "-")|lower %}
+                <span class="status-badge
+                  {% if status == 'aktif' %}status-aktif
+                  {% elif status == 'keluar parti' %}status-keluar
+                  {% elif status == 'meninggal' %}status-meninggal
+                  {% else %}status-default{% endif %}">
+                  {{ m.memberstatus or "-" }}
+                </span>
+              </td>
+
+              <td class="actions-cell" onclick="event.stopPropagation()">
+                {% if current_user.is_admin %}
+                  <a class="btn-edit"
+                     href="{{ url_for('admin.edit_member', member_id=m.id) }}">
+                     Edit
+                  </a>
+
+                  {% if current_user.is_super_admin or current_user.username.strip().lower() == "upko" %}
+                  <form method="POST"
+                        action="{{ url_for('admin.delete_member', member_id=m.id) }}"
+                        style="display:inline;"
+                        onsubmit="return confirm('Delete this member?');">
+                    <button class="btn-delete">Delete</button>
+                  </form>
+                  {% endif %}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+
+            <!-- EXPAND ROW -->
+            <tr class="expand-row">
+              <td colspan="8">
+                <div class="expand-content">
+                  <div class="expand-grid">
+
+                    <div class="detail-item">
+                      <span class="detail-label">Cawangan</span>
+                      <span class="detail-value">{{ m.cawangan or "-" }}</span>
+                    </div>
+
+                    <div class="detail-item">
+                      <span class="detail-label">Pusat Mengundi</span>
+                      <span class="detail-value">{{ m.pusatmengundi or "-" }}</span>
+                    </div>
+
+                    <div class="detail-item">
+                      <span class="detail-label">Birthdate</span>
+                      <span class="detail-value">
+                        {{ m.birthdate.strftime('%d/%m/%Y') if m.birthdate else "-" }}
+                      </span>
+                    </div>
+
+                    <div class="detail-item">
+                      <span class="detail-label">Registered</span>
+                      <span class="detail-value">
+                        {{ m.registration_date.strftime('%d/%m/%Y') if m.registration_date else "-" }}
+                      </span>
+                    </div>
+
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+            {% else %}
+            <tr>
+              <td colspan="8" style="text-align:center; padding:24px;">
+                No members found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ================= PAGINATION ================= -->
+      {% if pagination.pages > 1 %}
+      <div class="pagination-wrap">
+
+        <div class="page-info">
+          Page {{ pagination.page }} of {{ pagination.pages }}
+        </div>
+
+        <div class="pagination">
+
+          {% if pagination.has_prev %}
+          <a class="page-link"
+             href="{{ url_for('admin.members',
+                page=pagination.prev_num,
+                q=search,
+                dun_id=selected_dun_id,
+                bahagian_id=selected_bahagian_id,
+                cawangan=request.args.get('cawangan','')
+             ) }}">Prev</a>
+          {% endif %}
+
+          {% for p in pagination.iter_pages() %}
+            {% if p %}
+              <a class="page-link {% if p == pagination.page %}active{% endif %}"
+                 href="{{ url_for('admin.members',
+                    page=p,
+                    q=search,
+                    dun_id=selected_dun_id,
+                    bahagian_id=selected_bahagian_id,
+                    cawangan=request.args.get('cawangan','')
+                 ) }}">
+                 {{ p }}
+              </a>
+            {% endif %}
+          {% endfor %}
+
+          {% if pagination.has_next %}
+          <a class="page-link"
+             href="{{ url_for('admin.members',
+                page=pagination.next_num,
+                q=search,
+                dun_id=selected_dun_id,
+                bahagian_id=selected_bahagian_id,
+                cawangan=request.args.get('cawangan','')
+             ) }}">Next</a>
+          {% endif %}
+
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleRow(row) {
+  const next = row.nextElementSibling;
+  if (!next) return;
+
+  const open = next.style.display === "table-row";
+
+  document.querySelectorAll(".expand-row").forEach(r => r.style.display = "none");
+
+  if (!open) next.style.display = "table-row";
+}
+</script>
+
+{% endblock %}

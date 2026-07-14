@@ -1,0 +1,464 @@
+{% extends "layout/base.html" %}
+{% block title %}Hierarchy Document{% endblock %}
+
+{% block content %}
+
+<style>
+.document-wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.doc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #64748b;
+  color: white;
+  padding: 11px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 900;
+  box-shadow: 0 8px 20px rgba(100,116,139,.18);
+}
+
+.btn-back:hover {
+  background: #475569;
+}
+
+.btn-print {
+  background: linear-gradient(135deg, #234a93, #5a48e2);
+  color: white;
+  padding: 11px 18px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(60,82,180,.22);
+}
+
+.document-card {
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  border-radius: 26px;
+  box-shadow: 0 18px 45px rgba(15,23,42,.10);
+  overflow: hidden;
+}
+
+.document-hero {
+  background: linear-gradient(135deg, #173b75, #315bb3);
+  color: white;
+  padding: 28px 34px;
+  position: relative;
+  overflow: hidden;
+}
+
+.document-hero::after {
+  content: "";
+  position: absolute;
+  right: -80px;
+  top: -80px;
+  width: 230px;
+  height: 230px;
+  background: rgba(255,255,255,.13);
+  border-radius: 50%;
+}
+
+.doc-title {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: 6px;
+}
+
+.doc-subtitle {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 850;
+  color: rgba(255,255,255,.9);
+  text-transform: uppercase;
+}
+
+.doc-meta {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,.82);
+}
+
+.document-body {
+  padding: 26px 34px 34px;
+}
+
+.hierarchy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hierarchy-row {
+  display: grid;
+  grid-template-columns: 245px 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  background: #ffffff;
+  border: 1px solid #dbe4f0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 7px 18px rgba(15,23,42,.045);
+}
+
+.position-box {
+  height: 100%;
+  background: linear-gradient(135deg, #f3f7ff, #edf4ff);
+  padding: 15px 16px;
+  color: #173b75;
+  font-weight: 950;
+  border-right: 1px solid #dbe4f0;
+}
+
+.separator-box {
+  padding: 15px 0;
+  text-align: center;
+  color: #173b75;
+  font-weight: 950;
+}
+
+.names-box {
+  padding: 13px 16px;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.single-name {
+  color: #0f172a;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.name-list {
+  display: grid;
+  gap: 6px;
+}
+
+.name-item {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.name-number {
+  color: #173b75;
+  font-weight: 950;
+}
+
+.name-text {
+  color: #0f172a;
+  line-height: 1.4;
+}
+
+.empty-box {
+  padding: 42px 20px;
+  text-align: center;
+  color: #64748b;
+  font-weight: 800;
+  background: #f8fafc;
+  border-radius: 18px;
+  border: 1px dashed #cbd5e1;
+}
+
+/* PRINT VERSION */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  .navbar,
+  .sidebar,
+  .sidebar-overlay,
+  .doc-toolbar {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: white !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .app-shell {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .content {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+
+  .document-wrap {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .document-card {
+    width: 100% !important;
+    max-width: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  .document-hero {
+    background: white !important;
+    color: #111827 !important;
+    padding: 0 0 6px 0 !important;
+    border-bottom: 1px solid #999 !important;
+  }
+
+  .document-hero::after {
+    display: none !important;
+  }
+
+  .doc-title {
+    color: #111827 !important;
+    font-size: 17px !important;
+    line-height: 1.2 !important;
+    margin-bottom: 2px !important;
+    text-align: center !important;
+  }
+
+  .doc-subtitle {
+    color: #111827 !important;
+    font-size: 12.5px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+
+  .doc-meta {
+    color: #111827 !important;
+    font-size: 11px !important;
+    margin-top: 4px !important;
+  }
+
+  .document-body {
+    width: 100% !important;
+    padding: 8px 0 0 0 !important;
+  }
+
+  .hierarchy-list {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .hierarchy-row {
+    display: grid !important;
+    grid-template-columns: 185px 18px minmax(0, 1fr) !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-bottom: 1px solid #d7dee9 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .position-box {
+    background: white !important;
+    color: #111827 !important;
+    border: none !important;
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 900 !important;
+    white-space: normal !important;
+  }
+
+  .separator-box {
+    background: white !important;
+    color: #111827 !important;
+    padding: 4px 0 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 900 !important;
+    text-align: center !important;
+  }
+
+  .names-box {
+    background: white !important;
+    color: #111827 !important;
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    white-space: normal !important;
+  }
+
+  .single-name {
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+
+  .name-list {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .name-item {
+    display: grid !important;
+    grid-template-columns: 28px minmax(0, 1fr) !important;
+    gap: 4px !important;
+    width: 100% !important;
+    margin: 0 0 1px 0 !important;
+    padding: 0 !important;
+  }
+
+  .name-number {
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 900 !important;
+    white-space: nowrap !important;
+  }
+
+  .name-text {
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 1.2 !important;
+    font-weight: 600 !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    min-width: 0 !important;
+  }
+}
+</style>
+
+<div class="document-wrap">
+
+  <div class="doc-toolbar">
+    <a href="{{ url_for('hierarchy.view_hierarchy') }}" class="btn-back">
+      ← Back to Hierarchy
+    </a>
+
+    <button onclick="window.print()" class="btn-print">
+      Print Document
+    </button>
+  </div>
+
+  <div class="document-card">
+
+    {% if rows %}
+      {% set first = rows[0] %}
+
+      <div class="document-hero">
+        <div class="doc-title">
+          {% if doc_type == "MAJLIS_TERTINGGI" %}
+            {{ first.title }}
+          {% elif doc_type == "BAHAGIAN" %}
+            AHLI JAWATANKUASA BAHAGIAN {{ bahagian }}
+          {% elif doc_type == "CAWANGAN" %}
+            AHLI JAWATANKUASA CAWANGAN {{ cawangan }}
+          {% else %}
+            {{ first.title }}
+          {% endif %}
+        </div>
+
+        <div class="doc-subtitle">
+          {{ term or first.term or "UPKO Bagi Penggal 2026 - 2029" }}
+        </div>
+
+        {% if first.meeting_date %}
+        <div class="doc-meta">
+          Tarikh Mesyuarat: {{ first.meeting_date.strftime('%d %B %Y') }}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="document-body">
+        <div class="hierarchy-list">
+
+          {% for group in grouped_rows %}
+          <div class="hierarchy-row">
+
+            <div class="position-box">
+              {{ group.position }}
+            </div>
+
+            <div class="separator-box">
+              :
+            </div>
+
+            <div class="names-box">
+              {% if group["items"]|length == 1 %}
+                <div class="single-name">
+                  {{ group["items"][0].candidate_name }}
+                </div>
+              {% else %}
+                <div class="name-list">
+                  {% for item in group["items"] %}
+                    <div class="name-item">
+                      <div class="name-number">{{ loop.index }})</div>
+                      <div class="name-text">{{ item.candidate_name }}</div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+          {% endfor %}
+
+        </div>
+      </div>
+
+    {% else %}
+      <div class="document-body">
+        <div class="empty-box">
+          No hierarchy document data found.
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+
+</div>
+
+{% endblock %}

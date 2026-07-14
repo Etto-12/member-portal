@@ -1,0 +1,306 @@
+{% extends "layout/base.html" %}
+{% block title %}Application Login Accounts{% endblock %}
+
+{% block content %}
+<style>
+  .accounts-page {
+    max-width: 1200px;
+    margin: 28px auto;
+  }
+
+  .page-title {
+    margin: 0 0 18px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .account-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+    margin-bottom: 18px;
+  }
+
+  .account-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+
+  .input,
+  select {
+    height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 11px;
+    padding: 0 12px;
+    width: 100%;
+    font-size: 14px;
+    background: white;
+    box-sizing: border-box;
+  }
+
+  .btn-primary {
+    height: 42px;
+    border: none;
+    border-radius: 11px;
+    padding: 0 16px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .table-wrap {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, .07);
+  }
+
+  .accounts-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .accounts-table th {
+    background: #0f172a;
+    color: white;
+    text-align: left;
+    padding: 14px 12px;
+    font-size: 13px;
+    font-weight: 900;
+  }
+
+  .accounts-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eef2f7;
+    vertical-align: top;
+    font-size: 14px;
+  }
+
+  .role-badge {
+    display: inline-flex;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #4338ca;
+    font-weight: 900;
+    font-size: 12px;
+  }
+
+  .edit-row {
+    background: #f8fafc;
+  }
+
+  .edit-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn-save {
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-weight: 800;
+    background: #16a34a;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .btn-delete {
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    padding: 0 14px;
+    font-weight: 800;
+    background: #dc2626;
+    color: white;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .muted {
+    color: #64748b;
+  }
+
+  .actions-cell {
+    min-width: 160px;
+  }
+
+  .delete-form {
+    margin-top: 10px;
+  }
+
+  @media(max-width: 1000px) {
+    .account-form,
+    .edit-form {
+      grid-template-columns: 1fr;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    .accounts-table {
+      min-width: 900px;
+    }
+  }
+</style>
+
+<div class="accounts-page">
+  <h1 class="page-title">Application Login Accounts</h1>
+
+  <div class="account-card">
+    <form method="post" class="account-form">
+      <input
+        class="input"
+        name="username"
+        placeholder="Username"
+        required
+      >
+
+      <input
+        class="input"
+        name="password"
+        type="password"
+        placeholder="Password"
+        required
+      >
+
+      <select class="input" name="role" required>
+        <option value="cawangan">Cawangan</option>
+        <option value="bahagian">Bahagian</option>
+      </select>
+
+      <select class="input" name="bahagian_id" required>
+        <option value="">Select Bahagian</option>
+        {% for b in bahagians %}
+          <option value="{{ b.id }}">{{ b.name }}</option>
+        {% endfor %}
+      </select>
+
+      <input
+        class="input"
+        name="cawangan_name"
+        placeholder="Cawangan name"
+      >
+
+      <button class="btn-primary" type="submit">Create Account</button>
+    </form>
+  </div>
+
+  <div class="table-wrap">
+    <table class="accounts-table">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Bahagian</th>
+          <th>Cawangan</th>
+          {% if can_manage_accounts %}
+            <th>SuperAdmin Actions</th>
+          {% endif %}
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td><strong>{{ u.username }}</strong></td>
+            <td>
+              <span class="role-badge">{{ u.role.upper() }}</span>
+            </td>
+            <td>{{ u.bahagian_name or "-" }}</td>
+            <td>{{ u.cawangan_name or "-" }}</td>
+
+            {% if can_manage_accounts %}
+              <td class="actions-cell">
+                <span class="muted">Edit below</span>
+              </td>
+            {% endif %}
+          </tr>
+
+          {% if can_manage_accounts %}
+            <tr class="edit-row">
+              <td colspan="5">
+                <form
+                  method="post"
+                  action="{{ url_for('applications.edit_application_account', user_id=u.id) }}"
+                  class="edit-form"
+                >
+                  <input
+                    class="input"
+                    name="username"
+                    value="{{ u.username }}"
+                    required
+                  >
+
+                  <input
+                    class="input"
+                    name="password"
+                    type="password"
+                    placeholder="New password optional"
+                  >
+
+                  <select class="input" name="role" required>
+                    <option value="cawangan" {% if u.role == "cawangan" %}selected{% endif %}>
+                      Cawangan
+                    </option>
+                    <option value="bahagian" {% if u.role == "bahagian" %}selected{% endif %}>
+                      Bahagian
+                    </option>
+                  </select>
+
+                  <select class="input" name="bahagian_id" required>
+                    <option value="">Select Bahagian</option>
+                    {% for b in bahagians %}
+                      <option value="{{ b.id }}" {% if u.bahagian_id == b.id %}selected{% endif %}>
+                        {{ b.name }}
+                      </option>
+                    {% endfor %}
+                  </select>
+
+                  <input
+                    class="input"
+                    name="cawangan_name"
+                    value="{{ u.cawangan_name or '' }}"
+                    placeholder="Cawangan name"
+                  >
+
+                  <button class="btn-save" type="submit">Save</button>
+                </form>
+
+                <form
+                  method="post"
+                  action="{{ url_for('applications.delete_application_account', user_id=u.id) }}"
+                  class="delete-form"
+                  onsubmit="return confirm('Delete this application account? This cannot be undone.');"
+                >
+                  <button class="btn-delete" type="submit">Delete Account</button>
+                </form>
+              </td>
+            </tr>
+          {% endif %}
+
+        {% else %}
+          <tr>
+            <td colspan="{% if can_manage_accounts %}5{% else %}4{% endif %}" class="muted">
+              No application accounts yet.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

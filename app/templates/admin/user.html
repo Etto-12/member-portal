@@ -1,0 +1,96 @@
+{% extends "layout/base.html" %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <h2>System Users</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="margin-bottom:14px;">
+        {% for category, message in messages %}
+          <div style="
+            padding:10px 14px;
+            border-radius:8px;
+            margin-bottom:8px;
+            background:
+              {% if category == 'success' %}#dcfce7
+              {% elif category == 'danger' %}#fee2e2
+              {% elif category == 'warning' %}#fef3c7
+              {% else %}#e5e7eb{% endif %};
+            color:#111827;
+            border:1px solid rgba(0,0,0,0.08);
+          ">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('admin.add_user') }}" class="card" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px;">
+    <input name="username" placeholder="Username" required style="flex:1; min-width:220px;">
+    <input name="password" type="password" placeholder="Password" required style="flex:1; min-width:220px;">
+    <select name="role" style="min-width:140px;">
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select>
+    <button class="btn-primary" type="submit">Add User</button>
+  </form>
+
+  <div class="table-wrap">
+    <table class="members-table">
+      <tr>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+
+        <td>
+          {% if current_user.is_super_admin and u.username|lower != "upko" %}
+            <form method="post" action="{{ url_for('admin.update_user_role', user_id=u.id) }}">
+              <select name="role" onchange="this.form.submit()">
+                <option value="user" {% if u.role == "user" %}selected{% endif %}>USER</option>
+                <option value="admin" {% if u.role == "admin" %}selected{% endif %}>ADMIN</option>
+              </select>
+            </form>
+          {% else %}
+            {{ u.role.upper() }}
+          {% endif %}
+        </td>
+
+        <td>
+          {% if u.username|lower == "upko" %}
+            —
+          {% elif u.role == "admin" %}
+            {% if current_user.is_super_admin %}
+              <form method="post"
+                    action="{{ url_for('admin.delete_user', user_id=u.id) }}"
+                    style="display:inline;"
+                    onsubmit="return confirm('Delete admin {{ u.username }}?')">
+                <button type="submit" class="btn-delete">Delete</button>
+              </form>
+            {% else %}
+              —
+            {% endif %}
+          {% else %}
+            <form method="post"
+                  action="{{ url_for('admin.delete_user', user_id=u.id) }}"
+                  style="display:inline;"
+                  onsubmit="return confirm('Delete user {{ u.username }}?')">
+              <button type="submit" class="btn-delete">Delete</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+</div>
+{% endblock %}

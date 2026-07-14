@@ -1,0 +1,18 @@
+{% extends "layout/base.html" %}
+{% block title %}Membership Applications{% endblock %}
+{% block content %}
+<style>
+  .page{max-width:1200px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.input,select{height:40px;border:1px solid #cbd5e1;border-radius:10px;padding:0 10px}.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:900;text-decoration:none;cursor:pointer}.primary{background:#4f46e5;color:white}.secondary{background:#f1f5f9;color:#0f172a}.table-wrap{background:white;border:1px solid #e5e7eb;border-radius:18px;overflow:auto;box-shadow:0 10px 30px rgba(15,23,42,.06)}table{width:100%;border-collapse:collapse}th{background:#111827;color:white;text-align:left;padding:12px;font-size:13px}td{padding:12px;border-bottom:1px solid #e5e7eb;font-size:13px}.badge{padding:5px 9px;border-radius:999px;font-size:12px;font-weight:900}.pending{background:#fef3c7;color:#92400e}.approved{background:#dcfce7;color:#166534}.rejected{background:#fee2e2;color:#991b1b}.reviewed{background:#dbeafe;color:#1e40af}
+</style>
+<div class="page">
+  <div class="top"><h2>Membership Applications</h2><a class="btn secondary" href="{{ url_for('applications.application_accounts') }}">Manage Application Accounts</a></div>
+  <form class="filters" method="get">
+    <input class="input" name="q" placeholder="Search name / IC / bahagian" value="{{ q }}">
+    <select name="status"><option value="pending" {% if status=='pending' %}selected{% endif %}>Pending</option><option value="reviewed" {% if status=='reviewed' %}selected{% endif %}>Reviewed</option><option value="approved" {% if status=='approved' %}selected{% endif %}>Approved</option><option value="rejected" {% if status=='rejected' %}selected{% endif %}>Rejected</option><option value="" {% if not status %}selected{% endif %}>All</option></select>
+    <button class="btn primary">Apply</button>
+  </form>
+  <div class="table-wrap"><table><thead><tr><th>Date</th><th>Name</th><th>IC</th><th>Bahagian</th><th>Cawangan</th><th>Submitted By</th><th>Status</th><th>Action</th></tr></thead><tbody>
+    {% for a in applications %}<tr><td>{{ a.created_at.strftime('%d/%m/%Y') if a.created_at else '-' }}</td><td>{{ a.fullname }}</td><td>{{ a.ic }}</td><td>{{ a.apply_bahagian or '-' }}</td><td>{{ a.apply_cawangan or '-' }}</td><td>{{ a.submitted_by_username }}<br><small>{{ a.submitted_by_role|upper }}</small></td><td><span class="badge {{ a.status }}">{{ a.status|upper }}</span></td><td><a class="btn secondary" href="{{ url_for('applications.admin_review_application', application_id=a.id) }}">Review</a></td></tr>{% else %}<tr><td colspan="8">No applications found.</td></tr>{% endfor %}
+  </tbody></table></div>
+</div>
+{% endblock %}

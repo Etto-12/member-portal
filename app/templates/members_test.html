@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Members Test</title>
+    <style>
+        table { border-collapse: collapse; width: 100%; font-size: 12px; }
+        th, td { border: 1px solid black; padding: 4px; white-space: nowrap; }
+        th { background: #f0f0f0; }
+    </style>
+</head>
+<body>
+
+<h2>Members Test (All Columns)</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>IC</th>
+            <th>Title</th>
+            <th>Full Name</th>
+            <th>Gender</th>
+            <th>Bahagian</th>
+            <th>DUN</th>
+            <th>Cawangan</th>
+            <th>Birth Date</th>
+            <th>Warganegara</th>
+            <th>Bangsa</th>
+            <th>Kelulusan Akademik</th>
+            <th>Pekerjaan</th>
+            <th>Alamat</th>
+            <th>Email</th>
+            <th>No Telefon</th>
+            <th>Daerah Mengundi</th>
+            <th>Pusat Mengundi</th>
+            <th>Registration Date</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for m in members %}
+        <tr>
+            <td>{{ m.ic }}</td>
+            <td>{{ m.title }}</td>
+            <td>{{ m.fullname }}</td>
+            <td>{{ m.jantina }}</td>
+            <td>{{ m.bahagian.name if m.bahagian else "-" }}</td>
+            <td>{{ m.dun }}</td>
+            <td>{{ m.cawangan }}</td>
+            <td>{{ m.birthdate }}</td>
+            <td>{{ m.warganegara }}</td>
+            <td>{{ m.bangsa }}</td>
+            <td>{{ m.kelulusan_akademik }}</td>
+            <td>{{ m.pekerjaan }}</td>
+            <td>{{ m.alamat }}</td>
+            <td>{{ m.emel }}</td>
+            <td>{{ m.notelefon }}</td>
+            <td>{{ m.daerahmengundi }}</td>
+            <td>{{ m.pusatmengundi }}</td>
+            <td>{{ m.registration_date }}</td>
+            <td>{{ m.memberstatus }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
