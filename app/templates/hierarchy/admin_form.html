@@ -1,472 +1,88 @@
 {% extends "layout/base.html" %}
-
-{% block title %}
-  {% if choose_mode %}
-    Manage Hierarchy
-  {% elif edit_document_mode|default(false) %}
-    Edit {{ doc_label }}
-  {% else %}
-    Add {{ doc_label }}
-  {% endif %}
-{% endblock %}
-
+{% block title %}{% if choose_mode %}Manage Hierarchy{% elif edit_document_mode|default(false) %}Edit {{ doc_label }}{% else %}Add {{ doc_label }}{% endif %}{% endblock %}
 {% block content %}
-
 <style>
-  .form-wrap {
-    max-width: 1040px;
-    margin: 0 auto;
-    padding-bottom: 40px;
-  }
+  .form-wrap{max-width:1060px;margin:0 auto;padding-bottom:34px}.page-head{margin-bottom:16px}.page-head h1{margin:0;color:#172033;font-size:1.55rem;font-weight:750}.page-head p{margin:4px 0 0;color:#667085;font-size:.82rem}
+  .choice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.choice-card{display:block;padding:18px;background:#fff;border:1px solid #dfe4ea;border-radius:8px;text-decoration:none;color:#172033}.choice-card:hover{border-color:#7f9acb;box-shadow:0 5px 16px rgba(16,24,40,.06)}.choice-title{font-weight:720;color:#173b75}.choice-desc{margin-top:4px;color:#667085;font-size:.75rem;line-height:1.45}
+  .form-card{background:#fff;border:1px solid #dfe4ea;border-radius:10px;overflow:hidden}.form-banner{padding:18px 20px;background:linear-gradient(135deg,#173b75,#315bb3);color:#fff}.form-title{margin:0;font-size:1.3rem;font-weight:780;text-transform:uppercase}.form-body{padding:18px}.notice{padding:11px 12px;border-radius:7px;margin-bottom:14px;font-size:.75rem;line-height:1.5}.notice.new{background:#f0fdf4;border:1px solid #bbebcb;color:#17613e}.notice.edit{background:#fff8eb;border:1px solid #f1d49a;color:#80520f}.layout-link{display:inline-flex;margin-top:8px;color:inherit;font-weight:700}
+  .top-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}.field{display:flex;flex-direction:column;gap:5px}.field label{font-size:.74rem;font-weight:680;color:#344054}.input{height:39px;border:1px solid #cfd6df;border-radius:6px;padding:0 10px;font-size:.8rem;background:#fff;box-sizing:border-box;width:100%}.subtitle-field{grid-column:1/-1}.subtitle-input{font-weight:650;color:#173b75}
+  .table-wrap{overflow-x:auto;border:1px solid #d6deea;border-radius:8px}.form-table{width:100%;min-width:760px;border-collapse:collapse}.form-table th{padding:10px;background:#234a93;color:#fff;font-size:.73rem}.form-table td{padding:8px;border-bottom:1px solid #e7ecf2;font-size:.76rem}.jawatan-cell{font-weight:680;color:#172033}.bil-cell{width:90px;text-align:center;font-weight:700;color:#475467}.name-input{width:100%;height:36px;border:1px solid #cfd6df;border-radius:6px;padding:0 9px;box-sizing:border-box}.name-input.prefilled{background:#f5fbf7;border-color:#9ccfaf}
+  .actions{display:flex;justify-content:space-between;gap:10px;margin-top:15px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 13px;border-radius:6px;border:1px solid transparent;text-decoration:none;font-size:.76rem;font-weight:680;cursor:pointer}.btn-secondary{background:#fff;border-color:#cfd6df;color:#344054}.btn-primary{background:#234a93;color:#fff}.btn-layout{background:#f7f5ff;border-color:#d9d0f3;color:#554398}
+  @media(max-width:780px){.choice-grid,.top-grid{grid-template-columns:1fr}.subtitle-field{grid-column:auto}.form-body{padding:12px}}
 
-  .choice-header {
-    margin-bottom: 20px;
-  }
 
-  .choice-header h1 {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 900;
-    color: #0f172a;
-  }
+/* ===== Larger-view accessibility pass ===== */
 
-  .choice-header p {
-    margin: 6px 0 0;
-    color: #64748b;
-    font-size: 14px;
-  }
+.form-wrap{max-width:1120px}
+.page-head h1{font-size:1.82rem}
+.page-head p{font-size:.94rem}
+.choice-card{padding:21px}
+.choice-title{font-size:1rem}
+.choice-desc{font-size:.85rem}
+.form-banner{padding:21px 23px}
+.form-title{font-size:1.48rem}
+.form-body{padding:21px}
+.notice{padding:13px 14px;font-size:.86rem}
+.top-grid{gap:14px;margin-bottom:16px}
+.field{gap:6px}
+.field label{font-size:.84rem}
+.input{height:44px;padding:0 12px;font-size:.9rem}
+.form-table th{padding:12px;font-size:.82rem}
+.form-table td{padding:10px;font-size:.86rem}
+.name-input{height:41px;padding:0 11px;font-size:.9rem}
+.btn{min-height:41px;padding:0 15px;font-size:.86rem}
 
-  .choice-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 18px;
-    margin-top: 20px;
-  }
 
-  .choice-card {
-    background: white;
-    border: 1px solid #dbe4f0;
-    border-radius: 20px;
-    padding: 24px;
-    text-decoration: none;
-    color: #0f172a;
-    box-shadow: 0 12px 30px rgba(15,23,42,.08);
-    transition: .2s ease;
-  }
-
-  .choice-card:hover {
-    transform: translateY(-3px);
-    border-color: #325bb3;
-    background: #f8fbff;
-  }
-
-  .choice-icon {
-    font-size: 32px;
-    margin-bottom: 10px;
-  }
-
-  .choice-title {
-    font-size: 20px;
-    font-weight: 900;
-    color: #173b75;
-    margin-bottom: 6px;
-  }
-
-  .choice-desc {
-    color: #64748b;
-    font-size: 14px;
-    line-height: 1.5;
-  }
-
-  .form-card {
-    background: white;
-    border: 1px solid #dbe4f0;
-    border-radius: 22px;
-    box-shadow: 0 14px 34px rgba(15,23,42,.08);
-    padding: 24px;
-    overflow: hidden;
-  }
-
-  .form-title {
-    text-align: center;
-    color: #173b75;
-    font-size: 28px;
-    font-weight: 900;
-    margin: 0;
-    text-transform: uppercase;
-    letter-spacing: -0.02em;
-  }
-
-  .subtitle-field {
-    max-width: 520px;
-    margin: 10px auto 22px;
-  }
-
-  .subtitle-field label {
-    display: block;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 900;
-    color: #0f172a;
-    margin-bottom: 6px;
-  }
-
-  .subtitle-input {
-    height: 42px;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 0 12px;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    font-weight: 900;
-    color: #173b75;
-    background: #f8fbff;
-  }
-
-  .edit-notice {
-    background: #fff7ed;
-    border: 1px solid #fed7aa;
-    color: #9a3412;
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    line-height: 1.5;
-  }
-
-  .top-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 16px;
-  }
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .field label {
-    font-size: 13px;
-    font-weight: 900;
-    color: #0f172a;
-  }
-
-  .input {
-    height: 42px;
-    border: 1px solid #cbd5e1;
-    border-radius: 11px;
-    padding: 0 12px;
-    font-size: 14px;
-    width: 100%;
-    box-sizing: border-box;
-    background: white;
-  }
-
-  .table-wrap {
-    width: 100%;
-    overflow-x: auto;
-    border: 1px solid #234a93;
-    border-radius: 14px;
-  }
-
-  .form-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 780px;
-    background: white;
-  }
-
-  .form-table th {
-    background: #2b5198;
-    color: white;
-    padding: 13px 10px;
-    font-size: 13px;
-    text-align: center;
-    font-weight: 900;
-    border: 1px solid #234a93;
-  }
-
-  .form-table td {
-    border: 1px solid #234a93;
-    padding: 9px;
-    vertical-align: middle;
-    font-size: 13px;
-  }
-
-  .jawatan-cell {
-    font-weight: 900;
-    color: #0f172a;
-    width: 38%;
-  }
-
-  .bil-cell {
-    text-align: center;
-    font-weight: 900;
-    width: 70px;
-  }
-
-  .name-input {
-    height: 38px;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    padding: 0 10px;
-    width: 100%;
-    box-sizing: border-box;
-    background: white;
-  }
-
-  .name-input.prefilled {
-    background: #f0fdf4;
-    border-color: #86efac;
-    font-weight: 800;
-  }
-
-  .actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 18px;
-    flex-wrap: wrap;
-  }
-
-  .btn {
-    border: 0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-weight: 900;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #325bb3, #5a48e2);
-    color: white;
-  }
-
-  .btn-secondary {
-    background: #f1f5f9;
-    color: #0f172a;
-    border: 1px solid #dbe4f0;
-  }
-
-  @media(max-width: 900px) {
-    .choice-grid,
-    .top-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .form-card {
-      padding: 18px;
-    }
-
-    .form-title {
-      font-size: 22px;
-    }
-  }
 </style>
 
 {% if choose_mode %}
-  <div class="form-wrap">
-    <div class="choice-header">
-      <h1>Manage Hierarchy</h1>
-      <p>Choose which hierarchy form to fill in.</p>
-    </div>
-
-    <div class="choice-grid">
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='MAJLIS_TERTINGGI') }}" class="choice-card">
-        <div class="choice-icon">🏛️</div>
-        <div class="choice-title">Majlis Tertinggi Parti</div>
-        <div class="choice-desc">Add central-level party hierarchy records.</div>
-      </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='BAHAGIAN') }}" class="choice-card">
-        <div class="choice-icon">🏢</div>
-        <div class="choice-title">Bahagian</div>
-        <div class="choice-desc">Add Bahagian committee hierarchy records.</div>
-      </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='CAWANGAN') }}" class="choice-card">
-        <div class="choice-icon">📍</div>
-        <div class="choice-title">Cawangan</div>
-        <div class="choice-desc">Add Cawangan committee hierarchy records.</div>
-      </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='WANITA') }}" class="choice-card">
-        <div class="choice-icon">♀</div>
-        <div class="choice-title">Wanita</div>
-        <div class="choice-desc">Add Jawatankuasa Wanita hierarchy records.</div>
-      </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='PEMUDA') }}" class="choice-card">
-        <div class="choice-icon">👥</div>
-        <div class="choice-title">Pemuda</div>
-        <div class="choice-desc">Add Pergerakan Pemuda hierarchy records.</div>
-      </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='GENERASI_MUDA') }}" class="choice-card">
-        <div class="choice-icon">⚡</div>
-        <div class="choice-title">Generasi Muda</div>
-        <div class="choice-desc">Add Generasi Muda hierarchy records.</div>
-      </a>
-
-
-    </div>
-  </div>
-{% else %}
-
-  <div class="form-wrap">
-    <form method="post" class="form-card">
-      <h1 class="form-title">
-        {% if doc_type == "CAWANGAN" %}
-          Borang Jawatankuasa Cawangan
-        {% elif doc_type == "BAHAGIAN" %}
-          Borang Jawatankuasa Bahagian
-        {% elif doc_type == "WANITA" %}
-          Borang Jawatankuasa Wanita
-        {% elif doc_type == "GENERASI_MUDA" %}
-          Borang Jawatankuasa Generasi Muda
-        {% elif doc_type == "PEMUDA" %}
-          Borang Susunan Ahli-Ahli Jawatankuasa Pergerakan Pemuda UPKO Pusat
-        {% else %}
-          Borang Majlis Tertinggi Parti
-        {% endif %}
-      </h1>
-
-      <div class="subtitle-field">
-        <label>Penggal / Subtitle</label>
-        <input
-          class="subtitle-input"
-          type="text"
-          name="term"
-          value="{{ term or 'UPKO Bagi Penggal 2026 - 2029' }}"
-          placeholder="Example: UPKO Bagi Penggal 2026 - 2029"
-          required
-        >
-      </div>
-
-      {% if edit_document_mode|default(false) %}
-        <div class="edit-notice">
-          You are editing the full existing form. Existing names are highlighted.
-          To delete an unnecessary row, clear the name field and save.
-          To add missing positions, fill the empty name fields and save.
+<div class="form-wrap">
+  <div class="page-head"><h1>Manage Hierarchy</h1><p>Create a new hierarchy document or edit the Jawatan/Bil layout used for future forms.</p></div>
+  <div class="choice-grid">
+    {% for type_value, label in [('MAJLIS_TERTINGGI','Majlis Tertinggi Parti'),('BAHAGIAN','Bahagian'),('CAWANGAN','Cawangan')] %}
+      <div class="choice-card">
+        <div class="choice-title">{{ label }}</div>
+        <div class="choice-desc">Create a new saved hierarchy document without replacing older elections.</div>
+        <div style="display:flex;gap:7px;margin-top:12px;flex-wrap:wrap">
+          <a class="btn btn-primary" href="{{ url_for('hierarchy.admin_add', doc_type=type_value) }}">Add New Document</a>
+          <a class="btn btn-layout" href="{{ url_for('hierarchy.admin_form_layout', doc_type=type_value) }}">Edit Jawatan & Bil</a>
         </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% else %}
+<div class="form-wrap">
+  <form method="post" class="form-card">
+    <div class="form-banner"><h1 class="form-title">{% if edit_document_mode|default(false) %}Edit{% else %}New{% endif %} {{ doc_label }}</h1></div>
+    <div class="form-body">
+      {% if edit_document_mode|default(false) %}
+        <div class="notice edit"><strong>Editing one saved document only.</strong> Older/newer election documents are separate and will not be changed.</div>
+      {% else %}
+        <div class="notice new"><strong>This creates a NEW hierarchy document.</strong> Previous election records will remain saved. <a class="layout-link" href="{{ url_for('hierarchy.admin_form_layout', doc_type=doc_type) }}">Need to change Jawatan/Bil first? Edit the form layout.</a></div>
       {% endif %}
 
       <div class="top-grid">
-        <div class="field">
-          <label>Title</label>
-          <input
-            class="input"
-            type="text"
-            name="title"
-            value="{{ title or '' }}"
-            placeholder="Example: {{ doc_label }} UPKO"
-            required
-          >
-        </div>
-
-        <div class="field">
-          <label>Tarikh Mesyuarat</label>
-          <input
-            class="input"
-            type="date"
-            name="meeting_date"
-            value="{{ meeting_date or '' }}"
-          >
-        </div>
-
-        {% if doc_type in ["BAHAGIAN", "CAWANGAN"] %}
-          <div class="field">
-            <label>Bahagian</label>
-            <input
-              class="input"
-              type="text"
-              name="bahagian"
-              value="{{ bahagian or '' }}"
-              placeholder="Example: PAPAR"
-              required
-            >
-          </div>
-        {% else %}
-          <input type="hidden" name="bahagian" value="">
-        {% endif %}
-
-        {% if doc_type == "CAWANGAN" %}
-          <div class="field">
-            <label>Cawangan</label>
-            <input
-              class="input"
-              type="text"
-              name="cawangan"
-              value="{{ cawangan or '' }}"
-              placeholder="Example: KG MOOK"
-              required
-            >
-          </div>
-        {% else %}
-          <input type="hidden" name="cawangan" value="">
-        {% endif %}
+        <div class="field subtitle-field"><label>Penggal / Subtitle</label><input class="input subtitle-input" type="text" name="term" value="{{ term or 'UPKO Bagi Penggal 2026 – 2029' }}" required></div>
+        <div class="field"><label>Title</label><input class="input" type="text" name="title" value="{{ title or '' }}" placeholder="Example: AHLI MAJLIS TERTINGGI UPKO 2026–2029" required></div>
+        <div class="field"><label>Tarikh Mesyuarat</label><input class="input" type="date" name="meeting_date" value="{{ meeting_date or '' }}"></div>
+        {% if doc_type in ['BAHAGIAN','CAWANGAN'] %}<div class="field"><label>Bahagian</label><input class="input" type="text" name="bahagian" value="{{ bahagian or '' }}" required></div>{% else %}<input type="hidden" name="bahagian" value="">{% endif %}
+        {% if doc_type == 'CAWANGAN' %}<div class="field"><label>Cawangan</label><input class="input" type="text" name="cawangan" value="{{ cawangan or '' }}" required></div>{% else %}<input type="hidden" name="cawangan" value="">{% endif %}
       </div>
 
-      <div class="table-wrap">
-        <table class="form-table">
-          <thead>
-            <tr>
-              <th>Jawatan</th>
-              <th>Bil</th>
-              <th>Nama</th>
-            </tr>
-          </thead>
+      <div class="table-wrap"><table class="form-table"><thead><tr><th>Jawatan</th><th>Bil</th><th>Nama</th></tr></thead><tbody>
+      {% for item in positions %}
+        <tr>
+          <td class="jawatan-cell">{{ item.position }}<input type="hidden" name="position[]" value="{{ item.position }}"></td>
+          <td class="bil-cell">{{ item.bil }}<input type="hidden" name="bil[]" value="{{ item.bil }}"></td>
+          <td><input class="name-input {% if item.candidate_name %}prefilled{% endif %}" type="text" name="candidate_name[]" value="{{ item.candidate_name or '' }}" placeholder="Masukkan nama"></td>
+        </tr>
+      {% endfor %}
+      </tbody></table></div>
 
-          <tbody>
-            {% for item in positions %}
-              <tr>
-                <td class="jawatan-cell">
-                  {{ item.position }}
-                  <input type="hidden" name="position[]" value="{{ item.position }}">
-                </td>
-
-                <td class="bil-cell">
-                  {{ item.bil }}
-                  <input type="hidden" name="bil[]" value="{{ item.bil }}">
-                </td>
-
-                <td>
-                  <input
-                    class="name-input {% if item.candidate_name %}prefilled{% endif %}"
-                    type="text"
-                    name="candidate_name[]"
-                    value="{{ item.candidate_name or '' }}"
-                    placeholder="Masukkan nama"
-                  >
-                </td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="actions">
-        <a href="{{ url_for('hierarchy.admin_list') }}" class="btn btn-secondary">Cancel</a>
-
-        <button type="submit" class="btn btn-primary">
-          {% if edit_document_mode|default(false) %}
-            Save Updated Form
-          {% else %}
-            Save Form
-          {% endif %}
-        </button>
-      </div>
-    </form>
-  </div>
-
+      <div class="actions"><a href="{{ url_for('hierarchy.admin_list') }}" class="btn btn-secondary">Cancel</a><button type="submit" class="btn btn-primary">{% if edit_document_mode|default(false) %}Save This Document{% else %}Save as New Document{% endif %}</button></div>
+    </div>
+  </form>
+</div>
 {% endif %}
-
 {% endblock %}

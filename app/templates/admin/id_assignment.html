@@ -1,804 +1,457 @@
 {% extends "layout/base.html" %}
-{% block title %}ID Assignment{% endblock %}
+{% block title %}ID Assignment | UPKO Member Portal{% endblock %}
 
 {% block content %}
-
 <style>
-  .id-page {
-    max-width: 1320px;
-    margin: 26px auto;
-    padding: 0 18px 40px;
+  .id-page{width:100%;max-width:1500px;margin:0 auto}
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px}
+  .page-title{margin:0;color:#172033;font-size:1.62rem;line-height:1.2;font-weight:700;letter-spacing:-.015em}
+  .page-subtitle{margin-top:4px;color:#475467;font-size:.86rem}
+  .btn-local{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border:1px solid #cfd6df;border-radius:6px;background:#fff;color:#344054;text-decoration:none;cursor:pointer;font-size:.78rem;font-weight:650;white-space:nowrap}
+  .btn-local:hover{background:#f8fafc}
+  .btn-local.primary{background:#234a93;border-color:#234a93;color:#fff}
+  .btn-local.primary:hover{background:#1d3f7f;border-color:#1d3f7f}
+  .btn-local.danger{background:#fff;border-color:#e6b8b4;color:#a12822}
+  .btn-local:disabled{opacity:.55;cursor:wait}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px}
+  .stat-card{position:relative;overflow:hidden;padding:14px 16px 13px;background:#fff;border:1px solid #dfe4ea;border-radius:8px}
+  .stat-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:#234a93}
+  .stat-label{color:#475467;font-size:.74rem;font-weight:650}
+  .stat-value{margin-top:5px;color:#172033;font-size:1.55rem;line-height:1;font-weight:720;font-variant-numeric:tabular-nums}
+  .stat-context{margin-top:6px;color:#667085;font-size:.72rem}
+
+  .admin-panel{margin-bottom:12px;background:#fff;border:1px solid #dfe4ea;border-radius:8px}
+  .admin-panel summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px;cursor:pointer;list-style:none;color:#344054;font-size:.8rem;font-weight:700}
+  .admin-panel summary::-webkit-details-marker{display:none}
+  .admin-panel summary::after{content:"Show";color:#667085;font-size:.72rem;font-weight:600}
+  .admin-panel[open] summary::after{content:"Hide"}
+  .admin-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding:0 13px 13px}
+  .admin-item{display:grid;grid-template-columns:10px minmax(0,1fr);gap:8px;align-items:start;padding:9px 10px;border:1px solid #e4e7ec;border-radius:6px;background:#fafbfc}
+  .admin-dot{width:10px;height:10px;margin-top:4px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 3px #d0d5dd}
+  .admin-name{overflow:hidden;color:#172033;font-size:.77rem;font-weight:700;white-space:nowrap;text-overflow:ellipsis}
+  .admin-role{margin-top:2px;color:#667085;font-size:.68rem}
+  .admin-current{color:#234a93;font-weight:700}
+
+  .workbar{display:grid;grid-template-columns:minmax(220px,1fr) 190px auto;gap:8px;align-items:end;padding:11px 12px;margin-bottom:10px;background:#fff;border:1px solid #dfe4ea;border-radius:8px}
+  .field{display:flex;flex-direction:column;gap:4px}
+  .field-label{color:#475467;font-size:.69rem;font-weight:650}
+  .input-local,.select-local{width:100%;height:37px;padding:0 10px;border:1px solid #cfd6df;border-radius:6px;background:#fff;color:#172033;font-size:.79rem}
+  .input-local:focus,.select-local:focus{outline:none;border-color:#6c8bc5;box-shadow:0 0 0 3px rgba(35,74,147,.10)}
+  .toolbar-actions{display:flex;gap:7px}
+
+  .selection-bar{position:sticky;top:calc(var(--navbar-height) + 8px);z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:9px 12px;margin-bottom:10px;background:#17335f;border:1px solid #17335f;border-radius:8px;box-shadow:0 4px 14px rgba(16,24,40,.10)}
+  .selection-copy{color:#fff;font-size:.78rem}
+  .selection-copy strong{font-size:.86rem}
+  .selection-note{margin-top:2px;color:rgba(255,255,255,.75);font-size:.69rem}
+  .selection-bar .btn-local.primary{background:#fff;border-color:#fff;color:#17335f}
+
+  .result-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 8px;color:#667085;font-size:.72rem}
+
+  .id-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px}
+  .id-card{position:relative;min-width:0;min-height:78px;padding:10px;background:#fff;border:1px solid #dfe4ea;border-radius:7px;cursor:pointer;transition:border-color .12s ease,background .12s ease,box-shadow .12s ease,color .12s ease}
+  .id-card.available:hover{background:#f8fbff;border-color:#9cb2d3}
+  .id-card.available.selected{background:linear-gradient(135deg,#234a93 0%,#5a45e0 100%);border-color:#234a93;box-shadow:0 10px 24px rgba(35,74,147,.22), inset 0 0 0 1px rgba(255,255,255,.10)}
+  .id-card.available.selected .id-number{color:#ffffff}
+  .id-card.available.selected .state-badge.available{background:rgba(255,255,255,.16);color:#ffffff;border-color:rgba(255,255,255,.30)}
+  .id-card.available.selected .available-check{opacity:1;accent-color:#ffffff}
+  .id-card.assigned{
+    cursor:default;
+    background:
+      linear-gradient(rgba(15,23,42,.16),rgba(15,23,42,.16)),
+      var(--assigned-color,#667085);
+    border-color:color-mix(in srgb,var(--assigned-color,#667085) 82%,#0f172a 18%);
+    box-shadow:0 10px 20px color-mix(in srgb,var(--assigned-color,#667085) 24%,transparent);
   }
+  .id-card.assigned .id-number{color:#ffffff;text-shadow:0 1px 2px rgba(15,23,42,.22)}
+  .id-card.assigned .state-badge.assigned{background:rgba(255,255,255,.16);color:#ffffff;border-color:rgba(255,255,255,.34)}
+  .id-top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .id-number{color:#172033;font-size:1rem;line-height:1;font-weight:720;font-variant-numeric:tabular-nums}
+  .state-badge{display:inline-flex;align-items:center;min-height:21px;padding:2px 6px;border-radius:999px;font-size:.63rem;font-weight:700;white-space:nowrap}
+  .state-badge.available{background:#ecfdf3;color:#166534;border:1px solid #bbf7d0}
+  .state-badge.assigned{background:#f2f4f7;color:#344054;border:1px solid #d0d5dd}
+  .id-assignee{display:flex;align-items:center;gap:6px;min-width:0;margin-top:8px}
+  .assignee-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;background:#ffffff;box-shadow:0 0 0 2px rgba(255,255,255,.28),0 0 0 3px rgba(15,23,42,.18)}
+  .assignee-name{overflow:hidden;color:#344054;font-size:.7rem;font-weight:650;white-space:nowrap;text-overflow:ellipsis}
+  .id-card.assigned .assignee-name{color:#ffffff;text-shadow:0 1px 2px rgba(15,23,42,.18)}
+  .assigned-date{margin-top:3px;color:#667085;font-size:.64rem}
+  .id-card.assigned .assigned-date{color:rgba(255,255,255,.90);text-shadow:0 1px 2px rgba(15,23,42,.16)}
+  .available-check{position:absolute;inset:8px 8px auto auto;width:16px;height:16px;accent-color:#234a93;pointer-events:none;opacity:0}
+  .release-row{margin-top:7px}
+  .release-button{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:0 10px;border:1px solid #e6b8b4;border-radius:6px;background:#fff7f6;color:#9f2f2a;cursor:pointer;font-size:.65rem;font-weight:700}
+  .release-button:hover{background:#fff1ef}
+  .id-card.assigned .release-button{border-color:rgba(255,255,255,.42);background:rgba(255,255,255,.16);color:#ffffff;backdrop-filter:blur(2px)}
+  .id-card.assigned .release-button:hover{background:rgba(255,255,255,.26);border-color:rgba(255,255,255,.58)}
 
-  .page-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 18px;
-  }
+  .pagination{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin-top:14px}
+  .page-link{display:inline-flex;align-items:center;justify-content:center;min-width:32px;height:30px;padding:0 8px;border:1px solid #cfd6df;border-radius:5px;background:#fff;color:#344054;text-decoration:none;font-size:.71rem;font-weight:600}
+  .page-link:hover{background:#f2f4f7}
+  .page-link.active{background:#234a93;border-color:#234a93;color:#fff}
 
-  .page-title {
-    margin: 0;
-    font-size: 30px;
-    font-weight: 900;
-    color: #0f172a;
-  }
+  .dialog{width:min(440px,calc(100vw - 32px));padding:0;border:0;border-radius:8px;box-shadow:0 24px 60px rgba(16,24,40,.24)}
+  .dialog::backdrop{background:rgba(16,24,40,.45)}
+  .dialog-body{padding:20px}
+  .dialog-title{margin:0;color:#172033;font-size:1rem;font-weight:700}
+  .dialog-text{margin:8px 0 0;color:#475467;font-size:.8rem;line-height:1.5}
+  .dialog-id{margin-top:10px;padding:9px 10px;background:#f8fafc;border:1px solid #e4e7ec;border-radius:6px;color:#172033;font-size:.82rem;font-weight:700}
+  .dialog-actions{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:1px solid #e7ebf0;background:#fafbfc}
 
-  .page-subtitle {
-    margin: 6px 0 0;
-    color: #64748b;
-    font-size: 14px;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-
-  .stat-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 16px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-  }
-
-  .stat-label {
-    color: #64748b;
-    font-size: 13px;
-    font-weight: 800;
-  }
-
-  .stat-value {
-    margin-top: 4px;
-    font-size: 24px;
-    font-weight: 900;
-    color: #0f172a;
-  }
-
-  .access-box {
-    background: #ffffff;
-    border: 2px solid #4f46e5;
-    border-radius: 20px;
-    padding: 18px;
-    box-shadow: 0 14px 36px rgba(79, 70, 229, 0.13);
-    margin-bottom: 18px;
-  }
-
-  .access-title {
-    font-size: 16px;
-    font-weight: 950;
-    color: #0f172a;
-    margin-bottom: 4px;
-  }
-
-  .access-note {
-    font-size: 13px;
-    color: #64748b;
-    font-weight: 700;
-    margin-bottom: 14px;
-  }
-
-  .access-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .access-card {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 13px;
-    min-width: 0;
-  }
-
-  .access-dot {
-    width: 24px;
-    height: 24px;
-    border-radius: 999px;
-    border: 3px solid white;
-    box-shadow: 0 0 0 1px #cbd5e1;
-    flex-shrink: 0;
-  }
-
-  .access-name {
-    font-weight: 950;
-    color: #0f172a;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .access-details {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 800;
-    margin-top: 3px;
-  }
-
-  .access-tag {
-    display: inline-flex;
-    margin-top: 6px;
-    font-size: 11px;
-    font-weight: 950;
-    padding: 4px 8px;
-    border-radius: 999px;
-    background: #eef2ff;
-    color: #3730a3;
-    border: 1px solid #c7d2fe;
-  }
-
-  .legend-box {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-    margin-bottom: 18px;
-  }
-
-  .legend-title {
-    font-size: 14px;
-    font-weight: 900;
-    color: #0f172a;
-    margin-bottom: 10px;
-  }
-
-  .legend-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    font-size: 13px;
-    font-weight: 900;
-    color: #0f172a;
-  }
-
-  .legend-dot {
-    width: 18px;
-    height: 18px;
-    border-radius: 999px;
-    border: 2px solid white;
-    box-shadow: 0 0 0 1px #cbd5e1;
-    flex-shrink: 0;
-  }
-
-  .toolbar {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
-    margin-bottom: 18px;
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .input,
-  .select {
-    height: 44px;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    padding: 0 12px;
-    background: white;
-    font-size: 14px;
-  }
-
-  .btn {
-    height: 44px;
-    border: none;
-    border-radius: 12px;
-    padding: 0 14px;
-    font-weight: 900;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    color: white;
-  }
-
-  .btn-secondary {
-    background: #f1f5f9;
-    color: #0f172a;
-    border: 1px solid #e2e8f0;
-  }
-
-  .confirm-box {
-    background: #0f172a;
-    color: white;
-    border-radius: 18px;
-    padding: 14px 16px;
-    margin-bottom: 18px;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .confirm-text {
-    font-weight: 900;
-  }
-
-  .confirm-note {
-    color: #cbd5e1;
-    font-size: 13px;
-    margin-top: 3px;
-  }
-
-  .id-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-  }
-
-  .id-card {
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-    position: relative;
-    min-height: 122px;
-    overflow: hidden;
-  }
-
-  .id-card.assigned {
-    color: white;
-    border-color: transparent;
-  }
-
-  .id-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    align-items: start;
-  }
-
-  .id-number {
-    font-size: 22px;
-    font-weight: 950;
-    letter-spacing: -0.03em;
-  }
-
-  .id-status {
-    font-size: 11px;
-    font-weight: 900;
-    padding: 5px 8px;
-    border-radius: 999px;
-    background: #dcfce7;
-    color: #166534;
-  }
-
-  .id-card.assigned .id-status {
-    background: rgba(255,255,255,0.18);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.25);
-  }
-
-  .id-meta {
-    margin-top: 10px;
-    color: #64748b;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.45;
-  }
-
-  .id-card.assigned .id-meta {
-    color: rgba(255,255,255,0.88);
-  }
-
-  .id-actions {
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-
-  .id-checkbox {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-  }
-
-  .release-btn {
-    height: 34px;
-    border: none;
-    border-radius: 10px;
-    padding: 0 10px;
-    font-size: 12px;
-    font-weight: 900;
-    background: rgba(255,255,255,0.18);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.25);
-    cursor: pointer;
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 22px;
-    flex-wrap: wrap;
-  }
-
-  .page-link {
-    text-decoration: none;
-    padding: 9px 12px;
-    border-radius: 10px;
-    border: 1px solid #e5e7eb;
-    background: white;
-    color: #0f172a;
-    font-weight: 800;
-  }
-
-  .page-link.active {
-    background: #4f46e5;
-    color: white;
-  }
-
-  @media(max-width: 1100px) {
-    .id-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .stats-grid,
-    .access-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .toolbar {
-      grid-template-columns: 1fr 1fr;
-    }
-  }
-
-
-  .status-tabs {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-  }
-
-  .status-tab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 46px;
-    padding: 0 18px;
-    border-radius: 14px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    color: #334155;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 950;
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
-    transition:
-      transform 0.15s ease,
-      box-shadow 0.15s ease,
-      background 0.15s ease;
-  }
-
-  .status-tab:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
-  }
-
-  .status-tab.active {
-    color: #ffffff;
-    border-color: transparent;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
-    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.25);
-  }
-
-  .status-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 30px;
-    height: 24px;
-    margin-left: 8px;
-    padding: 0 8px;
-    border-radius: 999px;
-    background: #eef2ff;
-    color: #3730a3;
-    font-size: 12px;
-    font-weight: 950;
-  }
-
-  .status-tab.active .status-count {
-    background: rgba(255, 255, 255, 0.20);
-    color: #ffffff;
-  }
-
-  .empty-state {
-    grid-column: 1 / -1;
-    padding: 44px 20px;
-    border: 1px dashed #cbd5e1;
-    border-radius: 18px;
-    background: #ffffff;
-    text-align: center;
-    color: #64748b;
-    font-weight: 800;
-  }
-
-  @media(max-width: 700px) {
-    .id-grid,
-    .stats-grid,
-    .access-grid,
-    .toolbar {
-      grid-template-columns: 1fr;
-    }
-  }
+  @media(max-width:1350px){.id-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.admin-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.id-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.admin-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media(max-width:800px){.page-head,.selection-bar{align-items:stretch;flex-direction:column}.workbar{grid-template-columns:1fr}.toolbar-actions{width:100%}.toolbar-actions>*{flex:1}.id-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.admin-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:520px){.stats-grid,.admin-list{grid-template-columns:1fr}.id-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 
 <div class="id-page">
   <div class="page-head">
     <div>
       <h1 class="page-title">ID Assignment</h1>
-      <div class="page-subtitle">
-        Assign IDs starting from 162687. Only Admin and Super Admin can access this page.
-      </div>
+      <div class="page-subtitle">Manage the generated ID pool and record which administrator reserved each ID.</div>
     </div>
 
-    <form method="post" action="{{ url_for('id_assignment.generate_more') }}">
-      <button class="btn btn-secondary" type="submit">
-        Generate Next 500 IDs
-      </button>
+    <form method="post" action="{{ url_for('id_assignment.generate_more') }}" onsubmit="return confirmGenerate(this);">
+      <button class="btn-local" id="generateButton" type="submit">Generate Next 500 IDs</button>
     </form>
   </div>
 
   <div class="stats-grid">
     <div class="stat-card">
       <div class="stat-label">Total IDs</div>
-      <div class="stat-value">{{ total_ids }}</div>
+      <div class="stat-value">{{ "{:,}".format(total_ids|int) }}</div>
+      <div class="stat-context">Range: 162687–{{ highest_id }}</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-label">Assigned</div>
-      <div class="stat-value">{{ assigned_count }}</div>
+      <div class="stat-value">{{ "{:,}".format(assigned_count|int) }}</div>
+      <div class="stat-context">{{ "%.1f"|format((assigned_count / total_ids * 100) if total_ids else 0) }}% of generated IDs</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-label">Available</div>
-      <div class="stat-value">{{ available_count }}</div>
+      <div class="stat-value">{{ "{:,}".format(available_count|int) }}</div>
+      <div class="stat-context">Ready to reserve</div>
     </div>
-
     <div class="stat-card">
       <div class="stat-label">Highest Generated ID</div>
       <div class="stat-value">{{ highest_id }}</div>
+      <div class="stat-context">Latest ID in the pool</div>
     </div>
   </div>
 
-  <div class="access-box">
-    <div class="access-title">
-      Users With ID Assignment Access
-    </div>
-    <div class="access-note">
-      These are all accounts currently allowed to open this page. Their colour is the colour used when they assign an ID.
-    </div>
-
-    <div class="access-grid">
+  <details class="admin-panel">
+    <summary><span>Admins and assignment colours · {{ access_users|length }} users</span></summary>
+    <div class="admin-list">
       {% for user in access_users %}
-        <div class="access-card">
-          <span class="access-dot" style="background: {{ user.color }};"></span>
-
+        <div class="admin-item">
+          <span class="admin-dot" style="background: {{ user.color or '#667085' }};"></span>
           <div>
-            <div class="access-name">{{ user.username }}</div>
-            <div class="access-details">role: {{ user.role }}</div>
-            <div class="access-tag">{{ user.access_type }}</div>
+            <div class="admin-name">
+              {{ user.username }}
+              {% if user.username == current_user.username %}<span class="admin-current">· You</span>{% endif %}
+            </div>
+            <div class="admin-role">{{ user.access_type }}</div>
           </div>
         </div>
       {% endfor %}
     </div>
-  </div>
+  </details>
 
-  <div class="legend-box">
-    <div class="legend-title">Assigned Colour Legend</div>
-
-    <div class="legend-row">
-      <div class="legend-item">
-        <span class="legend-dot" style="background: {{ current_admin_color }};"></span>
-        Your colour: {{ current_user.username }}
-      </div>
-
-      {% for username, color in assigned_legend %}
-        <div class="legend-item">
-          <span class="legend-dot" style="background: {{ color or '#334155' }};"></span>
-          {{ username }}
-        </div>
-      {% endfor %}
+  <form method="get" class="workbar">
+    <div class="field">
+      <label class="field-label" for="idSearch">ID search</label>
+      <input class="input-local" id="idSearch" type="text" inputmode="numeric" name="q" value="{{ search or '' }}" placeholder="Enter ID or numeric prefix">
     </div>
-  </div>
 
-  <div class="status-tabs">
-    <a
-      class="status-tab {% if status == 'available' %}active{% endif %}"
-      href="{{ url_for('id_assignment.index', status='available') }}"
-    >
-      Available IDs
-      <span class="status-count">{{ available_count }}</span>
-    </a>
+    <div class="field">
+      <label class="field-label" for="statusFilter">Status</label>
+      <select class="select-local" id="statusFilter" name="status">
+        <option value="" {% if not status %}selected{% endif %}>All IDs</option>
+        <option value="available" {% if status == "available" %}selected{% endif %}>Available</option>
+        <option value="assigned" {% if status == "assigned" %}selected{% endif %}>Assigned</option>
+      </select>
+    </div>
 
-    <a
-      class="status-tab {% if status == 'assigned' %}active{% endif %}"
-      href="{{ url_for('id_assignment.index', status='assigned') }}"
-    >
-      Assigned IDs
-      <span class="status-count">{{ assigned_count }}</span>
-    </a>
-  </div>
-
-  <form method="get" class="toolbar">
-    <input type="hidden" name="status" value="{{ status }}">
-
-    <input
-      class="input"
-      type="text"
-      name="q"
-      value="{{ search or '' }}"
-      placeholder="Search exact ID..."
-    >
-
-    <button class="btn btn-primary" type="submit">
-      Search
-    </button>
-
-    <a
-      class="btn btn-secondary"
-      href="{{ url_for('id_assignment.index', status=status) }}"
-    >
-      Reset Search
-    </a>
+    <div class="toolbar-actions">
+      <button class="btn-local primary" type="submit">Search</button>
+      <a class="btn-local" href="{{ url_for('id_assignment.index') }}">Reset</a>
+    </div>
   </form>
 
-  {% if status == "available" %}
-  <div class="confirm-box">
-    <div>
-      <div class="confirm-text">
-        Selected IDs: <span id="selectedCount">0</span>
-      </div>
-      <div class="confirm-note">
-        Tick available IDs, then confirm. The system checks again before assigning to avoid duplicate IDs.
-      </div>
+  {% if status != "assigned" %}
+  <div class="selection-bar">
+    <div class="selection-copy">
+      <strong><span id="selectedCount">0</span> ID(s) selected</strong>
+      <div class="selection-note">Available IDs are checked again by the server before assignment.</div>
     </div>
 
-    <button class="btn btn-primary" type="button" onclick="confirmSelectedIds()">
+    <button class="btn-local primary" id="confirmSelectedButton" type="button" onclick="confirmSelectedIds()" disabled>
       Confirm Selected IDs
     </button>
   </div>
   {% endif %}
 
+  <div class="result-meta">
+    <span>Page {{ pagination.page }} of {{ pagination.pages or 1 }}</span>
+    <span>{{ rows|length }} ID(s) on this page</span>
+  </div>
+
   <div class="id-grid" id="idGrid">
     {% for row in rows %}
-      <div
-        class="id-card {% if row.is_assigned %}assigned{% endif %}"
-        data-noid="{{ row.noid }}"
-        {% if row.is_assigned %}
-          style="background: {{ row.assigned_color or '#334155' }};"
-        {% endif %}
-      >
-        <div class="id-top">
-          <div class="id-number">{{ row.noid }}</div>
-          <div class="id-status">
-            {% if row.is_assigned %}
-              Assigned
-            {% else %}
-              Available
-            {% endif %}
+      {% if row.is_assigned %}
+        <div class="id-card assigned" data-noid="{{ row.noid }}" style="--assigned-color: {{ row.assigned_color or '#667085' }};">
+          <div class="id-top">
+            <div class="id-number">{{ row.noid }}</div>
+            <span class="state-badge assigned">Assigned</span>
           </div>
-        </div>
 
-        <div class="id-meta">
-          {% if row.is_assigned %}
-            Assigned by: <strong>{{ row.assigned_by_username or '-' }}</strong><br>
-            Time: {{ format_myt(row.assigned_at) if row.assigned_at else '-' }} MYT
-          {% else %}
-            Not assigned yet.
-          {% endif %}
-        </div>
+          <div class="id-assignee">
+            <span class="assignee-dot"></span>
+            <span class="assignee-name">{{ row.assigned_by_username or "Unknown" }}</span>
+          </div>
 
-        <div class="id-actions">
-          {% if row.is_assigned %}
-            <button
-              class="release-btn"
-              type="button"
-              onclick="releaseId({{ row.noid }})"
-            >
+          <div class="assigned-date"
+               title="{{ format_myt(row.assigned_at) ~ ' MYT' if row.assigned_at else '-' }}">
+            {{ format_myt_date(row.assigned_at) if row.assigned_at else '-' }}
+          </div>
+
+          <div class="release-row">
+            <button class="release-button" type="button" onclick="openReleaseDialog({{ row.noid }}, '{{ (row.assigned_by_username or '')|e }}')">
               Release
             </button>
-          {% else %}
-            <input
-              class="id-checkbox"
-              type="checkbox"
-              value="{{ row.noid }}"
-              onchange="updateSelectedCount()"
-            >
-            <span class="id-meta">Select this ID</span>
-          {% endif %}
+          </div>
         </div>
-      </div>
-    {% else %}
-      <div class="empty-state">
-        {% if status == "assigned" %}
-          No assigned IDs were found.
-        {% else %}
-          No available IDs were found.
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
-
-  <div class="pagination">
-    {% if pagination.has_prev %}
-      <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.prev_num, status=status, q=search) }}">Prev</a>
-    {% endif %}
-
-    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-      {% if p %}
-        <a class="page-link {% if p == pagination.page %}active{% endif %}"
-           href="{{ url_for('id_assignment.index', page=p, status=status, q=search) }}">
-          {{ p }}
-        </a>
       {% else %}
-        <span class="page-link">...</span>
+        <div class="id-card available" data-noid="{{ row.noid }}" role="checkbox" aria-checked="false" tabindex="0"
+             onclick="toggleIdCard(this)" onkeydown="handleIdKey(event, this)">
+          <input class="available-check id-checkbox" type="checkbox" value="{{ row.noid }}" tabindex="-1" aria-hidden="true">
+          <div class="id-top"><div class="id-number">{{ row.noid }}</div></div>
+          <div style="margin-top:10px;"><span class="state-badge available">Available</span></div>
+        </div>
       {% endif %}
     {% endfor %}
-
-    {% if pagination.has_next %}
-      <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.next_num, status=status, q=search) }}">Next</a>
-    {% endif %}
   </div>
+
+  {% if pagination.pages > 1 %}
+    <div class="pagination">
+      {% if pagination.has_prev %}
+        <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.prev_num, status=status, q=search) }}">Prev</a>
+      {% endif %}
+
+      {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if p %}
+          <a class="page-link {% if p == pagination.page %}active{% endif %}" href="{{ url_for('id_assignment.index', page=p, status=status, q=search) }}">{{ p }}</a>
+        {% else %}
+          <span class="page-link" style="border-color:transparent;background:transparent;">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if pagination.has_next %}
+        <a class="page-link" href="{{ url_for('id_assignment.index', page=pagination.next_num, status=status, q=search) }}">Next</a>
+      {% endif %}
+    </div>
+  {% endif %}
 </div>
 
+<dialog class="dialog" id="releaseDialog">
+  <div class="dialog-body">
+    <h3 class="dialog-title">Release assigned ID?</h3>
+    <p class="dialog-text">
+      Releasing makes this ID available for another administrator to reserve.
+      The server will block the release if this ID is already attached to a member record.
+    </p>
+    <div class="dialog-id" id="releaseDialogId"></div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn-local" type="button" onclick="closeReleaseDialog()">Cancel</button>
+    <button class="btn-local danger" id="releaseConfirmButton" type="button" onclick="confirmRelease()">Release ID</button>
+  </div>
+</dialog>
+
 <script>
+let pendingReleaseId = null;
+
 function updateSelectedCount() {
-  const count = document.querySelectorAll(".id-checkbox:checked").length;
-  document.getElementById("selectedCount").textContent = count;
+  const selected = document.querySelectorAll(".id-card.available.selected");
+  const count = selected.length;
+  const countNode = document.getElementById("selectedCount");
+  const confirmButton = document.getElementById("confirmSelectedButton");
+
+  if (countNode) countNode.textContent = count;
+  if (confirmButton) confirmButton.disabled = count === 0;
+}
+
+function toggleIdCard(card) {
+  if (!card || !card.classList.contains("available")) return;
+  const checkbox = card.querySelector(".id-checkbox");
+  const nowSelected = !card.classList.contains("selected");
+  card.classList.toggle("selected", nowSelected);
+  card.setAttribute("aria-checked", nowSelected ? "true" : "false");
+  if (checkbox) checkbox.checked = nowSelected;
+  updateSelectedCount();
+}
+
+function handleIdKey(event, card) {
+  if (event.key === " " || event.key === "Enter") {
+    event.preventDefault();
+    toggleIdCard(card);
+  }
 }
 
 function updateCardAsAssigned(noid, username, color, assignedAt) {
   const card = document.querySelector(`.id-card[data-noid="${noid}"]`);
   if (!card) return;
 
-  card.classList.add("assigned");
-  card.style.background = color || "#334155";
+  card.className = "id-card assigned";
+  card.removeAttribute("role");
+  card.removeAttribute("aria-checked");
+  card.removeAttribute("tabindex");
+  card.removeAttribute("onclick");
+  card.removeAttribute("onkeydown");
+  card.style.setProperty("--assigned-color", color || "#667085");
 
-  const status = card.querySelector(".id-status");
-  const meta = card.querySelector(".id-meta");
-  const actions = card.querySelector(".id-actions");
+  let dateText = "-";
+  if (assignedAt) {
+    // assignedAt is already formatted as Malaysia time by the server.
+    const datePart = String(assignedAt).split(" ")[0];
+    const pieces = datePart.split("-");
 
-  if (status) status.textContent = "Assigned";
+    if (pieces.length === 3) {
+      const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      const year = pieces[0];
+      const monthIndex = Number(pieces[1]) - 1;
+      const day = pieces[2];
 
-  if (meta) {
-    meta.innerHTML = `
-      Assigned by: <strong>${username || "-"}</strong><br>
-      Time: ${assignedAt ? assignedAt + " MYT" : "-"}
-    `;
+      if (monthIndex >= 0 && monthIndex < 12) {
+        dateText = `${day} ${months[monthIndex]} ${year}`;
+      } else {
+        dateText = assignedAt;
+      }
+    } else {
+      dateText = assignedAt;
+    }
   }
 
-  if (actions) {
-    actions.innerHTML = `
-      <button class="release-btn" type="button" onclick="releaseId(${noid})">
-        Release
-      </button>
-    `;
-  }
+  card.innerHTML = `
+    <div class="id-top">
+      <div class="id-number">${noid}</div>
+      <span class="state-badge assigned">Assigned</span>
+    </div>
+    <div class="id-assignee">
+      <span class="assignee-dot"></span>
+      <span class="assignee-name">${escapeHtml(username || "Unknown")}</span>
+    </div>
+    <div class="assigned-date" title="${escapeHtml(assignedAt || "-")}">${escapeHtml(dateText)}</div>
+    <div class="release-row">
+      <button class="release-button" type="button" onclick="openReleaseDialog(${noid}, '${escapeJsString(username || "")}')">Release</button>
+    </div>
+  `;
+  updateSelectedCount();
 }
 
 function updateCardAsAvailable(noid) {
   const card = document.querySelector(`.id-card[data-noid="${noid}"]`);
   if (!card) return;
 
-  card.classList.remove("assigned");
-  card.style.background = "";
+  card.className = "id-card available";
+  card.style.removeProperty("--assigned-color");
+  card.setAttribute("role", "checkbox");
+  card.setAttribute("aria-checked", "false");
+  card.setAttribute("tabindex", "0");
+  card.setAttribute("onclick", "toggleIdCard(this)");
+  card.setAttribute("onkeydown", "handleIdKey(event, this)");
 
-  const status = card.querySelector(".id-status");
-  const meta = card.querySelector(".id-meta");
-  const actions = card.querySelector(".id-actions");
-
-  if (status) status.textContent = "Available";
-  if (meta) meta.innerHTML = "Not assigned yet.";
-
-  if (actions) {
-    actions.innerHTML = `
-      <input
-        class="id-checkbox"
-        type="checkbox"
-        value="${noid}"
-        onchange="updateSelectedCount()"
-      >
-      <span class="id-meta">Select this ID</span>
-    `;
-  }
-
+  card.innerHTML = `
+    <input class="available-check id-checkbox" type="checkbox" value="${noid}" tabindex="-1" aria-hidden="true">
+    <div class="id-top"><div class="id-number">${noid}</div></div>
+    <div style="margin-top:10px;"><span class="state-badge available">Available</span></div>
+  `;
   updateSelectedCount();
 }
 
 async function confirmSelectedIds() {
-  const selected = Array.from(document.querySelectorAll(".id-checkbox:checked"))
-    .map(input => input.value);
+  const selected = Array.from(document.querySelectorAll(".id-card.available.selected"))
+    .map(card => card.dataset.noid);
 
-  if (selected.length === 0) {
-    alert("Please tick at least one available ID first.");
-    return;
-  }
+  if (!selected.length) return;
 
-  if (!confirm(`Confirm assigning ${selected.length} selected ID(s)?`)) {
-    return;
-  }
+  if (!confirm(`Confirm assigning ${selected.length} selected ID(s)?`)) return;
 
-  for (const noid of selected) {
-    const res = await fetch("{{ url_for('id_assignment.assign_id') }}", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ noid: noid })
-    });
+  const button = document.getElementById("confirmSelectedButton");
+  if (!button) return;
 
-    const data = await res.json();
+  button.disabled = true;
+  button.textContent = "Assigning…";
 
-    if (data.ok) {
-      updateCardAsAssigned(
-        data.noid,
-        data.assigned_by_username,
-        data.assigned_color,
-        data.assigned_at
-      );
-    } else {
-      alert(data.message || `ID ${noid} could not be assigned.`);
-      await refreshVisibleIds();
+  try {
+    for (const noid of selected) {
+      const res = await fetch("{{ url_for('id_assignment.assign_id') }}", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({noid:noid})
+      });
+
+      const data = await res.json();
+
+      if (data.ok) {
+        updateCardAsAssigned(data.noid, data.assigned_by_username, data.assigned_color, data.assigned_at);
+      } else {
+        alert(data.message || `ID ${noid} could not be assigned.`);
+        await refreshVisibleIds();
+      }
     }
+  } finally {
+    button.textContent = "Confirm Selected IDs";
+    updateSelectedCount();
   }
-
-  window.location.reload();
 }
 
-async function releaseId(noid) {
-  if (!confirm(`Release ID ${noid}?`)) {
-    return;
-  }
+function openReleaseDialog(noid, username) {
+  pendingReleaseId = noid;
+  document.getElementById("releaseDialogId").textContent =
+    username ? `ID ${noid} · Assigned by ${username}` : `ID ${noid}`;
 
+  const dialog = document.getElementById("releaseDialog");
+  if (typeof dialog.showModal === "function") {
+    dialog.showModal();
+  } else if (confirm(`Release ID ${noid}?`)) {
+    doRelease(noid);
+  }
+}
+
+function closeReleaseDialog() {
+  pendingReleaseId = null;
+  const dialog = document.getElementById("releaseDialog");
+  if (dialog.open) dialog.close();
+}
+
+async function confirmRelease() {
+  if (!pendingReleaseId) return;
+
+  const noid = pendingReleaseId;
+  const button = document.getElementById("releaseConfirmButton");
+  button.disabled = true;
+  button.textContent = "Releasing…";
+
+  try {
+    await doRelease(noid);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Release ID";
+    closeReleaseDialog();
+  }
+}
+
+async function doRelease(noid) {
   const res = await fetch("{{ url_for('id_assignment.release_id') }}", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ noid: noid })
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({noid:noid})
   });
 
   const data = await res.json();
 
   if (data.ok) {
-    window.location.reload();
+    updateCardAsAvailable(noid);
   } else {
     alert(data.message || "Could not release this ID.");
     await refreshVisibleIds();
@@ -810,12 +463,10 @@ async function refreshVisibleIds() {
     .map(card => card.dataset.noid)
     .filter(Boolean);
 
-  if (ids.length === 0) return;
+  if (!ids.length) return;
 
-  const url = "{{ url_for('id_assignment.status') }}" + "?ids=" + ids.join(",");
-  const res = await fetch(url);
+  const res = await fetch("{{ url_for('id_assignment.status') }}" + "?ids=" + ids.join(","));
   const data = await res.json();
-
   if (!data.ok) return;
 
   data.rows.forEach(row => {
@@ -825,26 +476,43 @@ async function refreshVisibleIds() {
     const cardIsAssigned = card.classList.contains("assigned");
 
     if (row.is_assigned) {
-      updateCardAsAssigned(
-        row.noid,
-        row.assigned_by_username,
-        row.assigned_color,
-        row.assigned_at
-      );
-    } else {
-      /*
-        Do not rebuild available cards during auto-refresh.
-        Rebuilding available cards recreates the checkbox and clears the tick.
-        Only rebuild it if it was previously assigned and has now been released.
-      */
-      if (cardIsAssigned) {
-        updateCardAsAvailable(row.noid);
-      }
+      updateCardAsAssigned(row.noid,row.assigned_by_username,row.assigned_color,row.assigned_at);
+    } else if (cardIsAssigned) {
+      updateCardAsAvailable(row.noid);
     }
   });
 }
 
-setInterval(refreshVisibleIds, 1500);
-</script>
+function confirmGenerate() {
+  const button = document.getElementById("generateButton");
 
+  if (!confirm("Generate the next 500 IDs? This will extend the ID pool by 500.")) {
+    return false;
+  }
+
+  button.disabled = true;
+  button.textContent = "Generating…";
+  return true;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+function escapeJsString(value) {
+  return String(value).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+
+document.getElementById("statusFilter").addEventListener("change", function () {
+  this.form.submit();
+});
+
+updateSelectedCount();
+window.setInterval(refreshVisibleIds, 10000);
+</script>
 {% endblock %}

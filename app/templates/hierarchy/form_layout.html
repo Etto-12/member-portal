@@ -1,0 +1,39 @@
+{% extends "layout/base.html" %}
+{% block title %}Edit {{ doc_label }} Form Layout{% endblock %}
+{% block content %}
+<style>
+.layout-wrap{max-width:980px;margin:0 auto;padding-bottom:32px}.page-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:14px}.page-title{margin:0;color:#172033;font-size:1.5rem;font-weight:750}.page-sub{margin:4px 0 0;color:#667085;font-size:.8rem}.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.tab{padding:7px 10px;border:1px solid #cfd6df;border-radius:6px;text-decoration:none;color:#475467;font-size:.73rem;font-weight:650;background:#fff}.tab.active{background:#234a93;color:#fff;border-color:#234a93}.notice{padding:11px 12px;background:#fff8eb;border:1px solid #f0d59e;border-radius:7px;color:#80520f;font-size:.75rem;line-height:1.5;margin-bottom:12px}.card{background:#fff;border:1px solid #dfe4ea;border-radius:8px;overflow:hidden}.table-wrap{overflow-x:auto}.layout-table{width:100%;min-width:700px;border-collapse:collapse}.layout-table th{background:#234a93;color:#fff;padding:10px;font-size:.73rem;text-align:left}.layout-table td{padding:8px;border-bottom:1px solid #e9edf2}.order-cell{width:110px}.bil-cell{width:130px}.layout-input{height:36px;width:100%;box-sizing:border-box;border:1px solid #cfd6df;border-radius:6px;padding:0 9px}.row-actions{display:flex;gap:5px}.mini{height:32px;min-width:32px;border:1px solid #cfd6df;background:#fff;border-radius:6px;cursor:pointer;font-weight:700}.mini.delete{color:#b42318;border-color:#f0c7c3;background:#fff8f7}.actions{display:flex;justify-content:space-between;gap:10px;padding:12px;background:#fafbfc;border-top:1px solid #e7ecf2}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 12px;border-radius:6px;border:1px solid #cfd6df;text-decoration:none;font-size:.75rem;font-weight:680;cursor:pointer}.btn-primary{background:#234a93;color:#fff;border-color:#234a93}.btn-add{background:#f7f5ff;color:#554398;border-color:#d8d0f2}
+
+
+/* ===== Larger-view accessibility pass ===== */
+
+.layout-wrap{max-width:1060px}
+.page-title{font-size:1.78rem}
+.page-sub{font-size:.92rem}
+.tabs{gap:8px;margin-bottom:14px}
+.tab{padding:9px 13px;font-size:.83rem}
+.notice{padding:13px 14px;font-size:.86rem}
+.layout-table th{padding:12px;font-size:.82rem}
+.layout-table td{padding:10px}
+.layout-input{height:41px;padding:0 11px;font-size:.9rem}
+.mini{height:37px;min-width:37px;font-size:.9rem}
+.actions{padding:14px}
+.btn{min-height:41px;padding:0 14px;font-size:.84rem}
+
+
+</style>
+<div class="layout-wrap">
+  <div class="page-head"><div><h1 class="page-title">Edit Form Layout</h1><p class="page-sub">{{ doc_label }} — Jawatan and Bil used when creating future hierarchy documents.</p></div></div>
+  <div class="tabs">{% for t,l in [('MAJLIS_TERTINGGI','Majlis Tertinggi'),('BAHAGIAN','Bahagian'),('CAWANGAN','Cawangan')] %}<a class="tab {% if t==doc_type %}active{% endif %}" href="{{ url_for('hierarchy.admin_form_layout', doc_type=t) }}">{{ l }}</a>{% endfor %}</div>
+  <div class="notice"><strong>Important:</strong> changes here apply to <strong>new forms only</strong>. Existing saved election hierarchy documents keep the Jawatan/Bil that they were originally saved with.</div>
+  <form method="post" class="card">
+    <div class="table-wrap"><table class="layout-table"><thead><tr><th style="width:70px">Order</th><th>Jawatan</th><th style="width:150px">Bil</th><th style="width:140px">Actions</th></tr></thead><tbody id="layoutRows">
+      {% for row in rows %}<tr><td class="order-cell"><span class="order-number">{{ loop.index }}</span></td><td><input class="layout-input" name="position[]" value="{{ row.position }}" required></td><td class="bil-cell"><input class="layout-input" name="bil[]" value="{{ row.bil }}"></td><td><div class="row-actions"><button class="mini move-up" type="button">↑</button><button class="mini move-down" type="button">↓</button><button class="mini delete remove-row" type="button">Remove</button></div></td></tr>{% endfor %}
+    </tbody></table></div>
+    <div class="actions"><div style="display:flex;gap:7px"><a class="btn" href="{{ url_for('hierarchy.admin_list') }}">Back</a><button class="btn btn-add" id="addRow" type="button">+ Add Jawatan Row</button></div><button class="btn btn-primary" type="submit">Save Form Layout</button></div>
+  </form>
+</div>
+<script>
+(function(){const body=document.getElementById('layoutRows');const add=document.getElementById('addRow');function renumber(){[...body.querySelectorAll('tr')].forEach((r,i)=>r.querySelector('.order-number').textContent=i+1)}function wire(row){row.querySelector('.remove-row').onclick=()=>{if(body.querySelectorAll('tr').length<=1){alert('At least one Jawatan row is required.');return}row.remove();renumber()};row.querySelector('.move-up').onclick=()=>{const p=row.previousElementSibling;if(p){body.insertBefore(row,p);renumber()}};row.querySelector('.move-down').onclick=()=>{const n=row.nextElementSibling;if(n){body.insertBefore(n,row);renumber()}}} [...body.querySelectorAll('tr')].forEach(wire);add.onclick=()=>{const tr=document.createElement('tr');tr.innerHTML='<td class="order-cell"><span class="order-number"></span></td><td><input class="layout-input" name="position[]" required></td><td class="bil-cell"><input class="layout-input" name="bil[]"></td><td><div class="row-actions"><button class="mini move-up" type="button">↑</button><button class="mini move-down" type="button">↓</button><button class="mini delete remove-row" type="button">Remove</button></div></td>';body.appendChild(tr);wire(tr);renumber()};renumber()})();
+</script>
+{% endblock %}

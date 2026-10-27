@@ -2,6 +2,9 @@ from flask import Blueprint, render_template, request, redirect, url_for, abort,
 from flask_login import login_required, current_user
 from functools import wraps
 from sqlalchemy import or_
+from datetime import datetime
+from zoneinfo import ZoneInfo
+import re
 from app.extensions import db
 from app.models.member import Member
 from app.models.user import User
@@ -90,6 +93,15 @@ def clean_csv_value(value):
     if value is None:
         return ""
     return str(value).replace("\r\n", " ").replace("\n", " ").replace("\r", " ").strip()
+
+
+def normalize_ic(value):
+    """Return IC as digits only so dashed/spaced input is stored consistently."""
+    return re.sub(r"\D", "", value or "")
+
+
+def malaysia_today():
+    return datetime.now(ZoneInfo("Asia/Kuala_Lumpur")).date()
 
 
 # =========================
@@ -289,6 +301,11 @@ def dashboard():
 def members():
     page = request.args.get("page", 1, type=int)
 
+    # Allowed page sizes only
+    per_page = request.args.get("per_page", 25, type=int)
+    if per_page not in (25, 50, 100):
+        per_page = 25
+
     search = request.args.get("q", "").strip()
     parlimen = request.args.get("parlimen", "").strip()
     daerah_id = request.args.get("daerah_id", type=int)
@@ -296,8 +313,18 @@ def members():
     bahagian_id = request.args.get("bahagian_id", type=int)
     cawangan = request.args.get("cawangan", "").strip()
 
+    # Server-side sorting
+    sort_key = (request.args.get("sort") or "noid").strip().lower()
+    sort_dir = (request.args.get("dir") or "asc").strip().lower()
+
+    if sort_dir not in ("asc", "desc"):
+        sort_dir = "asc"
+
     query = Member.query
 
+    # =========================
+    # SEARCH
+    # =========================
     if search:
         filters = [
             Member.ic.ilike(f"%{search}%"),
@@ -314,6 +341,9 @@ def members():
 
         query = query.filter(or_(*filters))
 
+    # =========================
+    # FILTERS
+    # =========================
     if parlimen:
         query = query.filter(Member.parlimen == parlimen)
 
@@ -329,27 +359,133 @@ def members():
     if cawangan:
         query = query.filter(Member.cawangan.ilike(f"%{cawangan}%"))
 
-    pagination = query.order_by(Member.noid.asc()).paginate(
+    # =========================
+    # SAFE SERVER-SIDE SORTING
+    # =========================
+    sort_columns = {
+        "noid": Member.noid,
+        "name": db.func.lower(Member.fullname),
+        "gender": db.func.lower(Member.jantina),
+        "bahagian": db.func.lower(Member.bahagian),
+        "dun": db.func.lower(Member.dun),
+        "status": db.func.lower(Member.memberstatus),
+    }
+
+    sort_column = sort_columns.get(sort_key, Member.noid)
+
+    if sort_dir == "desc":
+        order_expression = sort_column.desc().nulls_last()
+    else:
+        order_expression = sort_column.asc().nulls_last()
+
+    pagination = query.order_by(
+        order_expression,
+        Member.id.asc()
+    ).paginate(
         page=page,
-        per_page=25,
+        per_page=per_page,
         error_out=False
     )
+
+    # =========================
+    # DUN DROPDOWN DATA
+    # If Bahagian is selected, only show DUNs
+    # that actually belong to members in that Bahagian.
+    # =========================
+    if bahagian_id:
+        duns = (
+            db.session.query(Dun)
+            .join(Member, Member.dun_id == Dun.id)
+            .filter(Member.bahagian_id == bahagian_id)
+            .distinct()
+            .order_by(Dun.name.asc())
+            .all()
+        )
+    else:
+        duns = Dun.query.order_by(Dun.name.asc()).all()
 
     return render_template(
         "admin/members.html",
         members=pagination.items,
         pagination=pagination,
+        total=pagination.total,
+        per_page=per_page,
+
         parlimens=Parlimen.query.order_by(Parlimen.name).all(),
         daerahs=Daerah.query.order_by(Daerah.name).all(),
-        duns=Dun.query.order_by(Dun.name).all(),
+        duns=duns,
         bahagians=Bahagian.query.order_by(Bahagian.name).all(),
+
         search=search,
         selected_parlimen=parlimen,
         selected_daerah_id=daerah_id,
         selected_dun_id=dun_id,
         selected_bahagian_id=bahagian_id,
         selected_cawangan=cawangan,
+
+        sort_key=sort_key,
+        sort_dir=sort_dir,
     )
+
+
+# =========================
+# API: CAWANGAN AUTOCOMPLETE
+# =========================
+@admin_bp.route("/api/cawangans")
+@login_required
+def api_cawangans():
+    q = (request.args.get("q") or "").strip()
+    bahagian_id = request.args.get("bahagian_id", type=int)
+    dun_id = request.args.get("dun_id", type=int)
+
+    if len(q) < 2:
+        return jsonify([])
+
+    query = (
+        db.session.query(Member.cawangan)
+        .filter(
+            Member.cawangan.isnot(None),
+            Member.cawangan != "",
+            Member.cawangan.ilike(f"%{q}%")
+        )
+    )
+
+    # Never let Bahagian/Cawangan application accounts search
+    # Cawangan names outside their assigned Bahagian.
+    if current_user.role in ("bahagian", "cawangan"):
+        user_bahagian_id = getattr(current_user, "bahagian_id", None)
+        user_bahagian_name = getattr(current_user, "bahagian_name", None)
+
+        if user_bahagian_id:
+            query = query.filter(Member.bahagian_id == user_bahagian_id)
+            bahagian_id = user_bahagian_id
+
+        elif user_bahagian_name:
+            query = query.filter(Member.bahagian.ilike(user_bahagian_name))
+            bahagian_id = None
+
+        else:
+            return jsonify([])
+
+    elif bahagian_id:
+        query = query.filter(Member.bahagian_id == bahagian_id)
+
+    if dun_id:
+        query = query.filter(Member.dun_id == dun_id)
+
+    rows = (
+        query
+        .distinct()
+        .order_by(Member.cawangan.asc())
+        .limit(20)
+        .all()
+    )
+
+    return jsonify([
+        {"name": row[0]}
+        for row in rows
+        if row[0]
+    ])
 
 
 # =========================
@@ -361,13 +497,20 @@ def add_member():
     parlimens = Parlimen.query.order_by(Parlimen.name).all()
     bahagians = Bahagian.query.order_by(Bahagian.name).all()
     all_duns = Dun.query.order_by(Dun.name).all()
+    today = malaysia_today()
+
+    form_data = request.form if request.method == "POST" else {}
 
     if request.method == "POST":
         bahagian_id = request.form.get("bahagian_id", type=int)
         dun_id = request.form.get("dun_id", type=int)
 
         negeri = (request.form.get("negeri") or "").strip() or None
-        cawangan = (request.form.get("cawangan") or "").strip() or None
+
+        # Cawangan is always stored uppercase regardless of how it was typed.
+        cawangan_raw = (request.form.get("cawangan") or "").strip()
+        cawangan = cawangan_raw.upper() or None
+
         pusatmengundi = (request.form.get("pusatmengundi") or "").strip() or None
 
         parlimen_spr = (request.form.get("parlimen_spr") or "").strip().upper() or None
@@ -375,18 +518,104 @@ def add_member():
         dun_spr = (request.form.get("dun_spr") or "").strip().upper() or None
 
         noid = request.form.get("noid", type=int)
-        ic = (request.form.get("ic") or "").strip() or None
+        ic = normalize_ic(request.form.get("ic"))
 
-        if noid is not None and Member.query.filter_by(noid=noid).first():
-            flash("NoID already exists.", "danger")
-            return redirect(request.url)
+        # Required fields that were already required in the form.
+        if not ic:
+            flash("IC Number is required.", "danger")
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
 
-        if ic and Member.query.filter_by(ic=ic).first():
+        if len(ic) != 12:
+            flash("IC Number must contain exactly 12 digits.", "danger")
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
+
+        if noid is None:
+            flash("No ID is required and must be numeric.", "danger")
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
+
+        # Keep the original server-side duplicate protection.
+        if Member.query.filter_by(noid=noid).first():
+            flash("No ID already exists.", "danger")
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
+
+        normalized_member_ic = db.func.replace(
+            db.func.replace(Member.ic, "-", ""),
+            " ",
+            ""
+        )
+
+        if Member.query.filter(normalized_member_ic == ic).first():
             flash("IC already exists.", "danger")
-            return redirect(request.url)
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
 
         selected_bahagian = Bahagian.query.get(bahagian_id) if bahagian_id else None
         selected_dun = Dun.query.get(dun_id) if dun_id else None
+
+        birthdate_value = (request.form.get("birthdate") or "").strip()
+        registration_date_value = (request.form.get("registration_date") or "").strip()
+
+        birthdate = None
+        registration_date = None
+
+        try:
+            if birthdate_value:
+                birthdate = datetime.strptime(birthdate_value, "%Y-%m-%d").date()
+                if birthdate > today:
+                    raise ValueError("Birthdate cannot be in the future.")
+
+            if registration_date_value:
+                registration_date = datetime.strptime(
+                    registration_date_value,
+                    "%Y-%m-%d"
+                ).date()
+                if registration_date > today:
+                    raise ValueError("Registration date cannot be in the future.")
+
+        except ValueError as exc:
+            flash(str(exc) if str(exc) else "Invalid date entered.", "danger")
+            return render_template(
+                "admin/add_member.html",
+                parlimens=parlimens,
+                bahagians=bahagians,
+                duns=all_duns,
+                form_data=form_data,
+                today=today.isoformat(),
+            )
 
         member = Member(
             ic=ic,
@@ -405,7 +634,7 @@ def add_member():
             cawangan=cawangan,
             pusatmengundi=pusatmengundi,
 
-            birthdate=request.form.get("birthdate") or None,
+            birthdate=birthdate,
             warganegara=(request.form.get("warganegara") or "").strip() or "WARGANEGARA",
             bangsa=(request.form.get("bangsa") or "").strip() or None,
             kelulusan_akademik=(request.form.get("kelulusan_akademik") or "").strip() or None,
@@ -413,8 +642,8 @@ def add_member():
             alamat=(request.form.get("alamat") or "").strip() or None,
             emel=(request.form.get("emel") or "").strip() or None,
             notelefon=(request.form.get("notelefon") or "").strip() or None,
-            registration_date=request.form.get("registration_date") or None,
-            memberstatus=(request.form.get("memberstatus") or "").strip() or None,
+            registration_date=registration_date,
+            memberstatus=(request.form.get("memberstatus") or "").strip() or "Aktif",
 
             parlimen_spr=parlimen_spr,
             daerah_spr=daerah_spr,
@@ -430,8 +659,67 @@ def add_member():
         "admin/add_member.html",
         parlimens=parlimens,
         bahagians=bahagians,
-        duns=all_duns
+        duns=all_duns,
+        form_data=form_data,
+        today=today.isoformat(),
     )
+
+
+# =========================
+# API: MEMBER DUPLICATE CHECK
+# =========================
+@admin_bp.route("/api/member-duplicate-check")
+@login_required
+def api_member_duplicate_check():
+    ic = normalize_ic(request.args.get("ic"))
+    noid = request.args.get("noid", type=int)
+
+    response = {
+        "ic_exists": False,
+        "ic_member": None,
+        "noid_exists": False,
+        "noid_member": None,
+    }
+
+    if len(ic) == 12:
+        normalized_member_ic = db.func.replace(
+            db.func.replace(Member.ic, "-", ""),
+            " ",
+            ""
+        )
+
+        member = (
+            Member.query
+            .filter(normalized_member_ic == ic)
+            .order_by(Member.id.asc())
+            .first()
+        )
+
+        if member:
+            response["ic_exists"] = True
+            response["ic_member"] = {
+                "id": member.id,
+                "noid": member.noid,
+                "fullname": member.fullname or "",
+            }
+
+    if noid is not None:
+        member = (
+            Member.query
+            .filter(Member.noid == noid)
+            .order_by(Member.id.asc())
+            .first()
+        )
+
+        if member:
+            response["noid_exists"] = True
+            response["noid_member"] = {
+                "id": member.id,
+                "noid": member.noid,
+                "fullname": member.fullname or "",
+            }
+
+    return jsonify(response)
 
 
 # =========================
@@ -478,7 +766,7 @@ def edit_member(member_id):
         member.bahagian_id = bahagian_id
         member.bahagian = selected_bahagian.name if selected_bahagian else None
         member.dun = selected_dun.name if selected_dun else None
-        member.cawangan = (request.form.get("cawangan") or "").strip() or None
+        member.cawangan = (request.form.get("cawangan") or "").strip().upper() or None
         member.pusatmengundi = (request.form.get("pusatmengundi") or "").strip() or None
 
         member.birthdate = request.form.get("birthdate") or None
@@ -514,7 +802,7 @@ def edit_member(member_id):
 # =========================
 @admin_bp.route("/members/delete/<int:member_id>", methods=["POST"])
 @login_required
-@member_editor_required
+@super_admin_required
 def delete_member(member_id):
     member = Member.query.get_or_404(member_id)
     db.session.delete(member)
@@ -657,13 +945,23 @@ def api_duns():
 @login_required
 def member_report():
     page = request.args.get("page", 1, type=int)
-    per_page = 100
+
+    per_page = request.args.get("per_page", 100, type=int)
+    if per_page not in (50, 100, 200):
+        per_page = 100
 
     search = request.args.get("q", "").strip()
     parlimen = request.args.get("parlimen", "").strip()
     dun_id = request.args.get("dun_id", type=int)
     bahagian_id = request.args.get("bahagian_id", type=int)
     cawangan = request.args.get("cawangan", "").strip()
+    status = request.args.get("status", "").strip()
+
+    sort_key = (request.args.get("sort") or "noid").strip().lower()
+    sort_dir = (request.args.get("dir") or "asc").strip().lower()
+
+    if sort_dir not in ("asc", "desc"):
+        sort_dir = "asc"
 
     query = Member.query
 
@@ -677,7 +975,7 @@ def member_report():
     user_bahagian_name = getattr(current_user, "bahagian_name", None)
 
     if is_application_user:
-        # Force remove Parlimen filter for application users
+        # Application users must never override their Bahagian scope.
         parlimen = ""
 
         if user_bahagian_id:
@@ -688,11 +986,11 @@ def member_report():
             query = query.filter(Member.bahagian.ilike(user_bahagian_name))
 
         else:
-            # No Bahagian assigned = show nothing
+            # No assigned Bahagian = show no member data.
             query = query.filter(False)
 
     # ======================================================
-    # SEARCH FILTER
+    # SEARCH
     # ======================================================
     if search:
         filters = [
@@ -711,23 +1009,48 @@ def member_report():
         query = query.filter(or_(*filters))
 
     # ======================================================
-    # NORMAL FILTERS
-    # Admin can use all filters.
-    # Bahagian/Cawangan users cannot use Parlimen or override Bahagian.
+    # REPORT FILTERS
     # ======================================================
     if parlimen and not is_application_user:
         query = query.filter(Member.parlimen == parlimen)
 
-    if dun_id:
-        query = query.filter(Member.dun_id == dun_id)
-
     if bahagian_id and not is_application_user:
         query = query.filter(Member.bahagian_id == bahagian_id)
+
+    if dun_id:
+        query = query.filter(Member.dun_id == dun_id)
 
     if cawangan:
         query = query.filter(Member.cawangan.ilike(f"%{cawangan}%"))
 
-    pagination = query.order_by(Member.noid.asc()).paginate(
+    if status:
+        query = query.filter(Member.memberstatus == status)
+
+    # ======================================================
+    # SAFE SERVER-SIDE SORTING
+    # ======================================================
+    sort_columns = {
+        "noid": Member.noid,
+        "ic": Member.ic,
+        "name": db.func.lower(Member.fullname),
+        "gender": db.func.lower(Member.jantina),
+        "bahagian": db.func.lower(Member.bahagian),
+        "dun": db.func.lower(Member.dun),
+        "cawangan": db.func.lower(Member.cawangan),
+        "status": db.func.lower(Member.memberstatus),
+    }
+
+    sort_column = sort_columns.get(sort_key, Member.noid)
+
+    if sort_dir == "desc":
+        order_expression = sort_column.desc().nulls_last()
+    else:
+        order_expression = sort_column.asc().nulls_last()
+
+    pagination = query.order_by(
+        order_expression,
+        Member.id.asc()
+    ).paginate(
         page=page,
         per_page=per_page,
         error_out=False
@@ -736,10 +1059,7 @@ def member_report():
     members = pagination.items
 
     # ======================================================
-    # DROPDOWN DATA
-    # Admin = all Bahagian/DUN/Parlimen.
-    # Application users = only their Bahagian-related DUN/Cawangan.
-    # Parlimen dropdown should be hidden in template using is_application_user.
+    # DROPDOWN / FILTER DATA
     # ======================================================
     if is_application_user:
         parlimens = []
@@ -754,15 +1074,6 @@ def member_report():
                 .distinct()
                 .order_by(Dun.name.asc())
                 .all()
-            )
-
-            cawangans_query = (
-                db.session.query(Member.cawangan)
-                .filter(
-                    Member.bahagian_id == user_bahagian_id,
-                    Member.cawangan.isnot(None),
-                    Member.cawangan != ""
-                )
             )
 
         elif user_bahagian_name:
@@ -781,57 +1092,67 @@ def member_report():
                 .all()
             )
 
-            cawangans_query = (
-                db.session.query(Member.cawangan)
-                .filter(
-                    Member.bahagian.ilike(user_bahagian_name),
-                    Member.cawangan.isnot(None),
-                    Member.cawangan != ""
-                )
-            )
-
         else:
             bahagians = []
             duns = []
-            cawangans_query = db.session.query(Member.cawangan).filter(False)
 
     else:
-        parlimens = Parlimen.query.order_by(Parlimen.name).all()
-        bahagians = Bahagian.query.order_by(Bahagian.name).all()
-        duns = Dun.query.order_by(Dun.name).all()
-
-        cawangans_query = (
-            db.session.query(Member.cawangan)
-            .filter(
-                Member.cawangan.isnot(None),
-                Member.cawangan != ""
-            )
-        )
+        parlimens = Parlimen.query.order_by(Parlimen.name.asc()).all()
+        bahagians = Bahagian.query.order_by(Bahagian.name.asc()).all()
 
         if bahagian_id:
-            cawangans_query = cawangans_query.filter(Member.bahagian_id == bahagian_id)
+            duns = (
+                db.session.query(Dun)
+                .join(Member, Member.dun_id == Dun.id)
+                .filter(Member.bahagian_id == bahagian_id)
+                .distinct()
+                .order_by(Dun.name.asc())
+                .all()
+            )
+        else:
+            duns = Dun.query.order_by(Dun.name.asc()).all()
 
-    cawangans = [
-        c[0]
-        for c in cawangans_query.distinct().order_by(Member.cawangan.asc()).all()
+    statuses = [
+        row[0]
+        for row in (
+            db.session.query(Member.memberstatus)
+            .filter(
+                Member.memberstatus.isnot(None),
+                Member.memberstatus != ""
+            )
+            .distinct()
+            .order_by(Member.memberstatus.asc())
+            .all()
+        )
+        if row[0]
     ]
+
+    selected_bahagian = Bahagian.query.get(bahagian_id) if bahagian_id else None
+    selected_dun = Dun.query.get(dun_id) if dun_id else None
 
     return render_template(
         "admin/member_report.html",
         members=members,
         pagination=pagination,
         total=pagination.total,
+        per_page=per_page,
 
         parlimens=parlimens,
         duns=duns,
         bahagians=bahagians,
-        cawangans=cawangans,
+        statuses=statuses,
 
         search=search,
         selected_parlimen=parlimen,
         selected_dun_id=dun_id,
         selected_bahagian_id=bahagian_id,
         selected_cawangan=cawangan,
+        selected_status=status,
+        selected_bahagian=selected_bahagian,
+        selected_dun=selected_dun,
+
+        sort_key=sort_key,
+        sort_dir=sort_dir,
 
         is_application_user=is_application_user,
     )
@@ -870,6 +1191,8 @@ def export_members_csv():
     dun_id = request.args.get("dun_id", type=int)
     bahagian_id = request.args.get("bahagian_id", type=int)
     cawangan = request.args.get("cawangan", "").strip()
+    status = request.args.get("status", "").strip()
+    status = request.args.get("status", "").strip()
 
     query = Member.query
 
@@ -897,6 +1220,9 @@ def export_members_csv():
 
     if cawangan:
         query = query.filter(Member.cawangan.ilike(f"%{cawangan}%"))
+
+    if status:
+        query = query.filter(Member.memberstatus == status)
 
     members = query.order_by(Member.noid.asc()).all()
 

@@ -40,5 +40,4 @@ members_clean.csv
 app/1
 app/templates/admin/1
 local_db_backups/
-local_db_backups/
-local_db_backups/
+dev.py

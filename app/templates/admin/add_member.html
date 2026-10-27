@@ -1,492 +1,682 @@
 {% extends "layout/base.html" %}
+{% block title %}Add Member | UPKO Member Portal{% endblock %}
+
 {% block content %}
-
 <style>
-  :root {
-    --bg-soft: #f8fafc;
-    --card-bg: #ffffff;
-    --line: #e5e7eb;
-    --line-soft: #eef2f7;
-    --text: #111827;
-    --muted: #6b7280;
-    --label: #374151;
-    --primary: #4f46e5;
-    --primary-2: #7c3aed;
-    --danger: #dc2626;
-    --danger-soft: #fff1f2;
-    --shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
-  }
-
   .member-page {
+    width: 100%;
     max-width: 1320px;
-    margin: 26px auto;
-    padding: 0 18px 30px;
+    margin: 0 auto;
+    padding-bottom: 24px;
   }
 
   .page-header {
-    margin-bottom: 18px;
+    margin-bottom: 16px;
   }
 
   .page-title {
     margin: 0;
-    font-size: 2rem;
-    line-height: 1.1;
-    font-weight: 800;
-    color: var(--text);
-    letter-spacing: -0.02em;
+    color: #172033;
+    font-size: 1.62rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.015em;
   }
 
   .page-subtitle {
-    margin: 7px 0 0;
-    color: var(--muted);
-    font-size: 0.96rem;
+    margin: 4px 0 0;
+    color: #475467;
+    font-size: 0.84rem;
   }
 
   .member-card {
-    background: var(--card-bg);
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-    overflow: hidden;
-  }
-
-  .card-topbar {
-    height: 6px;
-    background: linear-gradient(90deg, var(--primary), var(--primary-2));
+    background: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
   }
 
   .card-body {
-    padding: 26px;
+    padding: 16px;
   }
 
   .section {
-    margin-bottom: 26px;
-    padding: 18px;
-    border: 1px solid var(--line-soft);
-    border-radius: 20px;
-    background: #fff;
+    margin-bottom: 14px;
+    padding: 15px;
+    border: 1px solid #e2e7ed;
+    border-left-width: 4px;
+    border-radius: 8px;
+    background: #ffffff;
   }
 
   .section:last-of-type {
     margin-bottom: 0;
   }
 
-  .section.basic { background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); }
-  .section.upko { background: linear-gradient(180deg, #f8faff 0%, #ffffff 100%); }
-  .section.spr { background: linear-gradient(180deg, #fffaf4 0%, #ffffff 100%); }
-  .section.other { background: linear-gradient(180deg, #ffffff 0%, #fbfbfd 100%); }
+  /* Distinct section colours while keeping the portal's restrained palette */
+  .section-basic {
+    background: #f6f9fe;
+    border-color: #d7e3f4;
+    border-left-color: #2f5fb3;
+  }
+
+  .section-upko {
+    background: #f8f7fd;
+    border-color: #e2def5;
+    border-left-color: #6850c9;
+  }
+
+  .section-spr {
+    background: #fffaf3;
+    border-color: #f2dfc1;
+    border-left-color: #c97b1a;
+  }
+
+  .section-other {
+    background: #f6fbf8;
+    border-color: #d9eadf;
+    border-left-color: #2d8063;
+  }
+
+  .section-basic .section-title { color: #234a86; }
+  .section-upko .section-title { color: #51409b; }
+  .section-spr .section-title { color: #965a10; }
+  .section-other .section-title { color: #266b54; }
 
   .section-heading {
     display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  .section-badge {
-    width: 38px;
-    height: 38px;
-    border-radius: 14px;
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    font-size: 0.95rem;
-    flex: 0 0 auto;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 13px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #edf0f3;
   }
-
-  .section.basic .section-badge { background: #eef2ff; color: #4338ca; }
-  .section.upko .section-badge { background: #eef6ff; color: #1d4ed8; }
-  .section.spr .section-badge { background: #fff1dd; color: #c2410c; }
-  .section.other .section-badge { background: #f3f4f6; color: #374151; }
 
   .section-title {
     margin: 0;
-    font-size: 1.06rem;
-    font-weight: 800;
-    color: var(--text);
+    color: #172033;
+    font-size: 0.9rem;
+    font-weight: 700;
   }
 
   .section-note {
-    margin: 3px 0 0;
-    color: var(--muted);
-    font-size: 0.89rem;
-    line-height: 1.45;
+    margin: 2px 0 0;
+    color: #667085;
+    font-size: 0.72rem;
   }
 
-  .helper-chip-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 6px;
+  .optional-label {
+    color: #667085;
+    font-size: 0.68rem;
+    font-weight: 650;
   }
-
-  .helper-chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 10px;
-    border-radius: 999px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    border: 1px solid transparent;
-  }
-
-  .chip-upko { background: #eef6ff; color: #1d4ed8; border-color: #dbeafe; }
-  .chip-spr { background: #fff1dd; color: #c2410c; border-color: #fed7aa; }
 
   .form-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 12px;
   }
 
   .field {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 5px;
     min-width: 0;
   }
 
-  .field.span-2 { grid-column: span 2; }
-  .field.span-3 { grid-column: span 3; }
+  .field.span-2 {
+    grid-column: span 2;
+  }
+
+  .field.span-3 {
+    grid-column: span 3;
+  }
 
   .field label {
-    font-size: 0.84rem;
-    font-weight: 700;
-    color: var(--label);
-    letter-spacing: 0.01em;
+    color: #344054;
+    font-size: 0.74rem;
+    font-weight: 650;
   }
 
-  .input, .select, .textarea {
+  .required {
+    color: #b42318;
+  }
+
+  .input,
+  .select,
+  .textarea {
     width: 100%;
-    border: 1px solid #dbe3ee;
-    background: #ffffff;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    color: var(--text);
-    transition: all 0.18s ease;
     box-sizing: border-box;
+    border: 1px solid #cfd6df;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 0.82rem;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
   }
 
-  .input, .select {
-    height: 48px;
-    padding: 0 14px;
+  .input,
+  .select {
+    height: 39px;
+    padding: 0 10px;
   }
 
   .textarea {
-    min-height: 118px;
-    padding: 12px 14px;
+    min-height: 100px;
+    padding: 9px 10px;
     resize: vertical;
-    line-height: 1.45;
+    line-height: 1.4;
   }
 
-  .input:hover, .select:hover, .textarea:hover {
-    border-color: #cbd5e1;
-  }
-
-  .input:focus, .select:focus, .textarea:focus {
+  .input:focus,
+  .select:focus,
+  .textarea:focus {
     outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+    border-color: #6c8bc5;
+    box-shadow: 0 0 0 3px rgba(35, 74, 147, 0.10);
   }
 
-  .input.invalid-date {
-    border-color: var(--danger) !important;
-    background: var(--danger-soft) !important;
-    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.10) !important;
+  .select:disabled,
+  .input:disabled {
+    background: #f2f4f7;
+    color: #98a2b3;
+    cursor: not-allowed;
   }
 
-  .field-hint {
-    font-size: 0.76rem;
-    color: #64748b;
+  .field-message {
+    min-height: 16px;
+    color: #667085;
+    font-size: 0.68rem;
     line-height: 1.35;
   }
 
-  .date-error {
-    display: none;
-    color: var(--danger);
-    font-size: 0.78rem;
-    font-weight: 800;
-    line-height: 1.35;
+  .field-message.error {
+    color: #b42318;
+    font-weight: 650;
   }
 
-  .date-error.show {
-    display: block;
+  .field-message.success {
+    color: #16724a;
+    font-weight: 650;
+  }
+
+  .input.invalid,
+  .select.invalid {
+    border-color: #d92d20;
+    background: #fffafa;
+  }
+
+  .input.valid {
+    border-color: #6fa98a;
+  }
+
+  .loading-option {
+    color: #667085;
   }
 
   .actions {
+    position: sticky;
+    bottom: 10px;
+    z-index: 20;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    margin-top: 28px;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.12);
+    backdrop-filter: blur(8px);
   }
 
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 48px;
-    padding: 0 18px;
-    border-radius: 14px;
-    text-decoration: none;
-    font-weight: 700;
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #e5e7eb;
+  .actions-copy {
+    color: #667085;
+    font-size: 0.7rem;
   }
 
+  .actions-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-secondary,
   .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    height: 48px;
-    padding: 0 22px;
-    border: 0;
-    border-radius: 14px;
-    font-weight: 800;
+    min-height: 36px;
+    padding: 0 13px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 650;
+  }
+
+  .btn-secondary {
+    border: 1px solid #cfd6df;
+    background: #ffffff;
+    color: #344054;
+  }
+
+  .btn-secondary:hover {
+    background: #f8fafc;
+  }
+
+  .btn-primary {
+    border: 1px solid #234a93;
+    background: #234a93;
     color: #ffffff;
-    background: linear-gradient(135deg, var(--primary), var(--primary-2));
-    box-shadow: 0 10px 24px rgba(79, 70, 229, 0.22);
     cursor: pointer;
   }
 
-  @media (max-width: 1024px) {
-    .form-grid { grid-template-columns: 1fr 1fr; }
-    .field.span-3 { grid-column: span 2; }
+  .btn-primary:hover {
+    background: #1d3f7f;
+    border-color: #1d3f7f;
   }
 
-  @media (max-width: 720px) {
-    .member-page { padding: 0 12px 24px; }
-    .page-title { font-size: 1.65rem; }
-    .card-body { padding: 16px; }
-    .section { padding: 14px; border-radius: 16px; }
-    .form-grid { grid-template-columns: 1fr; }
-    .field.span-2, .field.span-3 { grid-column: span 1; }
-    .actions { flex-direction: column-reverse; align-items: stretch; }
-    .btn-secondary, .btn-primary { width: 100%; }
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: wait;
   }
+
+  @media (max-width: 1000px) {
+    .form-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .field.span-3 {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .card-body {
+      padding: 11px;
+    }
+
+    .section {
+      padding: 12px;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .field.span-2,
+    .field.span-3 {
+      grid-column: span 1;
+    }
+
+    .actions {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .actions-buttons {
+      width: 100%;
+    }
+
+    .actions-buttons > * {
+      flex: 1;
+    }
+  }
+
+
+/* ===== Larger-view accessibility pass ===== */
+
+.member-page{max-width:1260px}
+.page-title{font-size:1.88rem}
+.page-subtitle{font-size:.96rem}
+.card-body{padding:20px}
+.section{padding:18px;margin-bottom:17px}
+.section-heading{margin-bottom:15px;padding-bottom:12px}
+.section-title{font-size:1.03rem}
+.section-note{font-size:.82rem}
+.optional-label{font-size:.78rem}
+.form-grid{gap:14px}
+.field{gap:6px}
+.field label{font-size:.84rem}
+.input,.select{height:44px;padding:0 12px;font-size:.92rem}
+.textarea{min-height:115px;padding:11px 12px;font-size:.92rem}
+.field-message{min-height:18px;font-size:.77rem}
+.actions{padding:12px}
+.actions-copy{font-size:.8rem}
+.btn-secondary,.btn-primary{min-height:41px;padding:0 16px;font-size:.88rem}
+
+
 </style>
+
+{% set form = form_data or {} %}
 
 <div class="member-page">
   <div class="page-header">
     <h1 class="page-title">Add Member</h1>
-    <p class="page-subtitle">Create a new member record with organisation details and SPR mapping.</p>
+    <p class="page-subtitle">Create a new member record.</p>
   </div>
 
   <div class="member-card">
-    <div class="card-topbar"></div>
     <div class="card-body">
-      <form method="POST" id="addMemberForm" novalidate>
+      <form method="POST" id="addMemberForm">
 
-        <div class="section basic">
+        <section class="section section-basic">
           <div class="section-heading">
-            <div class="section-badge">1</div>
             <div>
               <h3 class="section-title">Basic Information</h3>
-              <p class="section-note">Main identity and member profile details.</p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="field">
-              <label>IC Number</label>
-              <input class="input" name="ic" required>
+              <label for="icInput">IC Number <span class="required">*</span></label>
+              <input
+                class="input"
+                id="icInput"
+                name="ic"
+                inputmode="numeric"
+                autocomplete="off"
+                maxlength="14"
+                value="{{ form.get('ic', '') }}"
+                placeholder="YYMMDD-##-####"
+                required
+              >
+              <div class="field-message" id="icMessage"></div>
             </div>
 
             <div class="field">
-              <label>No ID</label>
-              <input class="input" name="noid" required>
+              <label for="noidInput">No ID <span class="required">*</span></label>
+              <input
+                class="input"
+                id="noidInput"
+                name="noid"
+                inputmode="numeric"
+                pattern="[0-9]+"
+                autocomplete="off"
+                value="{{ form.get('noid', '') }}"
+                required
+              >
+              <div class="field-message" id="noidMessage"></div>
             </div>
 
             <div class="field">
-              <label>Title</label>
-              <input class="input" name="title">
+              <label for="titleInput">Title</label>
+              <input class="input" id="titleInput" name="title" value="{{ form.get('title', '') }}">
+              <div class="field-message"></div>
             </div>
 
             <div class="field span-2">
-              <label>Full Name</label>
-              <input class="input" name="fullname">
+              <label for="fullnameInput">Full Name</label>
+              <input class="input" id="fullnameInput" name="fullname" value="{{ form.get('fullname', '') }}">
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>Jantina</label>
-              <select class="select" name="jantina">
+              <label for="jantinaInput">Jantina</label>
+              <select class="select" id="jantinaInput" name="jantina">
                 <option value="">Select</option>
-                <option value="Lelaki">Lelaki</option>
-                <option value="Perempuan">Perempuan</option>
+                <option value="Lelaki" {{ "selected" if form.get('jantina') == 'Lelaki' else "" }}>Lelaki</option>
+                <option value="Perempuan" {{ "selected" if form.get('jantina') == 'Perempuan' else "" }}>Perempuan</option>
               </select>
+              <div class="field-message" id="jantinaMessage"></div>
             </div>
 
             <div class="field">
-              <label>Negeri</label>
-              <input class="input" name="negeri">
+              <label for="negeriInput">Negeri</label>
+              <input class="input" id="negeriInput" name="negeri" value="{{ form.get('negeri', '') }}">
+              <div class="field-message"></div>
+            </div>
+
+            <div class="field">
+              <label for="birthdateInput">Tarikh Lahir</label>
+              <input
+                class="input"
+                id="birthdateInput"
+                type="date"
+                name="birthdate"
+                min="1900-01-01"
+                max="{{ today }}"
+                value="{{ form.get('birthdate', '') }}"
+              >
+              <div class="field-message" id="birthdateMessage"></div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="section upko">
+        <section class="section section-upko">
           <div class="section-heading">
-            <div class="section-badge">2</div>
             <div>
               <h3 class="section-title">UPKO / Organisation Structure</h3>
-              <p class="section-note">Internal party structure using Bahagian-based DUN filtering.</p>
-              <div class="helper-chip-row">
-                <span class="helper-chip chip-upko">UPKO flow</span>
-                <span class="helper-chip chip-upko">Bahagian → DUN</span>
-              </div>
+              <p class="section-note">Choose Bahagian first; DUN will then be loaded automatically.</p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="field">
-              <label>Bahagian</label>
+              <label for="bahagianSelect">Bahagian</label>
               <select class="select" id="bahagianSelect" name="bahagian_id">
                 <option value="">Select</option>
                 {% for b in bahagians %}
-                  <option value="{{ b.id }}">{{ b.name }}</option>
+                  <option
+                    value="{{ b.id }}"
+                    {{ "selected" if form.get('bahagian_id')|string == b.id|string else "" }}
+                  >
+                    {{ b.name }}
+                  </option>
                 {% endfor %}
               </select>
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>DUN</label>
-              <select class="select" id="dunSelect" name="dun_id">
-                <option value="">Select</option>
+              <label for="dunSelect">DUN</label>
+              <select
+                class="select"
+                id="dunSelect"
+                name="dun_id"
+                data-selected="{{ form.get('dun_id', '') }}"
+                disabled
+              >
+                <option value="">Choose Bahagian first</option>
               </select>
+              <div class="field-message" id="dunMessage"></div>
             </div>
 
             <div class="field">
-              <label>Cawangan</label>
-              <input class="input" name="cawangan">
+              <label for="cawanganInput">Cawangan</label>
+              <input
+                class="input"
+                id="cawanganInput"
+                name="cawangan"
+                value="{{ form.get('cawangan', '')|upper }}"
+                autocomplete="off"
+              >
+              <div class="field-message">Saved in uppercase automatically.</div>
             </div>
 
             <div class="field">
-              <label>Pusat Mengundi</label>
-              <input class="input" name="pusatmengundi">
+              <label for="pusatMengundiInput">Pusat Mengundi</label>
+              <input
+                class="input"
+                id="pusatMengundiInput"
+                name="pusatmengundi"
+                value="{{ form.get('pusatmengundi', '') }}"
+              >
+              <div class="field-message"></div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="section spr">
+        <section class="section section-spr">
           <div class="section-heading">
-            <div class="section-badge">3</div>
             <div>
               <h3 class="section-title">SPR Structure</h3>
-              <p class="section-note">Separate SPR mapping using the same cascading selection flow.</p>
-              <div class="helper-chip-row">
-                <span class="helper-chip chip-spr">SPR flow</span>
-                <span class="helper-chip chip-spr">Saved separately</span>
-              </div>
+              <p class="section-note">SPR mapping is stored separately from the UPKO organisation structure.</p>
             </div>
+            <span class="optional-label">Optional</span>
           </div>
 
           <div class="form-grid">
             <div class="field">
-              <label>Parlimen SPR</label>
-              <select class="select" id="sprParlimenSelect" name="parlimen_spr">
+              <label for="sprParlimenSelect">Parlimen SPR</label>
+              <select
+                class="select"
+                id="sprParlimenSelect"
+                name="parlimen_spr"
+                data-selected="{{ form.get('parlimen_spr', '') }}"
+              >
                 <option value="">Select</option>
                 {% for p in parlimens %}
-                  <option value="{{ p.name }}" data-id="{{ p.id }}">{{ p.name }}</option>
+                  <option
+                    value="{{ p.name }}"
+                    data-id="{{ p.id }}"
+                    {{ "selected" if form.get('parlimen_spr') == p.name else "" }}
+                  >
+                    {{ p.name }}
+                  </option>
                 {% endfor %}
               </select>
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>Daerah SPR</label>
-              <select class="select" id="sprDaerahSelect" name="daerah_spr">
+              <label for="sprDaerahSelect">Daerah SPR</label>
+              <select
+                class="select"
+                id="sprDaerahSelect"
+                name="daerah_spr"
+                data-selected-name="{{ form.get('daerah_spr', '') }}"
+              >
                 <option value="">Select</option>
               </select>
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>DUN SPR</label>
-              <select class="select" id="sprDunSelect" name="dun_spr">
+              <label for="sprDunSelect">DUN SPR</label>
+              <select
+                class="select"
+                id="sprDunSelect"
+                name="dun_spr"
+                data-selected-name="{{ form.get('dun_spr', '') }}"
+              >
                 <option value="">Select</option>
               </select>
+              <div class="field-message"></div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="section other">
+        <section class="section section-other">
           <div class="section-heading">
-            <div class="section-badge">4</div>
             <div>
               <h3 class="section-title">Other Details</h3>
-              <p class="section-note">Additional background, contact, and registration information.</p>
             </div>
           </div>
 
           <div class="form-grid">
             <div class="field">
-              <label>Tarikh Lahir</label>
+              <label for="warganegaraInput">Warganegara</label>
               <input
-                class="input date-check"
-                type="date"
-                name="birthdate"
-                data-label="Tarikh Lahir"
+                class="input"
+                id="warganegaraInput"
+                name="warganegara"
+                value="{{ form.get('warganegara', 'WARGANEGARA') }}"
               >
-              <div class="field-hint">Allowed year: 1900 until 2099</div>
-              <div class="date-error">Tarikh Lahir must be between 1900 and 2099.</div>
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>Warganegara</label>
-              <input class="input" name="warganegara" value="WARGANEGARA">
+              <label for="bangsaInput">Bangsa</label>
+              <input class="input" id="bangsaInput" name="bangsa" value="{{ form.get('bangsa', '') }}">
+              <div class="field-message"></div>
             </div>
 
             <div class="field">
-              <label>Bangsa</label>
-              <input class="input" name="bangsa">
-            </div>
-
-            <div class="field">
-              <label>Kelulusan Akademik</label>
-              <input class="input" name="kelulusan_akademik">
-            </div>
-
-            <div class="field">
-              <label>Pekerjaan</label>
-              <input class="input" name="pekerjaan">
-            </div>
-
-            <div class="field">
-              <label>No Telefon</label>
-              <input class="input" name="notelefon">
-            </div>
-
-            <div class="field">
-              <label>Email</label>
-              <input class="input" type="email" name="emel">
-            </div>
-
-            <div class="field">
-              <label>Status Ahli</label>
-              <input class="input" name="memberstatus" value="Aktif">
-            </div>
-
-            <div class="field">
-              <label>Registration Date</label>
+              <label for="akademikInput">Kelulusan Akademik</label>
               <input
-                class="input date-check"
+                class="input"
+                id="akademikInput"
+                name="kelulusan_akademik"
+                value="{{ form.get('kelulusan_akademik', '') }}"
+              >
+              <div class="field-message"></div>
+            </div>
+
+            <div class="field">
+              <label for="pekerjaanInput">Pekerjaan</label>
+              <input class="input" id="pekerjaanInput" name="pekerjaan" value="{{ form.get('pekerjaan', '') }}">
+              <div class="field-message"></div>
+            </div>
+
+            <div class="field">
+              <label for="telefonInput">No Telefon</label>
+              <input
+                class="input"
+                id="telefonInput"
+                type="tel"
+                name="notelefon"
+                value="{{ form.get('notelefon', '') }}"
+                autocomplete="tel"
+              >
+              <div class="field-message"></div>
+            </div>
+
+            <div class="field">
+              <label for="emailInput">Email</label>
+              <input
+                class="input"
+                id="emailInput"
+                type="email"
+                name="emel"
+                value="{{ form.get('emel', '') }}"
+                autocomplete="email"
+              >
+              <div class="field-message" id="emailMessage"></div>
+            </div>
+
+            <div class="field">
+              <label for="statusInput">Status Ahli</label>
+              <select class="select" id="statusInput" name="memberstatus">
+                {% set current_status = form.get('memberstatus', 'Aktif') %}
+                <option value="Aktif" {{ "selected" if current_status == "Aktif" else "" }}>Aktif</option>
+                <option value="Keluar Parti" {{ "selected" if current_status == "Keluar Parti" else "" }}>Keluar Parti</option>
+                <option value="Meninggal" {{ "selected" if current_status == "Meninggal" else "" }}>Meninggal</option>
+              </select>
+              <div class="field-message"></div>
+            </div>
+
+            <div class="field">
+              <label for="registrationDateInput">Registration Date</label>
+              <input
+                class="input"
+                id="registrationDateInput"
                 type="date"
                 name="registration_date"
-                data-label="Registration Date"
+                min="1900-01-01"
+                max="{{ today }}"
+                value="{{ form.get('registration_date', today) }}"
               >
-              <div class="field-hint">Allowed year: 1900 until 2099</div>
-              <div class="date-error">Registration Date must be between 1900 and 2099.</div>
+              <div class="field-message" id="registrationDateMessage"></div>
             </div>
 
             <div class="field span-3">
-              <label>Alamat</label>
-              <textarea class="textarea" name="alamat"></textarea>
+              <label for="alamatInput">Alamat</label>
+              <textarea class="textarea" id="alamatInput" name="alamat">{{ form.get('alamat', '') }}</textarea>
+              <div class="field-message"></div>
             </div>
           </div>
-        </div>
+        </section>
 
         <div class="actions">
-          <a class="btn-secondary" href="{{ url_for('admin.members') }}">Cancel</a>
-          <button class="btn-primary" type="submit">Save Member</button>
+          <div class="actions-copy">
+            <span class="required">*</span> Required fields
+          </div>
+
+          <div class="actions-buttons">
+            <a class="btn-secondary" href="{{ url_for('admin.members') }}">Cancel</a>
+            <button class="btn-primary" id="saveMemberButton" type="submit">Save Member</button>
+          </div>
         </div>
 
       </form>
@@ -495,166 +685,463 @@
 </div>
 
 <script>
-function resetSelect(sel) {
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Select</option>';
-}
-
-async function loadDunsByBahagian(bahagianId, dunSelectEl, selectedDunId = "") {
-  resetSelect(dunSelectEl);
-  if (!bahagianId || !dunSelectEl) return;
-
-  const res = await fetch(`/admin/api/duns-by-bahagian?bahagian_id=${bahagianId}`);
-  const rows = await res.json();
-
-  rows.forEach(r => {
-    const o = document.createElement("option");
-    o.value = r.id;
-    o.textContent = r.name;
-
-    if (selectedDunId && String(r.id) === String(selectedDunId)) {
-      o.selected = true;
-    }
-
-    dunSelectEl.appendChild(o);
-  });
-}
-
-async function loadDaerahs(parlimenSelectEl, daerahSelectEl, dunSelectEl) {
-  resetSelect(daerahSelectEl);
-  resetSelect(dunSelectEl);
-
-  if (!parlimenSelectEl || !daerahSelectEl) return;
-
-  const opt = parlimenSelectEl.options[parlimenSelectEl.selectedIndex];
-  const parlimenId = opt ? opt.dataset.id : null;
-
-  if (!parlimenId) return;
-
-  const res = await fetch(`/admin/api/daerahs?parlimen_id=${parlimenId}`);
-  const rows = await res.json();
-
-  rows.forEach(r => {
-    const o = document.createElement("option");
-    o.value = r.name;
-    o.textContent = r.name;
-    o.dataset.id = r.id;
-    daerahSelectEl.appendChild(o);
-  });
-}
-
-async function loadDuns(daerahSelectEl, dunSelectEl, useTextValue = false) {
-  resetSelect(dunSelectEl);
-
-  if (!daerahSelectEl || !dunSelectEl) return;
-
-  const daerahId = useTextValue
-    ? daerahSelectEl.options[daerahSelectEl.selectedIndex]?.dataset?.id || ""
-    : daerahSelectEl.value;
-
-  if (!daerahId) return;
-
-  const res = await fetch(`/admin/api/duns?daerah_id=${daerahId}`);
-  const rows = await res.json();
-
-  rows.forEach(r => {
-    const o = document.createElement("option");
-    o.value = useTextValue ? r.name : r.id;
-    o.textContent = r.name;
-    dunSelectEl.appendChild(o);
-  });
-}
-
-document.addEventListener("DOMContentLoaded", function () {
+(function () {
+  const form = document.getElementById("addMemberForm");
+  const icInput = document.getElementById("icInput");
+  const noidInput = document.getElementById("noidInput");
+  const jantinaInput = document.getElementById("jantinaInput");
+  const birthdateInput = document.getElementById("birthdateInput");
+  const cawanganInput = document.getElementById("cawanganInput");
   const bahagianSelect = document.getElementById("bahagianSelect");
   const dunSelect = document.getElementById("dunSelect");
+  const saveButton = document.getElementById("saveMemberButton");
 
-  if (bahagianSelect && dunSelect) {
-    bahagianSelect.addEventListener("change", async function () {
-      await loadDunsByBahagian(bahagianSelect.value, dunSelect);
-    });
-  }
+  const icMessage = document.getElementById("icMessage");
+  const noidMessage = document.getElementById("noidMessage");
+  const birthdateMessage = document.getElementById("birthdateMessage");
 
   const sprParlimenSelect = document.getElementById("sprParlimenSelect");
   const sprDaerahSelect = document.getElementById("sprDaerahSelect");
   const sprDunSelect = document.getElementById("sprDunSelect");
 
-  if (sprParlimenSelect && sprDaerahSelect && sprDunSelect) {
-    sprParlimenSelect.addEventListener("change", async function () {
-      await loadDaerahs(sprParlimenSelect, sprDaerahSelect, sprDunSelect);
-    });
+  let duplicateTimer = null;
+  let duplicateController = null;
+  let icDuplicate = false;
+  let noidDuplicate = false;
 
-    sprDaerahSelect.addEventListener("change", async function () {
-      await loadDuns(sprDaerahSelect, sprDunSelect, true);
-    });
+  function digitsOnly(value) {
+    return String(value || "").replace(/\D/g, "");
   }
 
-  const form = document.getElementById("addMemberForm");
-  const dateInputs = document.querySelectorAll(".date-check");
+  function formatIc(value) {
+    const digits = digitsOnly(value).slice(0, 12);
 
-  function showDateError(input, message) {
-    const field = input.closest(".field");
-    const errorBox = field ? field.querySelector(".date-error") : null;
+    if (digits.length <= 6) return digits;
+    if (digits.length <= 8) return digits.slice(0, 6) + "-" + digits.slice(6);
 
-    input.classList.add("invalid-date");
+    return (
+      digits.slice(0, 6) +
+      "-" +
+      digits.slice(6, 8) +
+      "-" +
+      digits.slice(8)
+    );
+  }
 
-    if (errorBox) {
-      errorBox.textContent = message;
-      errorBox.classList.add("show");
+  function setMessage(input, messageNode, message, type) {
+    input.classList.remove("invalid", "valid");
+    messageNode.classList.remove("error", "success");
+
+    if (!message) {
+      messageNode.textContent = "";
+      return;
+    }
+
+    messageNode.textContent = message;
+
+    if (type === "error") {
+      input.classList.add("invalid");
+      messageNode.classList.add("error");
+    } else if (type === "success") {
+      input.classList.add("valid");
+      messageNode.classList.add("success");
     }
   }
 
-  function clearDateError(input) {
-    const field = input.closest(".field");
-    const errorBox = field ? field.querySelector(".date-error") : null;
+  function parseIcBirthdate(icDigits) {
+    if (!/^\d{12}$/.test(icDigits)) return null;
 
-    input.classList.remove("invalid-date");
+    const yy = Number(icDigits.slice(0, 2));
+    const mm = Number(icDigits.slice(2, 4));
+    const dd = Number(icDigits.slice(4, 6));
 
-    if (errorBox) {
-      errorBox.classList.remove("show");
-    }
-  }
+    const today = new Date();
+    let year = 2000 + yy;
 
-  function validateDateOnlyOnSave(input) {
-    const label = input.dataset.label || "Date";
-    const value = input.value;
-
-    clearDateError(input);
-
-    if (!value) {
-      return true;
-    }
-
-    const parts = value.split("-");
-    const year = parseInt(parts[0], 10);
+    let candidate = new Date(year, mm - 1, dd);
 
     if (
-      parts.length !== 3 ||
-      isNaN(year) ||
-      year < 1900 ||
-      year > 2099
+      candidate.getFullYear() !== year ||
+      candidate.getMonth() !== mm - 1 ||
+      candidate.getDate() !== dd
     ) {
-      const message = label + " is invalid. Please enter a date between 1900 and 2099.";
-      showDateError(input, message);
-      alert(message);
-      input.focus();
-      return false;
+      return null;
     }
 
-    return true;
+    if (candidate > today) {
+      year = 1900 + yy;
+      candidate = new Date(year, mm - 1, dd);
+    }
+
+    if (
+      candidate.getFullYear() !== year ||
+      candidate.getMonth() !== mm - 1 ||
+      candidate.getDate() !== dd
+    ) {
+      return null;
+    }
+
+    return [
+      year,
+      String(mm).padStart(2, "0"),
+      String(dd).padStart(2, "0")
+    ].join("-");
   }
 
-  if (form) {
-    form.addEventListener("submit", function (event) {
-      for (const input of dateInputs) {
-        if (!validateDateOnlyOnSave(input)) {
-          event.preventDefault();
-          return false;
+  function autofillFromIc() {
+    const digits = digitsOnly(icInput.value);
+
+    if (digits.length !== 12) {
+      return;
+    }
+
+    const birthdate = parseIcBirthdate(digits);
+
+    if (birthdate) {
+      birthdateInput.value = birthdate;
+      birthdateMessage.textContent = "Filled automatically from IC. You can change it if needed.";
+    }
+
+    const lastDigit = Number(digits[11]);
+
+    if (!Number.isNaN(lastDigit)) {
+      jantinaInput.value = lastDigit % 2 === 1 ? "Lelaki" : "Perempuan";
+    }
+  }
+
+  async function checkDuplicates() {
+    const ic = digitsOnly(icInput.value);
+    const noid = noidInput.value.trim();
+
+    icDuplicate = false;
+    noidDuplicate = false;
+
+    if (ic.length !== 12 && !noid) {
+      return;
+    }
+
+    if (duplicateController) {
+      duplicateController.abort();
+    }
+
+    duplicateController = new AbortController();
+
+    const params = new URLSearchParams();
+
+    if (ic.length === 12) params.set("ic", ic);
+    if (noid) params.set("noid", noid);
+
+    try {
+      const response = await fetch(
+        "{{ url_for('admin.api_member_duplicate_check') }}?" + params.toString(),
+        {
+          headers: { "Accept": "application/json" },
+          signal: duplicateController.signal
+        }
+      );
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (ic.length === 12) {
+        if (data.ic_exists) {
+          icDuplicate = true;
+          const person = data.ic_member || {};
+          const name = person.fullname || "Existing member";
+          const memberNo = person.noid != null ? ` · ID ${person.noid}` : "";
+          setMessage(icInput, icMessage, `IC already exists: ${name}${memberNo}`, "error");
+        } else {
+          setMessage(icInput, icMessage, "IC is available.", "success");
         }
       }
+
+      if (noid) {
+        if (data.noid_exists) {
+          noidDuplicate = true;
+          const person = data.noid_member || {};
+          const name = person.fullname || "Existing member";
+          setMessage(noidInput, noidMessage, `No ID is already used by ${name}.`, "error");
+        } else if (/^\d+$/.test(noid)) {
+          setMessage(noidInput, noidMessage, "No ID is available.", "success");
+        }
+      }
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        // Server-side checks still run when the form is submitted.
+      }
+    }
+  }
+
+  function scheduleDuplicateCheck() {
+    window.clearTimeout(duplicateTimer);
+    duplicateTimer = window.setTimeout(checkDuplicates, 300);
+  }
+
+  icInput.addEventListener("input", function () {
+    icInput.value = formatIc(icInput.value);
+
+    const digits = digitsOnly(icInput.value);
+
+    if (digits.length && digits.length !== 12) {
+      setMessage(icInput, icMessage, "IC must contain exactly 12 digits.", "error");
+    } else if (!digits.length) {
+      setMessage(icInput, icMessage, "", "");
+    }
+
+    if (digits.length === 12) {
+      autofillFromIc();
+      scheduleDuplicateCheck();
+    }
+  });
+
+  icInput.addEventListener("blur", function () {
+    icInput.value = formatIc(icInput.value);
+    autofillFromIc();
+    scheduleDuplicateCheck();
+  });
+
+  noidInput.addEventListener("input", function () {
+    noidInput.value = noidInput.value.replace(/\D/g, "");
+
+    if (!noidInput.value) {
+      setMessage(noidInput, noidMessage, "", "");
+      noidDuplicate = false;
+      return;
+    }
+
+    scheduleDuplicateCheck();
+  });
+
+  noidInput.addEventListener("blur", scheduleDuplicateCheck);
+
+  cawanganInput.addEventListener("input", function () {
+    const start = cawanganInput.selectionStart;
+    const end = cawanganInput.selectionEnd;
+
+    cawanganInput.value = cawanganInput.value.toUpperCase();
+
+    try {
+      cawanganInput.setSelectionRange(start, end);
+    } catch (_) {}
+  });
+
+  function resetSelect(select, placeholder, disabled = false) {
+    select.innerHTML = "";
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = placeholder;
+    select.appendChild(option);
+    select.disabled = disabled;
+  }
+
+  async function loadDunsByBahagian(bahagianId, selectedDunId = "") {
+    if (!bahagianId) {
+      resetSelect(dunSelect, "Choose Bahagian first", true);
+      return;
+    }
+
+    resetSelect(dunSelect, "Loading DUN…", true);
+
+    try {
+      const response = await fetch(
+        `/admin/api/duns-by-bahagian?bahagian_id=${encodeURIComponent(bahagianId)}`
+      );
+
+      if (!response.ok) throw new Error("Unable to load DUN");
+
+      const rows = await response.json();
+
+      resetSelect(dunSelect, rows.length ? "Select" : "No DUN available", false);
+
+      rows.forEach(function (row) {
+        const option = document.createElement("option");
+        option.value = row.id;
+        option.textContent = row.name;
+
+        if (selectedDunId && String(row.id) === String(selectedDunId)) {
+          option.selected = true;
+        }
+
+        dunSelect.appendChild(option);
+      });
+    } catch (_) {
+      resetSelect(dunSelect, "Unable to load DUN", true);
+      document.getElementById("dunMessage").textContent =
+        "Could not load DUN. Please try selecting Bahagian again.";
+      document.getElementById("dunMessage").classList.add("error");
+    }
+  }
+
+  bahagianSelect.addEventListener("change", function () {
+    document.getElementById("dunMessage").textContent = "";
+    document.getElementById("dunMessage").classList.remove("error");
+    loadDunsByBahagian(bahagianSelect.value);
+  });
+
+  async function loadSprDaerahs(selectedName = "") {
+    resetSelect(sprDaerahSelect, "Select", false);
+    resetSelect(sprDunSelect, "Select", false);
+
+    const option = sprParlimenSelect.options[sprParlimenSelect.selectedIndex];
+    const parlimenId = option ? option.dataset.id : "";
+
+    if (!parlimenId) return;
+
+    const response = await fetch(
+      `/admin/api/daerahs?parlimen_id=${encodeURIComponent(parlimenId)}`
+    );
+
+    if (!response.ok) return;
+
+    const rows = await response.json();
+
+    rows.forEach(function (row) {
+      const item = document.createElement("option");
+      item.value = row.name;
+      item.textContent = row.name;
+      item.dataset.id = row.id;
+
+      if (selectedName && row.name.toUpperCase() === selectedName.toUpperCase()) {
+        item.selected = true;
+      }
+
+      sprDaerahSelect.appendChild(item);
     });
   }
-});
+
+  async function loadSprDuns(selectedName = "") {
+    resetSelect(sprDunSelect, "Select", false);
+
+    const option = sprDaerahSelect.options[sprDaerahSelect.selectedIndex];
+    const daerahId = option ? option.dataset.id : "";
+
+    if (!daerahId) return;
+
+    const response = await fetch(
+      `/admin/api/duns?daerah_id=${encodeURIComponent(daerahId)}`
+    );
+
+    if (!response.ok) return;
+
+    const rows = await response.json();
+
+    rows.forEach(function (row) {
+      const item = document.createElement("option");
+      item.value = row.name;
+      item.textContent = row.name;
+
+      if (selectedName && row.name.toUpperCase() === selectedName.toUpperCase()) {
+        item.selected = true;
+      }
+
+      sprDunSelect.appendChild(item);
+    });
+  }
+
+  sprParlimenSelect.addEventListener("change", async function () {
+    await loadSprDaerahs("");
+  });
+
+  sprDaerahSelect.addEventListener("change", async function () {
+    await loadSprDuns("");
+  });
+
+  function validateBeforeSubmit() {
+    let valid = true;
+
+    const icDigits = digitsOnly(icInput.value);
+
+    if (icDigits.length !== 12) {
+      setMessage(icInput, icMessage, "IC must contain exactly 12 digits.", "error");
+      valid = false;
+    }
+
+    if (!noidInput.value || !/^\d+$/.test(noidInput.value)) {
+      setMessage(noidInput, noidMessage, "No ID is required and must contain numbers only.", "error");
+      valid = false;
+    }
+
+    if (icDuplicate || noidDuplicate) {
+      valid = false;
+    }
+
+    const today = "{{ today }}";
+
+    if (birthdateInput.value && birthdateInput.value > today) {
+      birthdateInput.classList.add("invalid");
+      birthdateMessage.textContent = "Tarikh Lahir cannot be in the future.";
+      birthdateMessage.classList.add("error");
+      valid = false;
+    }
+
+    const registrationDateInput = document.getElementById("registrationDateInput");
+    const registrationDateMessage = document.getElementById("registrationDateMessage");
+
+    if (registrationDateInput.value && registrationDateInput.value > today) {
+      registrationDateInput.classList.add("invalid");
+      registrationDateMessage.textContent = "Registration Date cannot be in the future.";
+      registrationDateMessage.classList.add("error");
+      valid = false;
+    }
+
+    return valid;
+  }
+
+  form.addEventListener("submit", function (event) {
+    if (!validateBeforeSubmit()) {
+      event.preventDefault();
+
+      const firstInvalid = form.querySelector(".invalid");
+      if (firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstInvalid.focus();
+      }
+
+      return;
+    }
+
+    // Store the IC in the same digits-only format used by the backend.
+    icInput.value = digitsOnly(icInput.value);
+    cawanganInput.value = cawanganInput.value.trim().toUpperCase();
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving…";
+  });
+
+  async function initialize() {
+    const selectedDunId = dunSelect.dataset.selected || "";
+
+    if (bahagianSelect.value) {
+      await loadDunsByBahagian(bahagianSelect.value, selectedDunId);
+    } else {
+      resetSelect(dunSelect, "Choose Bahagian first", true);
+    }
+
+    const selectedSprDaerah = sprDaerahSelect.dataset.selectedName || "";
+    const selectedSprDun = sprDunSelect.dataset.selectedName || "";
+
+    if (sprParlimenSelect.value) {
+      await loadSprDaerahs(selectedSprDaerah);
+
+      if (sprDaerahSelect.value) {
+        await loadSprDuns(selectedSprDun);
+      }
+    }
+
+    if (digitsOnly(icInput.value).length === 12) {
+      icInput.value = formatIc(icInput.value);
+      autofillFromIc();
+      scheduleDuplicateCheck();
+    }
+
+    if (noidInput.value) {
+      scheduleDuplicateCheck();
+    }
+  }
+
+  initialize();
+})();
 </script>
 
 {% endblock %}
