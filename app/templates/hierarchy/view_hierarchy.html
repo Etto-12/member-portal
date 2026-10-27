@@ -2,479 +2,722 @@
 {% block title %}View Hierarchy{% endblock %}
 
 {% block content %}
-
 <style>
-.hierarchy-page {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.hero-card {
-  background: linear-gradient(135deg, #173b75, #315bb3);
-  color: white;
-  border-radius: 26px;
-  padding: 30px;
-  box-shadow: 0 18px 42px rgba(23,59,117,.22);
-  margin-bottom: 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-card::after {
-  content: "";
-  position: absolute;
-  right: -70px;
-  top: -70px;
-  width: 210px;
-  height: 210px;
-  border-radius: 50%;
-  background: rgba(255,255,255,.12);
-}
-
-.hero-title {
-  font-size: 36px;
-  font-weight: 900;
-  margin: 0 0 8px;
-}
-
-.hero-subtitle {
-  font-size: 16px;
-  color: rgba(255,255,255,.9);
-  margin: 0;
-  max-width: 720px;
-  line-height: 1.6;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.summary-card {
-  background: white;
-  border: 1px solid #dbe4f0;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 28px rgba(15,23,42,.07);
-}
-
-.summary-label {
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 900;
-  text-transform: uppercase;
-  margin-bottom: 8px;
-}
-
-.summary-value {
-  font-size: 32px;
-  font-weight: 900;
-  color: #173b75;
-}
-
-.section-card {
-  background: white;
-  border: 1px solid #dbe4f0;
-  border-radius: 22px;
-  padding: 24px;
-  box-shadow: 0 12px 30px rgba(15,23,42,.08);
-  margin-bottom: 24px;
-}
-
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 18px;
-}
-
-.section-title {
-  font-size: 26px;
-  font-weight: 900;
-  color: #173b75;
-  margin: 0 0 5px;
-}
-
-.section-subtitle {
-  color: #64748b;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.badge {
-  background: #eef4ff;
-  color: #234a93;
-  border: 1px solid #dbeafe;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.main-doc {
-  display: block;
-  text-decoration: none;
-  color: #0f172a;
-  background: linear-gradient(135deg, #f8fbff, #eef4ff);
-  border: 1px solid #cfe0ff;
-  border-radius: 20px;
-  padding: 22px;
-  margin-bottom: 16px;
-  transition: .18s ease;
-}
-
-.main-doc:hover {
-  transform: translateY(-2px);
-  border-color: #234a93;
-  box-shadow: 0 12px 26px rgba(35,74,147,.12);
-}
-
-.main-doc-title {
-  font-size: 22px;
-  font-weight: 900;
-  color: #173b75;
-  margin-bottom: 6px;
-}
-
-.main-doc-desc {
-  color: #475569;
-  line-height: 1.5;
-}
-
-.preview-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.preview-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 15px;
-}
-
-.preview-position {
-  color: #64748b;
-  font-size: 12px;
-  font-weight: 900;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.preview-name {
-  color: #173b75;
-  font-size: 16px;
-  font-weight: 900;
-  line-height: 1.35;
-}
-
-.item-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-  gap: 14px;
-}
-
-.item-card {
-  display: block;
-  text-decoration: none;
-  color: #0f172a;
-  background: white;
-  border: 1px solid #dbe4f0;
-  border-radius: 18px;
-  padding: 18px;
-  transition: .18s ease;
-}
-
-.item-card:hover {
-  transform: translateY(-2px);
-  background: #f8fbff;
-  border-color: #234a93;
-  box-shadow: 0 10px 22px rgba(15,23,42,.08);
-}
-
-.item-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-
-.item-name {
-  font-size: 18px;
-  font-weight: 900;
-  color: #173b75;
-  margin-bottom: 6px;
-}
-
-.item-meta {
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.5;
-}
-
-.empty-box {
-  padding: 28px;
-  text-align: center;
-  border: 1px dashed #cbd5e1;
-  border-radius: 18px;
-  color: #64748b;
-  font-weight: 800;
-  background: #f8fafc;
-}
-
-@media(max-width: 1000px) {
-  .summary-grid,
-  .preview-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .hierarchy-page {
+    width: 100%;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding-bottom: 30px;
   }
-}
 
-@media(max-width: 700px) {
-  .summary-grid,
-  .preview-grid {
+  .page-header {
+    margin-bottom: 16px;
+  }
+
+  .page-title {
+    margin: 0;
+    color: #172033;
+    font-size: 1.65rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .page-subtitle {
+    margin: 4px 0 0;
+    color: #667085;
+    font-size: 0.84rem;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .summary-card {
+    position: relative;
+    overflow: hidden;
+    padding: 14px 16px;
+    background: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+  }
+
+  .summary-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 16px rgba(16, 24, 40, 0.07);
+  }
+
+  .summary-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+  }
+
+  .summary-card:nth-child(1) {
+    background: #f6f9fe;
+    border-color: #d7e3f4;
+  }
+
+  .summary-card:nth-child(1)::before {
+    background: #234a93;
+  }
+
+  .summary-card:nth-child(2) {
+    background: #f8f7fd;
+    border-color: #e3def4;
+  }
+
+  .summary-card:nth-child(2)::before {
+    background: #6952b8;
+  }
+
+  .summary-card:nth-child(3) {
+    background: #f6fbf8;
+    border-color: #d8eadf;
+  }
+
+  .summary-card:nth-child(3)::before {
+    background: #2f8063;
+  }
+
+  .summary-label {
+    color: #667085;
+    font-size: 0.72rem;
+    font-weight: 650;
+  }
+
+  .summary-value {
+    margin-top: 5px;
+    color: #172033;
+    font-size: 1.55rem;
+    line-height: 1;
+    font-weight: 720;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hierarchy-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 10px;
+    background: linear-gradient(180deg, #ffffff 0%, #fafbfd 100%);
+    border: 1px solid #d9e0e8;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.035);
+  }
+
+  .tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 3px;
+    background: #eef2f7;
+    border-radius: 7px;
+  }
+
+  .tab-button {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    background: transparent;
+    color: #475467;
+    cursor: pointer;
+    font-size: 0.74rem;
+    font-weight: 680;
+    transition: all .12s ease;
+  }
+
+  .tab-button:hover {
+    background: rgba(255,255,255,.65);
+    color: #173b75;
+  }
+
+  .tab-button.active {
+    background: #ffffff;
+    color: #173b75;
+    border-color: #cad6e5;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.08);
+  }
+
+  .search-wrap {
+    width: min(420px, 100%);
+  }
+
+  .search-input {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #cfd6df;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #172033;
+    font-size: 0.78rem;
+    box-shadow: inset 0 1px 2px rgba(16, 24, 40, 0.02);
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #6c8bc5;
+    box-shadow: 0 0 0 3px rgba(35, 74, 147, 0.10);
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  .panel-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 1px 8px;
+  }
+
+  .panel-title {
+    position: relative;
+    margin: 0;
+    padding-left: 10px;
+    color: #172033;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+
+  .panel-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    bottom: 2px;
+    width: 3px;
+    border-radius: 3px;
+    background: #234a93;
+  }
+
+  [data-panel="bahagian"] .panel-title::before {
+    background: #6952b8;
+  }
+
+  [data-panel="cawangan"] .panel-title::before {
+    background: #2f8063;
+  }
+
+  .panel-count {
+    color: #667085;
+    font-size: 0.7rem;
+  }
+
+  .document-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .document-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #dfe4ea;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+  }
+
+  .document-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 18px rgba(16, 24, 40, 0.07);
+  }
+
+  [data-panel="central"] .document-card {
+    border-top: 3px solid #234a93;
+  }
+
+  [data-panel="bahagian"] .document-card {
+    border-top: 3px solid #6952b8;
+  }
+
+  [data-panel="cawangan"] .document-card {
+    border-top: 3px solid #2f8063;
+  }
+
+  .document-card.central {
+    grid-column: 1 / -1;
+  }
+
+  .document-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 14px 10px;
+    border-bottom: 1px solid #edf0f3;
+    background: #fbfcfe;
+  }
+
+  [data-panel="central"] .document-card-header {
+    background: #f6f9fe;
+  }
+
+  [data-panel="bahagian"] .document-card-header {
+    background: #f8f7fd;
+  }
+
+  [data-panel="cawangan"] .document-card-header {
+    background: #f6fbf8;
+  }
+
+  .document-title {
+    margin: 0;
+    color: #173b75;
+    font-size: 0.96rem;
+    font-weight: 720;
+    line-height: 1.3;
+  }
+
+  [data-panel="bahagian"] .document-title {
+    color: #51409b;
+  }
+
+  [data-panel="cawangan"] .document-title {
+    color: #266b54;
+  }
+
+  .document-term {
+    margin-top: 3px;
+    color: #667085;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  .document-location {
+    margin-top: 3px;
+    color: #667085;
+    font-size: 0.7rem;
+  }
+
+  .preview-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px 14px;
+    padding: 8px 14px 10px;
+  }
+
+  .document-card:not(.central) .preview-list {
     grid-template-columns: 1fr;
   }
 
-  .hero-title {
-    font-size: 28px;
+  .preview-row {
+    display: grid;
+    grid-template-columns: minmax(115px, 0.85fr) minmax(0, 1.15fr);
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #edf0f3;
   }
 
-  .section-title {
-    font-size: 22px;
+  .preview-row:hover {
+    background: rgba(248, 250, 252, 0.7);
   }
-}
+
+  .preview-row:last-child {
+    border-bottom: 0;
+  }
+
+  .preview-position {
+    color: #667085;
+    font-size: 0.68rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  .preview-person {
+    min-width: 0;
+    color: #172033;
+    font-size: 0.72rem;
+    font-weight: 650;
+    line-height: 1.35;
+  }
+
+  .more-count {
+    color: #667085;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .document-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding: 9px 14px 11px;
+    border-top: 1px solid #edf0f3;
+    background: #fcfcfd;
+  }
+
+  .view-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 0 11px;
+    border: 1px solid #234a93;
+    border-radius: 6px;
+    background: #234a93;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: 680;
+    transition: all .12s ease;
+  }
+
+  [data-panel="bahagian"] .view-link {
+    background: #5c48a8;
+    border-color: #5c48a8;
+  }
+
+  [data-panel="cawangan"] .view-link {
+    background: #2b745a;
+    border-color: #2b745a;
+  }
+
+  .view-link:hover {
+    filter: brightness(.92);
+  }
+
+  .empty-box,
+  .no-search-results {
+    padding: 28px 16px;
+    text-align: center;
+    border: 1px dashed #cfd6df;
+    border-radius: 8px;
+    background: #fafbfc;
+    color: #667085;
+    font-size: 0.78rem;
+  }
+
+  .no-search-results {
+    display: none;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .document-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .document-card.central {
+      grid-column: auto;
+    }
+
+    .preview-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .summary-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .hierarchy-toolbar {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .tabs {
+      width: 100%;
+    }
+
+    .tab-button {
+      flex: 1;
+    }
+
+    .search-wrap {
+      width: 100%;
+    }
+
+    .preview-row {
+      grid-template-columns: 1fr;
+      gap: 3px;
+    }
+  }
+
+
+/* ===== Larger-view accessibility pass ===== */
+
+.hierarchy-page{max-width:1260px}
+.page-title{font-size:1.9rem}
+.page-subtitle{font-size:.96rem}
+.summary-grid{gap:12px;margin-bottom:16px}
+.summary-card{padding:17px 18px}
+.summary-label{font-size:.84rem}
+.summary-value{font-size:1.9rem}
+.hierarchy-toolbar{padding:12px;margin-bottom:16px}
+.tab-button{min-height:38px;padding:0 14px;font-size:.84rem}
+.search-input{height:42px;padding:0 13px;font-size:.88rem}
+.panel-heading{margin-bottom:10px}
+.panel-title{font-size:1.06rem;padding-left:12px}
+.panel-count{font-size:.8rem}
+.document-grid{gap:12px}
+.document-card-header{padding:16px 16px 12px}
+.document-title{font-size:1.08rem}
+.document-term,.document-location{font-size:.8rem}
+.preview-list{padding:10px 16px 12px}
+.preview-row{padding:9px 0;gap:12px}
+.preview-position{font-size:.78rem}
+.preview-person{font-size:.84rem}
+.document-actions{padding:11px 16px 13px}
+.view-link{min-height:37px;padding:0 13px;font-size:.8rem}
+.empty-box,.no-search-results{font-size:.88rem}
+
+
 </style>
 
 <div class="hierarchy-page">
-
-  <div class="hero-card">
-    <h1 class="hero-title">UPKO Hierarchy</h1>
-    <p class="hero-subtitle">
-      View the party leadership structure, Wanita, Generasi Muda, Pemuda, Bahagian and Cawangan committee documents in one place.
+  <div class="page-header">
+    <h1 class="page-title">Hierarchy</h1>
+    <p class="page-subtitle">
+      View party leadership, Bahagian and Cawangan committee documents.
     </p>
   </div>
 
   <div class="summary-grid">
     <div class="summary-card">
+      <div class="summary-label">Majlis Tertinggi</div>
+      <div class="summary-value">{{ central_count }}</div>
+    </div>
+
+    <div class="summary-card">
       <div class="summary-label">Bahagian Documents</div>
-      <div class="summary-value">{{ bahagian_names|length }}</div>
+      <div class="summary-value">{{ bahagian_count }}</div>
     </div>
 
     <div class="summary-card">
       <div class="summary-label">Cawangan Documents</div>
-      <div class="summary-value">{{ cawangan_names|length }}</div>
+      <div class="summary-value">{{ cawangan_count }}</div>
     </div>
   </div>
 
-  <div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Majlis Tertinggi Parti</h2>
-        <p class="section-subtitle">Main party leadership document. This is always shown first.</p>
-      </div>
-      <span class="badge">Primary Document</span>
+  <div class="hierarchy-toolbar">
+    <div class="tabs" role="tablist" aria-label="Hierarchy document groups">
+      <button class="tab-button active" type="button" data-tab="central">Central</button>
+      <button class="tab-button" type="button" data-tab="bahagian">Bahagian</button>
+      <button class="tab-button" type="button" data-tab="cawangan">Cawangan</button>
     </div>
 
-    {% if majlis %}
-      <a class="main-doc" href="{{ url_for('hierarchy.document_view', type='MAJLIS_TERTINGGI') }}">
-        <div class="main-doc-title">Open Majlis Tertinggi Parti Document</div>
-        <div class="main-doc-desc">
-          View the full list of party leadership positions and names in document format.
-        </div>
-      </a>
-
-      <div class="preview-grid">
-        {% for row in majlis[:4] %}
-          <div class="preview-card">
-            <div class="preview-position">{{ row.position }}</div>
-            <div class="preview-name">{{ row.candidate_name }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-box">No Majlis Tertinggi Parti data added yet.</div>
-    {% endif %}
+    <div class="search-wrap">
+      <input
+        class="search-input"
+        id="hierarchySearch"
+        type="search"
+        placeholder="Search document, person or position"
+        autocomplete="off"
+      >
+    </div>
   </div>
 
-  <div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Wanita</h2>
-        <p class="section-subtitle">
-          View the full Jawatankuasa Wanita leadership document.
-        </p>
-      </div>
-      <span class="badge">
-        {% if wanita %}Document Available{% else %}No Document{% endif %}
-      </span>
+  <section class="tab-panel active" data-panel="central">
+    <div class="panel-heading">
+      <h2 class="panel-title">Central Leadership</h2>
+      <div class="panel-count">{{ central_count }} document{% if central_count != 1 %}s{% endif %}</div>
     </div>
 
-    {% if wanita %}
-      <a class="main-doc"
-         href="{{ url_for('hierarchy.document_view', type='WANITA') }}">
-        <div class="main-doc-title">
-          Open Jawatankuasa Wanita Document
-        </div>
-        <div class="main-doc-desc">
-          View the full Wanita leadership positions and names.
-        </div>
-      </a>
-
-      <div class="preview-grid">
-        {% for row in wanita[:4] %}
-          <div class="preview-card">
-            <div class="preview-position">{{ row.position }}</div>
-            <div class="preview-name">{{ row.candidate_name }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-box">
-        No Wanita hierarchy data added yet.
-      </div>
-    {% endif %}
-  </div>
-
-
-  <div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Pemuda</h2>
-        <p class="section-subtitle">
-          View the full Pergerakan Pemuda UPKO Pusat leadership document.
-        </p>
-      </div>
-
-      <span class="badge">
-        {% if pemuda %}Document Available{% else %}No Document{% endif %}
-      </span>
-    </div>
-
-    {% if pemuda %}
-      <a class="main-doc"
-         href="{{ url_for('hierarchy.document_view', type='PEMUDA') }}">
-        <div class="main-doc-title">
-          Open Pergerakan Pemuda Document
-        </div>
-
-        <div class="main-doc-desc">
-          View the full Pemuda leadership positions and names.
-        </div>
-      </a>
-
-      <div class="preview-grid">
-        {% for row in pemuda[:4] %}
-          <div class="preview-card">
-            <div class="preview-position">{{ row.position }}</div>
-            <div class="preview-name">{{ row.candidate_name }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-box">
-        No Pemuda hierarchy data added yet.
-      </div>
-    {% endif %}
-  </div>
-
-
-
-<div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Generasi Muda</h2>
-        <p class="section-subtitle">
-          View the full Jawatankuasa Generasi Muda leadership document.
-        </p>
-      </div>
-      <span class="badge">
-        {% if generasi_muda %}Document Available{% else %}No Document{% endif %}
-      </span>
-    </div>
-
-    {% if generasi_muda %}
-      <a class="main-doc"
-         href="{{ url_for('hierarchy.document_view', type='GENERASI_MUDA') }}">
-        <div class="main-doc-title">
-          Open Jawatankuasa Generasi Muda Document
-        </div>
-        <div class="main-doc-desc">
-          View the full Generasi Muda leadership positions and names.
-        </div>
-      </a>
-
-      <div class="preview-grid">
-        {% for row in generasi_muda[:4] %}
-          <div class="preview-card">
-            <div class="preview-position">{{ row.position }}</div>
-            <div class="preview-name">{{ row.candidate_name }}</div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-box">
-        No Generasi Muda hierarchy data added yet.
-      </div>
-    {% endif %}
-  </div>
-
-
-  <div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Bahagian</h2>
-        <p class="section-subtitle">Choose a Bahagian to view its committee document.</p>
-      </div>
-      <span class="badge">{{ bahagian_names|length }} Total</span>
-    </div>
-
-    {% if bahagian_names %}
-      <div class="item-grid">
-        {% for b in bahagian_names %}
-          <a class="item-card"
-             href="{{ url_for('hierarchy.document_view', type='BAHAGIAN', bahagian=b[0]) }}">
-            <div class="item-icon">📘</div>
-            <div class="item-name">{{ b[0] }}</div>
-            <div class="item-meta">View Bahagian committee hierarchy document.</div>
-          </a>
-        {% endfor %}
-      </div>
-    {% else %}
-      <div class="empty-box">No Bahagian data added yet.</div>
-    {% endif %}
-  </div>
-
-  <div class="section-card">
-    <div class="section-head">
-      <div>
-        <h2 class="section-title">Cawangan</h2>
-        <p class="section-subtitle">Choose a Cawangan to view its committee document.</p>
-      </div>
-      <span class="badge">{{ cawangan_names|length }} Total</span>
-    </div>
-
-    {% if cawangan_names %}
-      <div class="item-grid">
-        {% for c in cawangan_names %}
-          <a class="item-card"
-             href="{{ url_for('hierarchy.document_view', type='CAWANGAN', bahagian=c[1], cawangan=c[0]) }}">
-            <div class="item-icon">📍</div>
-            <div class="item-name">{{ c[0] }}</div>
-            <div class="item-meta">
-              Bahagian: <strong>{{ c[1] }}</strong><br>
-              View Cawangan committee hierarchy document.
+    {% if central_documents %}
+      <div class="document-grid">
+        {% for doc in central_documents %}
+          <article class="document-card central searchable-card" data-search="{{ doc.search_text|e }}">
+            <div class="document-card-header">
+              <div>
+                <h3 class="document-title">{{ doc.title }}</h3>
+                <div class="document-term">{{ doc.term }}</div>
+              </div>
             </div>
-          </a>
+
+            {% if doc.preview %}
+              <div class="preview-list">
+                {% for item in doc.preview %}
+                  <div class="preview-row">
+                    <div class="preview-position">{{ item.position }}</div>
+                    <div class="preview-person">
+                      {{ item.name }}
+                      {% if item.more_count %}
+                        <span class="more-count">+{{ item.more_count }} more</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="document-actions">
+              <a class="view-link" href="{{ doc.href }}">View full list</a>
+            </div>
+          </article>
         {% endfor %}
       </div>
     {% else %}
-      <div class="empty-box">No Cawangan data added yet.</div>
+      <div class="empty-box">No central hierarchy document has been added yet.</div>
     {% endif %}
-  </div>
 
+    <div class="no-search-results">No matching Central hierarchy document found.</div>
+  </section>
+
+  <section class="tab-panel" data-panel="bahagian">
+    <div class="panel-heading">
+      <h2 class="panel-title">Bahagian</h2>
+      <div class="panel-count">{{ bahagian_count }} documents</div>
+    </div>
+
+    {% if bahagian_documents %}
+      <div class="document-grid">
+        {% for doc in bahagian_documents %}
+          <article class="document-card searchable-card" data-search="{{ doc.search_text|e }}">
+            <div class="document-card-header">
+              <div>
+                <h3 class="document-title">{{ doc.title }}</h3>
+                <div class="document-term">{{ doc.term }}</div>
+              </div>
+            </div>
+
+            {% if doc.preview %}
+              <div class="preview-list">
+                {% for item in doc.preview %}
+                  <div class="preview-row">
+                    <div class="preview-position">{{ item.position }}</div>
+                    <div class="preview-person">
+                      {{ item.name }}
+                      {% if item.more_count %}
+                        <span class="more-count">+{{ item.more_count }} more</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="document-actions">
+              <a class="view-link" href="{{ doc.href }}">View full list</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">No Bahagian hierarchy documents have been added yet.</div>
+    {% endif %}
+
+    <div class="no-search-results">No matching Bahagian document found.</div>
+  </section>
+
+  <section class="tab-panel" data-panel="cawangan">
+    <div class="panel-heading">
+      <h2 class="panel-title">Cawangan</h2>
+      <div class="panel-count">{{ cawangan_count }} documents</div>
+    </div>
+
+    {% if cawangan_documents %}
+      <div class="document-grid">
+        {% for doc in cawangan_documents %}
+          <article class="document-card searchable-card" data-search="{{ doc.search_text|e }}">
+            <div class="document-card-header">
+              <div>
+                <h3 class="document-title">{{ doc.title }}</h3>
+                <div class="document-term">{{ doc.term }}</div>
+                {% if doc.bahagian %}
+                  <div class="document-location">Bahagian {{ doc.bahagian }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if doc.preview %}
+              <div class="preview-list">
+                {% for item in doc.preview %}
+                  <div class="preview-row">
+                    <div class="preview-position">{{ item.position }}</div>
+                    <div class="preview-person">
+                      {{ item.name }}
+                      {% if item.more_count %}
+                        <span class="more-count">+{{ item.more_count }} more</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="document-actions">
+              <a class="view-link" href="{{ doc.href }}">View full list</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">No Cawangan hierarchy documents have been added yet.</div>
+    {% endif %}
+
+    <div class="no-search-results">No matching Cawangan document found.</div>
+  </section>
 </div>
 
+<script>
+(function () {
+  const tabs = Array.from(document.querySelectorAll(".tab-button"));
+  const panels = Array.from(document.querySelectorAll(".tab-panel"));
+  const searchInput = document.getElementById("hierarchySearch");
+
+  function activePanel() {
+    return document.querySelector(".tab-panel.active");
+  }
+
+  function filterCurrentPanel() {
+    const panel = activePanel();
+    if (!panel) return;
+
+    const query = (searchInput.value || "").trim().toLowerCase();
+    const cards = Array.from(panel.querySelectorAll(".searchable-card"));
+    const emptySearch = panel.querySelector(".no-search-results");
+
+    let visible = 0;
+
+    cards.forEach(function (card) {
+      const haystack = (card.dataset.search || "").toLowerCase();
+      const matches = !query || haystack.includes(query);
+      card.style.display = matches ? "" : "none";
+      if (matches) visible += 1;
+    });
+
+    if (emptySearch) {
+      emptySearch.style.display = query && cards.length && visible === 0 ? "block" : "none";
+    }
+  }
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      const target = tab.dataset.tab;
+
+      tabs.forEach(function (item) {
+        item.classList.toggle("active", item === tab);
+      });
+
+      panels.forEach(function (panel) {
+        panel.classList.toggle("active", panel.dataset.panel === target);
+      });
+
+      filterCurrentPanel();
+    });
+  });
+
+  searchInput.addEventListener("input", filterCurrentPanel);
+})();
+</script>
 {% endblock %}

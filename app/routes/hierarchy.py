@@ -1,10 +1,13 @@
 from collections import defaultdict
+from datetime import datetime
+import re
+import uuid
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
 from app.extensions import db
-from app.models.hierarchy import HierarchyDocument
+from app.models.hierarchy import HierarchyDocument, HierarchyFormPosition
 
 
 hierarchy_bp = Blueprint("hierarchy", __name__, url_prefix="/hierarchy")
@@ -15,7 +18,7 @@ def admin_required():
         abort(403)
 
 
-DEFAULT_TERM = "UPKO Bagi Penggal 2026 - 2029"
+DEFAULT_TERM = "UPKO Bagi Penggal 2026 – 2029"
 
 
 POSITION_ALIASES = {
@@ -139,130 +142,11 @@ POSITION_PRESETS = {
         "Ahli Jawatankuasa",
         "Ahli Jawatankuasa",
     ],
-
-    "WANITA": [
-        "Pengerusi Tetap",
-        "Timbalan Pengerusi Tetap",
-        "Ketua Wanita",
-        "Timbalan Ketua Wanita",
-        "Naib Ketua I",
-        "Naib Ketua II",
-        "Naib Ketua III",
-        "Setiausaha",
-        "Penolong Setiausaha",
-        "Bendahari",
-        "Penolong Bendahari",
-        "Pegawai Penerangan",
-        "Penolong Pegawai Penerangan",
-        "Setiausaha Penganjur",
-        "Penolong Setiausaha Penganjur",
-
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "1"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "2"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "3"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "4"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "5"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "6"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "7"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "8"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "9"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "10"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "11"},
-        {"position": "Ahli Jawatankuasa (AJK)", "bil": "12"},
-
-        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "1"},
-        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "2"},
-        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "3"},
-        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "4"},
-        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "5"},
-    ],
-
-    "GENERASI_MUDA": [
-        "Pengerusi Tetap",
-        "Timbalan Pengerusi Tetap",
-        "Ketua Generasi Muda",
-        "Timbalan Ketua Generasi Muda",
-        "Naib Ketua Generasi Muda",
-
-        {"position": "Ahli Exco Biasa", "bil": "1"},
-        {"position": "Ahli Exco Biasa", "bil": "2"},
-        {"position": "Ahli Exco Biasa", "bil": "3"},
-        {"position": "Ahli Exco Biasa", "bil": "4"},
-        {"position": "Ahli Exco Biasa", "bil": "5"},
-        {"position": "Ahli Exco Biasa", "bil": "6"},
-        {"position": "Ahli Exco Biasa", "bil": "7"},
-        {"position": "Ahli Exco Biasa", "bil": "8"},
-        {"position": "Ahli Exco Biasa", "bil": "9"},
-        {"position": "Ahli Exco Biasa", "bil": "10"},
-        {"position": "Ahli Exco Biasa", "bil": "11"},
-        {"position": "Ahli Exco Biasa", "bil": "12"},
-
-        {"position": "Ahli Exco (Lantikan)", "bil": "1"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "2"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "3"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "4"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "5"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "6"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "7"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "8"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "9"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "10"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "11"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "12"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "13"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "14"},
-        {"position": "Ahli Exco (Lantikan)", "bil": "15"},
-    ],
-    "PEMUDA": [
-        "Pengerusi Tetap",
-        "Timbalan Pengerusi Tetap",
-        "Ketua Pemuda",
-        "Timbalan Ketua Pemuda",
-        "Naib Ketua I",
-        "Naib Ketua II",
-        "Naib Ketua III",
-        "Naib Ketua IV",
-        "Setiausaha",
-        "Penolong Setiausaha I",
-        "Penolong Setiausaha II",
-        "Bendahari",
-        "Penolong Bendahari I",
-        "Penolong Bendahari II",
-        "Pegawai Penerangan",
-        "Penolong Pegawai Penerangan I",
-        "Penolong Pegawai Penerangan II",
-        "Setiausaha Penganjur",
-        "Penolong Setiausaha Penganjur I",
-        "Penolong Setiausaha Penganjur II",
-
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "1"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "2"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "3"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "4"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "5"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "6"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "7"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "8"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "9"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "10"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "11"},
-        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "12"},
-
-        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "1"},
-        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "2"},
-        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "3"},
-        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "4"},
-        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "5"},
-    ],
-
 }
 
 
 DOC_LABELS = {
     "MAJLIS_TERTINGGI": "Majlis Tertinggi Parti",
-    "WANITA": "Wanita",
-    "GENERASI_MUDA": "Generasi Muda",
-    "PEMUDA": "Pemuda",
     "BAHAGIAN": "Bahagian",
     "CAWANGAN": "Cawangan",
 }
@@ -273,171 +157,265 @@ def normalize_position_name(position):
     return POSITION_ALIASES.get(position, position)
 
 
-def normalize_positions(doc_type):
-    raw_positions = POSITION_PRESETS[doc_type]
+def format_term_for_display(value):
+    raw = (value or DEFAULT_TERM or "").strip()
+    raw = re.sub(
+        r"^\s*UPKO\s+Bagi\s+Penggal\s+",
+        "Penggal ",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    raw = re.sub(
+        r"(?<!\d)(\d{2})\s*[-–]\s*(\d{2})(?!\d)",
+        lambda m: f"20{m.group(1)}–20{m.group(2)}",
+        raw,
+    )
+    raw = re.sub(
+        r"(?<!\d)(\d{4})\s*[-–]\s*(\d{4})(?!\d)",
+        r"\1–\2",
+        raw,
+    )
+    return re.sub(r"\s+", " ", raw).strip()
 
-    positions = []
+
+def fallback_layout(doc_type):
+    raw_positions = POSITION_PRESETS[doc_type]
+    rows = []
     for index, item in enumerate(raw_positions, start=1):
         if isinstance(item, dict):
-            positions.append({
+            rows.append({
                 "position": item["position"],
-                "bil": item["bil"],
+                "bil": item.get("bil") or "",
+                "sort_order": index,
                 "candidate_name": "",
             })
         else:
-            positions.append({
+            rows.append({
                 "position": item,
                 "bil": str(index),
+                "sort_order": index,
                 "candidate_name": "",
             })
-
-    return positions
-
-
-def get_document_query(doc_type, bahagian=None, cawangan=None):
-    query = HierarchyDocument.query.filter_by(doc_type=doc_type)
-
-    if doc_type == "BAHAGIAN":
-        query = query.filter_by(bahagian=bahagian)
-
-    elif doc_type == "CAWANGAN":
-        query = query.filter_by(bahagian=bahagian, cawangan=cawangan)
-
-    return query
+    return rows
 
 
-def build_prefilled_positions(doc_type, existing_rows):
-    positions = normalize_positions(doc_type)
-    buckets = defaultdict(list)
+def get_layout_positions(doc_type):
+    rows = (
+        HierarchyFormPosition.query
+        .filter_by(doc_type=doc_type, is_active=True)
+        .order_by(HierarchyFormPosition.sort_order, HierarchyFormPosition.id)
+        .all()
+    )
 
-    for row in existing_rows:
-        normalized_position = normalize_position_name(row.position)
-        buckets[normalized_position].append(row)
+    if not rows:
+        return fallback_layout(doc_type)
 
-    for key in buckets:
-        buckets[key].sort(key=lambda r: ((r.sort_order or 9999), r.id))
+    return [
+        {
+            "position": row.position,
+            "bil": row.bil or "",
+            "sort_order": row.sort_order or 0,
+            "candidate_name": "",
+        }
+        for row in rows
+    ]
 
-    for item in positions:
-        position = item["position"]
 
-        if buckets[position]:
-            existing = buckets[position].pop(0)
-            item["candidate_name"] = existing.candidate_name or ""
+def get_document_rows(document_key):
+    return (
+        HierarchyDocument.query
+        .filter_by(document_key=document_key)
+        .order_by(HierarchyDocument.sort_order, HierarchyDocument.id)
+        .all()
+    )
 
-    return positions
+
+def build_edit_positions(existing_rows):
+    return [
+        {
+            "position": row.position,
+            "bil": row.bil or "",
+            "sort_order": row.sort_order or index,
+            "candidate_name": row.candidate_name or "",
+        }
+        for index, row in enumerate(existing_rows, start=1)
+    ]
+
+
+def build_document_summary(rows):
+    if not rows:
+        return None
+
+    first = rows[0]
+    grouped = []
+    seen = {}
+
+    for row in rows:
+        position = normalize_position_name(row.position)
+        if position not in seen:
+            group = {"position": position, "items": []}
+            seen[position] = group
+            grouped.append(group)
+        seen[position]["items"].append(row)
+
+    preview = []
+    preview_limit = 4 if first.doc_type == "MAJLIS_TERTINGGI" else 3
+    for group in grouped[:preview_limit]:
+        preview.append({
+            "position": group["position"],
+            "name": group["items"][0].candidate_name,
+            "more_count": max(len(group["items"]) - 1, 0),
+        })
+
+    search_parts = [
+        first.title or "", first.term or "", first.bahagian or "", first.cawangan or ""
+    ]
+    for row in rows:
+        search_parts.extend([row.position or "", row.candidate_name or "", row.bil or ""])
+
+    return {
+        "document_key": first.document_key,
+        "doc_type": first.doc_type,
+        "title": first.title,
+        "term": format_term_for_display(first.term),
+        "raw_term": first.term or "",
+        "meeting_date": first.meeting_date,
+        "bahagian": first.bahagian,
+        "cawangan": first.cawangan,
+        "preview": preview,
+        "rows": rows,
+        "count": len(rows),
+        "href": url_for("hierarchy.document_view", document_key=first.document_key),
+        "search_text": " ".join(search_parts).lower(),
+    }
+
+
+def all_documents():
+    rows = (
+        HierarchyDocument.query
+        .order_by(
+            HierarchyDocument.doc_type,
+            HierarchyDocument.term,
+            HierarchyDocument.bahagian,
+            HierarchyDocument.cawangan,
+            HierarchyDocument.sort_order,
+            HierarchyDocument.id,
+        )
+        .all()
+    )
+
+    grouped = defaultdict(list)
+    for row in rows:
+        grouped[row.document_key].append(row)
+
+    docs = [build_document_summary(group_rows) for group_rows in grouped.values()]
+    docs = [doc for doc in docs if doc]
+
+    def doc_sort(doc):
+        meeting = doc["meeting_date"] or datetime.min.date()
+        return (meeting, doc["raw_term"], doc["title"])
+
+    docs.sort(key=doc_sort, reverse=True)
+    return docs
+
+
+def validate_header_fields(doc_type):
+    title = (request.form.get("title") or "").strip()
+    term = (request.form.get("term") or DEFAULT_TERM).strip()
+    bahagian = (request.form.get("bahagian") or "").strip().upper()
+    cawangan = (request.form.get("cawangan") or "").strip().upper()
+    meeting_date = request.form.get("meeting_date") or None
+
+    if not title:
+        return None, "Title is required."
+    if not term:
+        return None, "Penggal / Subtitle is required."
+    if doc_type in ("BAHAGIAN", "CAWANGAN") and not bahagian:
+        return None, "Bahagian is required."
+    if doc_type == "CAWANGAN" and not cawangan:
+        return None, "Cawangan is required."
+
+    return {
+        "title": title,
+        "term": term,
+        "bahagian": bahagian or None,
+        "cawangan": cawangan if doc_type == "CAWANGAN" else None,
+        "meeting_date": meeting_date,
+    }, None
+
+
+def posted_position_rows():
+    positions = request.form.getlist("position[]")
+    bils = request.form.getlist("bil[]")
+    names = request.form.getlist("candidate_name[]")
+
+    rows = []
+    for index, position in enumerate(positions, start=1):
+        position = (position or "").strip()
+        bil = (bils[index - 1] if index - 1 < len(bils) else "").strip()
+        name = (names[index - 1] if index - 1 < len(names) else "").strip()
+
+        if not position or not name:
+            continue
+
+        rows.append({
+            "position": position,
+            "bil": bil,
+            "candidate_name": name,
+            "sort_order": index,
+        })
+
+    return rows
 
 
 @hierarchy_bp.route("/")
 @login_required
 def view_hierarchy():
-    majlis = HierarchyDocument.query.filter_by(
-        doc_type="MAJLIS_TERTINGGI"
-    ).order_by(HierarchyDocument.sort_order, HierarchyDocument.id).all()
-
-    wanita = HierarchyDocument.query.filter_by(
-        doc_type="WANITA"
-    ).order_by(
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
-
-    generasi_muda = HierarchyDocument.query.filter_by(
-        doc_type="GENERASI_MUDA"
-    ).order_by(
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
-
-    pemuda = HierarchyDocument.query.filter_by(
-        doc_type="PEMUDA"
-    ).order_by(
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
-
-    bahagian_names = db.session.query(HierarchyDocument.bahagian)\
-        .filter(HierarchyDocument.doc_type == "BAHAGIAN")\
-        .filter(HierarchyDocument.bahagian.isnot(None))\
-        .filter(HierarchyDocument.bahagian != "")\
-        .distinct()\
-        .order_by(HierarchyDocument.bahagian)\
-        .all()
-
-    cawangan_names = db.session.query(
-        HierarchyDocument.cawangan,
-        HierarchyDocument.bahagian
-    )\
-        .filter(HierarchyDocument.doc_type == "CAWANGAN")\
-        .filter(HierarchyDocument.cawangan.isnot(None))\
-        .filter(HierarchyDocument.cawangan != "")\
-        .distinct()\
-        .order_by(HierarchyDocument.bahagian, HierarchyDocument.cawangan)\
-        .all()
+    docs = all_documents()
+    central_documents = [d for d in docs if d["doc_type"] == "MAJLIS_TERTINGGI"]
+    bahagian_documents = [d for d in docs if d["doc_type"] == "BAHAGIAN"]
+    cawangan_documents = [d for d in docs if d["doc_type"] == "CAWANGAN"]
 
     return render_template(
         "hierarchy/view_hierarchy.html",
-        majlis=majlis,
-        wanita=wanita,
-        generasi_muda=generasi_muda,
-        pemuda=pemuda,
-        bahagian_names=bahagian_names,
-        cawangan_names=cawangan_names
+        central_documents=central_documents,
+        bahagian_documents=bahagian_documents,
+        cawangan_documents=cawangan_documents,
+        central_count=len(central_documents),
+        bahagian_count=len(bahagian_documents),
+        cawangan_count=len(cawangan_documents),
     )
 
 
-@hierarchy_bp.route("/document")
+@hierarchy_bp.route("/document/<document_key>")
 @login_required
-def document_view():
-    doc_type = request.args.get("type")
-    bahagian = request.args.get("bahagian")
-    cawangan = request.args.get("cawangan")
+def document_view(document_key):
+    rows = get_document_rows(document_key)
+    if not rows:
+        abort(404)
 
-    if not doc_type:
-        flash("Please select a hierarchy document first.", "warning")
-        return redirect(url_for("hierarchy.view_hierarchy"))
-
-    doc_type = doc_type.upper()
-
-    query = HierarchyDocument.query.filter_by(doc_type=doc_type)
-
-    if bahagian:
-        query = query.filter_by(bahagian=bahagian)
-
-    if cawangan:
-        query = query.filter_by(cawangan=cawangan)
-
-    rows = query.order_by(
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
-
+    first = rows[0]
     grouped_rows = []
     seen = {}
 
     for row in rows:
-        key = (row.position or "").strip()
-
+        key = normalize_position_name(row.position)
         if key not in seen:
-            group = {
-                "position": key,
-                "items": [],
-                "sort_order": row.sort_order or 0
-            }
+            group = {"position": key, "items": [], "sort_order": row.sort_order or 0}
             seen[key] = group
             grouped_rows.append(group)
-
         seen[key]["items"].append(row)
-
-    term = rows[0].term if rows and rows[0].term else DEFAULT_TERM
 
     return render_template(
         "hierarchy/document_view.html",
         rows=rows,
         grouped_rows=grouped_rows,
-        doc_type=doc_type,
-        bahagian=bahagian,
-        cawangan=cawangan,
-        term=term,
+        doc_type=first.doc_type,
+        bahagian=first.bahagian,
+        cawangan=first.cawangan,
+        document_title=first.title,
+        term=format_term_for_display(first.term),
+        meeting_date=first.meeting_date,
     )
 
 
@@ -445,16 +423,19 @@ def document_view():
 @login_required
 def admin_list():
     admin_required()
+    docs = all_documents()
 
-    rows = HierarchyDocument.query.order_by(
-        HierarchyDocument.doc_type,
-        HierarchyDocument.bahagian,
-        HierarchyDocument.cawangan,
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
+    documents_by_type = {
+        "MAJLIS_TERTINGGI": [d for d in docs if d["doc_type"] == "MAJLIS_TERTINGGI"],
+        "BAHAGIAN": [d for d in docs if d["doc_type"] == "BAHAGIAN"],
+        "CAWANGAN": [d for d in docs if d["doc_type"] == "CAWANGAN"],
+    }
 
-    return render_template("hierarchy/admin_list.html", rows=rows)
+    return render_template(
+        "hierarchy/admin_list.html",
+        documents_by_type=documents_by_type,
+        doc_labels=DOC_LABELS,
+    )
 
 
 @hierarchy_bp.route("/admin/add")
@@ -468,50 +449,17 @@ def admin_add_choice():
 @login_required
 def admin_add(doc_type):
     admin_required()
-
-    doc_type = doc_type.upper()
-
+    doc_type = (doc_type or "").upper()
     if doc_type not in POSITION_PRESETS:
         abort(404)
 
-    positions = normalize_positions(doc_type)
+    positions = get_layout_positions(doc_type)
     doc_label = DOC_LABELS[doc_type]
 
     if request.method == "POST":
-        title = request.form.get("title")
-        term = (request.form.get("term") or DEFAULT_TERM).strip()
-        bahagian = request.form.get("bahagian")
-        cawangan = request.form.get("cawangan")
-        meeting_date = request.form.get("meeting_date") or None
-
-        submitted_positions = request.form.getlist("position[]")
-        submitted_names = request.form.getlist("candidate_name[]")
-
-        added_count = 0
-
-        for index, position in enumerate(submitted_positions):
-            candidate_name = submitted_names[index].strip() if index < len(submitted_names) else ""
-
-            if not candidate_name:
-                continue
-
-            row = HierarchyDocument(
-                doc_type=doc_type,
-                title=title,
-                term=term,
-                bahagian=bahagian,
-                cawangan=cawangan,
-                meeting_date=meeting_date,
-                position=position,
-                candidate_name=candidate_name,
-                sort_order=index + 1
-            )
-
-            db.session.add(row)
-            added_count += 1
-
-        if added_count == 0:
-            flash("No names were entered. Please enter at least one name.", "warning")
+        header, error = validate_header_fields(doc_type)
+        if error:
+            flash(error, "danger")
             return render_template(
                 "hierarchy/admin_form.html",
                 choose_mode=False,
@@ -519,15 +467,48 @@ def admin_add(doc_type):
                 doc_type=doc_type,
                 doc_label=doc_label,
                 positions=positions,
-                title=title,
-                term=term,
-                bahagian=bahagian,
-                cawangan=cawangan,
-                meeting_date=meeting_date,
+                title=request.form.get("title", ""),
+                term=request.form.get("term", DEFAULT_TERM),
+                bahagian=request.form.get("bahagian", ""),
+                cawangan=request.form.get("cawangan", ""),
+                meeting_date=request.form.get("meeting_date", ""),
             )
 
+        submitted = posted_position_rows()
+        if not submitted:
+            flash("Enter at least one name before saving the hierarchy document.", "warning")
+            return render_template(
+                "hierarchy/admin_form.html",
+                choose_mode=False,
+                edit_document_mode=False,
+                doc_type=doc_type,
+                doc_label=doc_label,
+                positions=positions,
+                title=header["title"],
+                term=header["term"],
+                bahagian=header["bahagian"] or "",
+                cawangan=header["cawangan"] or "",
+                meeting_date=header["meeting_date"] or "",
+            )
+
+        document_key = uuid.uuid4().hex
+        for item in submitted:
+            db.session.add(HierarchyDocument(
+                document_key=document_key,
+                doc_type=doc_type,
+                title=header["title"],
+                term=header["term"],
+                bahagian=header["bahagian"],
+                cawangan=header["cawangan"],
+                meeting_date=header["meeting_date"],
+                position=item["position"],
+                bil=item["bil"],
+                candidate_name=item["candidate_name"],
+                sort_order=item["sort_order"],
+            ))
+
         db.session.commit()
-        flash(f"{doc_label} data saved successfully.", "success")
+        flash(f"{doc_label} saved as a NEW hierarchy document. Older election records were kept.", "success")
         return redirect(url_for("hierarchy.admin_list"))
 
     return render_template(
@@ -545,173 +526,151 @@ def admin_add(doc_type):
     )
 
 
-@hierarchy_bp.route("/admin/edit-document/<doc_type>", methods=["GET", "POST"])
+@hierarchy_bp.route("/admin/edit-document/<document_key>", methods=["GET", "POST"])
 @login_required
-def admin_edit_document(doc_type):
+def admin_edit_document(document_key):
     admin_required()
-
-    doc_type = doc_type.upper()
-
-    if doc_type not in POSITION_PRESETS:
+    existing_rows = get_document_rows(document_key)
+    if not existing_rows:
         abort(404)
 
-    doc_label = DOC_LABELS[doc_type]
-
-    bahagian = request.args.get("bahagian") or ""
-    cawangan = request.args.get("cawangan") or ""
-
-    query = get_document_query(doc_type, bahagian=bahagian, cawangan=cawangan)
-
-    existing_rows = query.order_by(
-        HierarchyDocument.sort_order,
-        HierarchyDocument.id
-    ).all()
-
-    if not existing_rows:
-        flash("No existing hierarchy document found. You can create a new one here.", "warning")
-        return redirect(url_for("hierarchy.admin_add", doc_type=doc_type))
-
-    first_row = existing_rows[0]
+    first = existing_rows[0]
+    doc_type = first.doc_type
+    doc_label = DOC_LABELS.get(doc_type, doc_type)
 
     if request.method == "POST":
-        title = request.form.get("title")
-        term = (request.form.get("term") or DEFAULT_TERM).strip()
-        new_bahagian = request.form.get("bahagian")
-        new_cawangan = request.form.get("cawangan")
-        meeting_date = request.form.get("meeting_date") or None
+        header, error = validate_header_fields(doc_type)
+        if error:
+            flash(error, "danger")
+            return render_template(
+                "hierarchy/admin_form.html",
+                choose_mode=False,
+                edit_document_mode=True,
+                document_key=document_key,
+                doc_type=doc_type,
+                doc_label=doc_label,
+                positions=build_edit_positions(existing_rows),
+                title=request.form.get("title", first.title),
+                term=request.form.get("term", first.term or DEFAULT_TERM),
+                bahagian=request.form.get("bahagian", first.bahagian or ""),
+                cawangan=request.form.get("cawangan", first.cawangan or ""),
+                meeting_date=request.form.get("meeting_date", first.meeting_date or ""),
+            )
 
-        submitted_positions = request.form.getlist("position[]")
-        submitted_names = request.form.getlist("candidate_name[]")
+        submitted = posted_position_rows()
+        if not submitted:
+            flash("A saved document must contain at least one named position.", "danger")
+            return redirect(request.url)
 
-        # Delete the old full document/group first
         for row in existing_rows:
             db.session.delete(row)
 
-        added_count = 0
-
-        # Re-create only rows that still have names.
-        # Empty name means delete/unneeded position.
-        for index, position in enumerate(submitted_positions):
-            candidate_name = submitted_names[index].strip() if index < len(submitted_names) else ""
-
-            if not candidate_name:
-                continue
-
-            row = HierarchyDocument(
+        for item in submitted:
+            db.session.add(HierarchyDocument(
+                document_key=document_key,
                 doc_type=doc_type,
-                title=title,
-                term=term,
-                bahagian=new_bahagian,
-                cawangan=new_cawangan if doc_type == "CAWANGAN" else None,
-                meeting_date=meeting_date,
-                position=position,
-                candidate_name=candidate_name,
-                sort_order=index + 1
-            )
-
-            db.session.add(row)
-            added_count += 1
+                title=header["title"],
+                term=header["term"],
+                bahagian=header["bahagian"],
+                cawangan=header["cawangan"],
+                meeting_date=header["meeting_date"],
+                position=item["position"],
+                bil=item["bil"],
+                candidate_name=item["candidate_name"],
+                sort_order=item["sort_order"],
+            ))
 
         db.session.commit()
-
-        if added_count == 0:
-            flash("All names were empty, so this hierarchy document was cleared.", "warning")
-        else:
-            flash(f"{doc_label} document updated successfully.", "success")
-
+        flash("This hierarchy document was updated. Other election documents were not changed.", "success")
         return redirect(url_for("hierarchy.admin_list"))
-
-    positions = build_prefilled_positions(doc_type, existing_rows)
 
     return render_template(
         "hierarchy/admin_form.html",
         choose_mode=False,
         edit_document_mode=True,
+        document_key=document_key,
         doc_type=doc_type,
         doc_label=doc_label,
-        positions=positions,
-        title=first_row.title or "",
-        term=first_row.term or DEFAULT_TERM,
-        bahagian=first_row.bahagian or "",
-        cawangan=first_row.cawangan or "",
-        meeting_date=first_row.meeting_date or "",
+        positions=build_edit_positions(existing_rows),
+        title=first.title or "",
+        term=first.term or DEFAULT_TERM,
+        bahagian=first.bahagian or "",
+        cawangan=first.cawangan or "",
+        meeting_date=first.meeting_date or "",
     )
 
 
-@hierarchy_bp.route("/admin/edit/<int:id>", methods=["GET", "POST"])
+@hierarchy_bp.route("/admin/form-layout/<doc_type>", methods=["GET", "POST"])
 @login_required
-def admin_edit(id):
+def admin_form_layout(doc_type):
     admin_required()
-
-    row = HierarchyDocument.query.get_or_404(id)
-
-    if row.doc_type in ("MAJLIS_TERTINGGI", "WANITA", "GENERASI_MUDA", "PEMUDA"):
-        return redirect(url_for(
-            "hierarchy.admin_edit_document",
-            doc_type=row.doc_type
-        ))
-
-    if row.doc_type == "BAHAGIAN":
-        return redirect(url_for(
-            "hierarchy.admin_edit_document",
-            doc_type=row.doc_type,
-            bahagian=row.bahagian
-        ))
-
-    if row.doc_type == "CAWANGAN":
-        return redirect(url_for(
-            "hierarchy.admin_edit_document",
-            doc_type=row.doc_type,
-            bahagian=row.bahagian,
-            cawangan=row.cawangan
-        ))
-
-    abort(404)
-
-
-@hierarchy_bp.route("/admin/delete-document/<doc_type>", methods=["POST"])
-@login_required
-def admin_delete_document(doc_type):
-    admin_required()
-
     doc_type = (doc_type or "").upper()
-
     if doc_type not in POSITION_PRESETS:
         abort(404)
 
-    bahagian = (request.form.get("bahagian") or "").strip()
-    cawangan = (request.form.get("cawangan") or "").strip()
+    if request.method == "POST":
+        positions = request.form.getlist("position[]")
+        bils = request.form.getlist("bil[]")
 
-    query = HierarchyDocument.query.filter_by(doc_type=doc_type)
+        submitted = []
+        for index, position in enumerate(positions, start=1):
+            position = (position or "").strip()
+            bil = (bils[index - 1] if index - 1 < len(bils) else "").strip()
+            if not position:
+                continue
+            submitted.append((position, bil))
 
-    if doc_type == "BAHAGIAN":
-        if not bahagian:
-            flash("Bahagian name is required to delete this form.", "danger")
-            return redirect(url_for("hierarchy.admin_list"))
+        if not submitted:
+            flash("The form layout must contain at least one Jawatan row.", "danger")
+            return redirect(request.url)
 
-        query = query.filter_by(bahagian=bahagian)
-        label = f"Bahagian form: {bahagian}"
+        HierarchyFormPosition.query.filter_by(doc_type=doc_type).delete(synchronize_session=False)
 
-    elif doc_type == "CAWANGAN":
-        if not bahagian or not cawangan:
-            flash("Bahagian and Cawangan name are required to delete this form.", "danger")
-            return redirect(url_for("hierarchy.admin_list"))
+        for index, (position, bil) in enumerate(submitted, start=1):
+            db.session.add(HierarchyFormPosition(
+                doc_type=doc_type,
+                position=position,
+                bil=bil,
+                sort_order=index,
+                is_active=True,
+            ))
 
-        query = query.filter_by(bahagian=bahagian, cawangan=cawangan)
-        label = f"Cawangan form: {cawangan} ({bahagian})"
+        db.session.commit()
+        flash("Jawatan/Bil form layout updated. Existing saved election documents were not changed.", "success")
+        return redirect(url_for("hierarchy.admin_form_layout", doc_type=doc_type))
 
-    else:
-        label = f"{DOC_LABELS.get(doc_type, doc_type)} form"
+    rows = get_layout_positions(doc_type)
+    return render_template(
+        "hierarchy/form_layout.html",
+        doc_type=doc_type,
+        doc_label=DOC_LABELS[doc_type],
+        rows=rows,
+    )
 
-    rows = query.all()
+
+@hierarchy_bp.route("/admin/edit/<int:id>")
+@login_required
+def admin_edit(id):
+    admin_required()
+    row = HierarchyDocument.query.get_or_404(id)
+    return redirect(url_for("hierarchy.admin_edit_document", document_key=row.document_key))
+
+
+@hierarchy_bp.route("/admin/delete-document/<document_key>", methods=["POST"])
+@login_required
+def admin_delete_document(document_key):
+    admin_required()
+    rows = get_document_rows(document_key)
+    if not rows:
+        abort(404)
+
+    label = rows[0].title
     count = len(rows)
-
     for row in rows:
         db.session.delete(row)
-
     db.session.commit()
 
-    flash(f"{label} deleted successfully. {count} records removed.", "warning")
+    flash(f"Deleted hierarchy document '{label}' ({count} rows). Other election documents were kept.", "warning")
     return redirect(url_for("hierarchy.admin_list"))
 
 
@@ -719,11 +678,13 @@ def admin_delete_document(doc_type):
 @login_required
 def admin_delete(id):
     admin_required()
-
     row = HierarchyDocument.query.get_or_404(id)
-
+    document_key = row.document_key
     db.session.delete(row)
     db.session.commit()
 
-    flash("Hierarchy data removed.", "warning")
+    if not HierarchyDocument.query.filter_by(document_key=document_key).first():
+        flash("The row was deleted and that document is now empty.", "warning")
+    else:
+        flash("Hierarchy row deleted.", "warning")
     return redirect(url_for("hierarchy.admin_list"))

@@ -7,6 +7,7 @@ from flask_login import login_required, current_user
 
 from app.extensions import db
 from app.models.id_assignment import IdAssignment
+from app.models.member import Member
 from app.models.user import User
 
 
@@ -33,6 +34,16 @@ def format_myt(value):
         value = value.replace(tzinfo=timezone.utc)
 
     return value.astimezone(MALAYSIA_TZ).strftime("%Y-%m-%d %H:%M:%S")
+
+
+def format_myt_date(value):
+    if not value:
+        return ""
+
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(MALAYSIA_TZ).strftime("%d %b %Y")
 
 
 def normalize_text(value):
@@ -179,11 +190,15 @@ def index():
         query = query.filter(IdAssignment.is_assigned.is_(False))
 
     if search:
-        try:
-            search_noid = int(search)
-            query = query.filter(IdAssignment.noid == search_noid)
-        except ValueError:
-            pass
+        # Numeric prefix search:
+        # "1640" can match 164040, 164041, etc.
+        # Non-numeric input intentionally returns no rows.
+        if search.isdigit():
+            query = query.filter(
+                db.cast(IdAssignment.noid, db.String).like(f"{search}%")
+            )
+        else:
+            query = query.filter(db.false())
 
     pagination = query.order_by(IdAssignment.noid.asc()).paginate(
         page=page,
@@ -199,17 +214,6 @@ def index():
 
     highest_id = db.session.query(db.func.max(IdAssignment.noid)).scalar() or START_NOID - 1
 
-    assigned_legend = db.session.query(
-        IdAssignment.assigned_by_username,
-        IdAssignment.assigned_color
-    ).filter(
-        IdAssignment.is_assigned.is_(True),
-        IdAssignment.assigned_by_username.isnot(None),
-        IdAssignment.assigned_color.isnot(None)
-    ).distinct().order_by(
-        IdAssignment.assigned_by_username.asc()
-    ).all()
-
     access_users = get_access_users()
     current_admin_color = get_current_user_color()
 
@@ -223,10 +227,10 @@ def index():
         assigned_count=assigned_count,
         available_count=available_count,
         highest_id=highest_id,
-        assigned_legend=assigned_legend,
         access_users=access_users,
         current_admin_color=current_admin_color,
         format_myt=format_myt,
+        format_myt_date=format_myt_date,
     )
 
 
@@ -246,7 +250,17 @@ def generate_more():
 
     added_count = seed_ids(start_noid, end_noid)
 
-    flash(f"Generated {added_count} new IDs from {start_noid} to {end_noid}.", "success")
+    if added_count:
+        flash(
+            f"Generated {added_count} new IDs from {start_noid} to {end_noid}.",
+            "success"
+        )
+    else:
+        flash(
+            "No new IDs were generated because that range already exists.",
+            "warning"
+        )
+
     return redirect(url_for("id_assignment.index"))
 
 
@@ -330,6 +344,27 @@ def release_id():
             "ok": False,
             "message": "Invalid ID."
         }), 400
+
+    # Safety rule:
+    # Never release an ID that has already been attached to a real member.
+    member = (
+        Member.query
+        .filter(Member.noid == noid)
+        .order_by(Member.id.asc())
+        .first()
+    )
+
+    if member:
+        member_name = (member.fullname or "").strip() or "an existing member"
+        return jsonify({
+            "ok": False,
+            "message": (
+                f"ID {noid} cannot be released because it is already used by "
+                f"{member_name}."
+            ),
+            "member_id": member.id,
+            "member_name": member_name,
+        }), 409
 
     updated = IdAssignment.query.filter(
         IdAssignment.noid == noid,

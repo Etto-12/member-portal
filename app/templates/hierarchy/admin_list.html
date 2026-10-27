@@ -1,910 +1,494 @@
 {% extends "layout/base.html" %}
 {% block title %}Manage Hierarchy{% endblock %}
-
 {% block content %}
-
 <style>
-  .hierarchy-admin-wrap {
-    max-width: 1320px;
-    margin: 0 auto;
-    padding-bottom: 40px;
+.wrap{
+  max-width:1320px;
+  margin:0 auto;
+  padding-bottom:34px;
+}
+
+.page-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-end;
+  margin-bottom:14px;
+}
+
+.page-title{
+  margin:0;
+  color:#172033;
+  font-size:1.55rem;
+  font-weight:750;
+}
+
+.page-sub{
+  margin:4px 0 0;
+  color:#667085;
+  font-size:.8rem;
+}
+
+.search{
+  height:37px;
+  min-width:330px;
+  border:1px solid #cfd6df;
+  border-radius:6px;
+  padding:0 10px;
+}
+
+.quick-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.quick{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.collapse-tools{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:0 10px;
+  border-radius:6px;
+  border:1px solid #cfd6df;
+  background:#fff;
+  color:#344054;
+  text-decoration:none;
+  font-size:.72rem;
+  font-weight:680;
+  cursor:pointer;
+}
+
+.btn:hover{
+  background:#f8fafc;
+}
+
+.btn-primary{
+  background:#234a93;
+  color:#fff;
+  border-color:#234a93;
+}
+
+.btn-primary:hover{
+  background:#1d3f7f;
+}
+
+.btn-layout{
+  background:#f7f5ff;
+  color:#554398;
+  border-color:#d8d0f2;
+}
+
+.btn-edit{
+  background:#2563eb;
+  color:#fff;
+  border-color:#2563eb;
+}
+
+.btn-danger{
+  background:#d92d20;
+  color:#fff;
+  border-color:#d92d20;
+}
+
+.section{
+  margin-bottom:16px;
+}
+
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 12px;
+  background:#173b75;
+  color:#fff;
+  border-radius:8px 8px 0 0;
+}
+
+.section-head h2{
+  margin:0;
+  font-size:.9rem;
+}
+
+.section-count{
+  font-size:.7rem;
+  opacity:.9;
+}
+
+.doc-card{
+  border:1px solid #dfe4ea;
+  border-top:0;
+  background:#fff;
+}
+
+.doc-card + .doc-card{
+  border-top:1px solid #dfe4ea;
+}
+
+.doc-summary{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  padding:0;
+  background:#fafbfd;
+  transition:background .12s ease;
+}
+
+.doc-card.expanded .doc-summary{
+  background:#f5f8fc;
+  border-bottom:1px solid #dfe4ea;
+}
+
+.doc-toggle{
+  flex:1;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:11px 12px;
+  border:0;
+  background:transparent;
+  text-align:left;
+  cursor:pointer;
+}
+
+.doc-toggle:hover{
+  background:#f5f8fc;
+}
+
+.chevron{
+  flex:0 0 24px;
+  width:24px;
+  height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid #d9e0e8;
+  border-radius:5px;
+  background:#fff;
+  color:#234a93;
+  font-size:.75rem;
+  line-height:1;
+  transition:transform .16s ease,background .12s ease;
+}
+
+.doc-card.expanded .chevron{
+  transform:rotate(90deg);
+  background:#eef4ff;
+}
+
+.doc-summary-copy{
+  min-width:0;
+}
+
+.doc-title{
+  font-weight:720;
+  color:#172033;
+  font-size:.82rem;
+  line-height:1.35;
+}
+
+.doc-meta{
+  margin-top:3px;
+  color:#667085;
+  font-size:.68rem;
+  line-height:1.4;
+}
+
+.doc-actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+  padding:9px 12px 9px 0;
+}
+
+.doc-body{
+  display:none;
+}
+
+.doc-card.expanded .doc-body{
+  display:block;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
+.admin-table{
+  width:100%;
+  min-width:760px;
+  border-collapse:collapse;
+}
+
+.admin-table th{
+  padding:8px 10px;
+  background:#f2f5f9;
+  color:#475467;
+  text-align:left;
+  font-size:.68rem;
+  text-transform:uppercase;
+}
+
+.admin-table td{
+  padding:8px 10px;
+  border-top:1px solid #edf0f3;
+  font-size:.73rem;
+  vertical-align:top;
+}
+
+.admin-table tbody tr:hover td{
+  background:#fafcff;
+}
+
+.bil{
+  width:90px;
+}
+
+.jawatan{
+  font-weight:680;
+  color:#173b75;
+}
+
+.name{
+  font-weight:620;
+}
+
+.empty{
+  padding:18px;
+  background:#fff;
+  border:1px solid #dfe4ea;
+  border-top:0;
+  color:#667085;
+  font-size:.75rem;
+}
+
+.hidden{
+  display:none!important;
+}
+
+@media(max-width:900px){
+  .doc-summary{
+    align-items:stretch;
+    flex-direction:column;
   }
 
-  .page-header {
-    margin-bottom: 20px;
+  .doc-actions{
+    padding:0 12px 10px 46px;
+  }
+}
+
+@media(max-width:800px){
+  .page-head{
+    align-items:stretch;
+    flex-direction:column;
   }
 
-  .page-title {
-    font-size: 30px;
-    font-weight: 900;
-    color: #0f172a;
-    margin: 0;
-    letter-spacing: -0.03em;
+  .search{
+    min-width:0;
+    width:100%;
   }
 
-  .page-subtitle {
-    color: #64748b;
-    margin-top: 6px;
-    font-size: 14px;
+  .quick-row{
+    align-items:stretch;
+    flex-direction:column;
   }
+}
 
-  .quick-actions {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-bottom: 22px;
-  }
 
-  .quick-card {
-    background: white;
-    border: 1px solid #dbe4f0;
-    border-radius: 20px;
-    padding: 18px;
-    text-decoration: none;
-    color: #0f172a;
-    box-shadow: 0 14px 34px rgba(15,23,42,.07);
-    transition: all .18s ease;
-  }
+/* ===== Larger-view accessibility pass ===== */
 
-  .quick-card:hover {
-    transform: translateY(-2px);
-    border-color: #4f46e5;
-    box-shadow: 0 18px 42px rgba(15,23,42,.10);
-  }
+.wrap{max-width:1280px}
+.page-title{font-size:1.82rem}
+.page-sub{font-size:.92rem}
+.search{height:42px;min-width:380px;font-size:.88rem;padding:0 12px}
+.btn{min-height:39px;padding:0 13px;font-size:.82rem}
+.section{margin-bottom:19px}
+.section-head{padding:12px 14px}
+.section-head h2{font-size:1.02rem}
+.section-count{font-size:.8rem}
+.doc-toggle{padding:14px}
+.chevron{width:28px;height:28px;font-size:.85rem}
+.doc-title{font-size:.95rem}
+.doc-meta{font-size:.78rem}
+.doc-actions{padding:11px 14px 11px 0}
+.admin-table th{padding:10px 12px;font-size:.78rem}
+.admin-table td{padding:10px 12px;font-size:.84rem}
 
-  .quick-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #eef2ff;
-    color: #4338ca;
-    font-size: 22px;
-    margin-bottom: 10px;
-  }
 
-  .quick-title {
-    font-size: 17px;
-    font-weight: 900;
-    color: #173b75;
-    margin-bottom: 4px;
-  }
-
-  .quick-desc {
-    color: #64748b;
-    font-size: 13px;
-    line-height: 1.45;
-  }
-
-  .toolbar-card {
-    background: white;
-    border: 1px solid #dbe4f0;
-    border-radius: 20px;
-    padding: 14px;
-    box-shadow: 0 12px 30px rgba(15,23,42,.06);
-    margin-bottom: 18px;
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .search-input {
-    height: 44px;
-    border: 1px solid #cbd5e1;
-    border-radius: 13px;
-    padding: 0 14px;
-    font-size: 14px;
-    width: 100%;
-  }
-
-  .toolbar-btn {
-    height: 44px;
-    border: 1px solid #dbe4f0;
-    background: #f8fafc;
-    color: #0f172a;
-    padding: 0 14px;
-    border-radius: 13px;
-    font-weight: 900;
-    cursor: pointer;
-  }
-
-  .section-card {
-    background: white;
-    border: 1px solid #dbe4f0;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 16px 38px rgba(15,23,42,.07);
-    margin-bottom: 22px;
-  }
-
-  .section-head {
-    background: linear-gradient(90deg, #10213f, #17356b);
-    color: white;
-    padding: 16px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-title-wrap {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .section-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
-    background: rgba(255,255,255,.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-  }
-
-  .section-title {
-    margin: 0;
-    font-size: 19px;
-    font-weight: 900;
-  }
-
-  .section-subtitle {
-    margin-top: 2px;
-    color: rgba(255,255,255,.78);
-    font-size: 12px;
-  }
-
-  .section-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .section-count,
-  .count-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #eef2ff;
-    color: #4338ca;
-    border-radius: 999px;
-    padding: 6px 10px;
-    font-size: 12px;
-    font-weight: 900;
-    white-space: nowrap;
-  }
-
-  .section-count {
-    background: rgba(255,255,255,.14);
-    color: white;
-    border: 1px solid rgba(255,255,255,.18);
-  }
-
-  .section-body {
-    padding: 14px;
-  }
-
-  .group-card {
-    border: 1px solid #e5eaf2;
-    border-radius: 18px;
-    overflow: hidden;
-    margin-bottom: 12px;
-    background: #ffffff;
-    box-shadow: none;
-  }
-
-  .group-card[open] {
-    box-shadow: 0 12px 28px rgba(15,23,42,.08);
-  }
-
-  .group-summary {
-    cursor: pointer;
-    list-style: none;
-    padding: 14px 16px;
-    background: #f8fbff;
-    border: 0;
-    border-radius: 18px;
-    outline: none;
-  }
-
-  .group-card[open] .group-summary {
-    border-radius: 18px 18px 0 0;
-    border-bottom: 1px solid #e5eaf2;
-  }
-
-  .group-summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .group-summary:focus,
-  .group-summary:focus-visible,
-  .group-card:focus,
-  .group-card:focus-within {
-    outline: none !important;
-  }
-
-  .summary-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .summary-main {
-    min-width: 0;
-  }
-
-  .summary-title {
-    font-size: 15px;
-    font-weight: 900;
-    color: #0f172a;
-  }
-
-  .summary-meta {
-    color: #64748b;
-    font-size: 12px;
-    margin-top: 3px;
-  }
-
-  .summary-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .subgroup {
-    margin: 12px;
-    border: 1px solid #fed7aa;
-    border-radius: 16px;
-    overflow: hidden;
-    background: #fffaf5;
-  }
-
-  .subgroup-head {
-    padding: 12px 14px;
-    background: #fff7ed;
-    border-bottom: 1px solid #fed7aa;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .subgroup-title {
-    font-weight: 900;
-    color: #9a3412;
-  }
-
-  .subgroup-meta {
-    margin-top: 3px;
-    color: #64748b;
-    font-size: 12px;
-  }
-
-  .subgroup-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .table-scroll {
-    overflow-x: auto;
-  }
-
-  .admin-table {
-    width: 100%;
-    min-width: 980px;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  .admin-table th {
-    background: #0f172a;
-    color: white;
-    padding: 12px 10px;
-    text-align: left;
-    font-weight: 900;
-    white-space: nowrap;
-  }
-
-  .admin-table td {
-    padding: 11px 10px;
-    border-bottom: 1px solid #edf2f7;
-    vertical-align: top;
-    line-height: 1.45;
-  }
-
-  .admin-table tbody tr:hover {
-    background: #f8fbff;
-  }
-
-  .badge {
-    display: inline-flex;
-    padding: 5px 9px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 900;
-    background: #eef2ff;
-    color: #234a93;
-    white-space: nowrap;
-  }
-
-  .position-text {
-    font-weight: 800;
-    color: #0f172a;
-  }
-
-  .name-text {
-    font-weight: 900;
-    color: #111827;
-  }
-
-  .action-box {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .btn-small {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 7px 10px;
-    border-radius: 9px;
-    font-size: 12px;
-    font-weight: 900;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-  }
-
-  .btn-edit-small {
-    background: #16a34a;
-    color: white;
-  }
-
-  .btn-delete-small,
-  .btn-delete-form {
-    background: #d91c29;
-    color: white;
-  }
-
-  .btn-edit-form {
-    background: #2563eb;
-    color: white;
-  }
-
-  .doc-delete-form {
-    display: inline;
-    margin: 0;
-  }
-
-  .empty-box {
-    padding: 24px;
-    text-align: center;
-    color: #64748b;
-    font-weight: 800;
-  }
-
-  .hidden-by-search {
-    display: none !important;
-  }
-
-  @media(max-width: 950px) {
-    .summary-line,
-    .section-head,
-    .subgroup-head,
-    .toolbar-card {
-      grid-template-columns: 1fr;
-      flex-direction: column;
-      align-items: flex-start;
-    }
-
-    .quick-actions {
-      grid-template-columns: 1fr;
-    }
-  }
 </style>
-
-{% macro row_delete_button(row) %}
-  <form method="post"
-        action="{{ url_for('hierarchy.admin_delete', id=row.id) }}"
-        onsubmit="return confirm('Delete this single hierarchy row?');">
-    <button type="submit" class="btn-small btn-delete-small">Delete</button>
-  </form>
-{% endmacro %}
-
-{% macro document_delete_button(doc_type, bahagian='', cawangan='', label='Delete Whole Form') %}
-  <form method="post"
-        class="doc-delete-form"
-        action="{{ url_for('hierarchy.admin_delete_document', doc_type=doc_type) }}"
-        onsubmit="event.stopPropagation(); return confirm('Delete this whole form? This will remove all rows under this record.');">
-    <input type="hidden" name="bahagian" value="{{ bahagian or '' }}">
-    <input type="hidden" name="cawangan" value="{{ cawangan or '' }}">
-    <button type="submit"
-            class="btn-small btn-delete-form"
-            onclick="event.stopPropagation();">
-      {{ label }}
-    </button>
-  </form>
-{% endmacro %}
-
-{% macro hierarchy_table(items) %}
-  <div class="table-scroll">
-    <table class="admin-table">
-      <thead>
-        <tr>
-          <th style="width:60px;">#</th>
-          <th style="width:125px;">Type</th>
-          <th>Title</th>
-          <th style="width:140px;">Bahagian</th>
-          <th style="width:160px;">Cawangan</th>
-          <th style="width:190px;">Jawatan</th>
-          <th style="width:190px;">Nama</th>
-          <th style="width:70px;">Order</th>
-          <th style="width:135px;">Action</th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {% for row in items %}
-          <tr>
-            <td>{{ loop.index }}</td>
-            <td>
-              <span class="badge">
-                {% if row.doc_type == "MAJLIS_TERTINGGI" %}
-                  Majlis Tertinggi
-                {% elif row.doc_type == "GENERASI_MUDA" %}
-                  Generasi Muda
-                {% elif row.doc_type == "WANITA" %}
-                  Wanita
-                {% elif row.doc_type == "PEMUDA" %}
-                  Pemuda
-                {% elif row.doc_type == "BAHAGIAN" %}
-                  Bahagian
-                {% elif row.doc_type == "CAWANGAN" %}
-                  Cawangan
-                {% else %}
-                  {{ row.doc_type }}
-                {% endif %}
-              </span>
-            </td>
-            <td>{{ row.title or "-" }}</td>
-            <td>{{ row.bahagian or "-" }}</td>
-            <td>{{ row.cawangan or "-" }}</td>
-            <td class="position-text">{{ row.position or "-" }}</td>
-            <td class="name-text">{{ row.candidate_name or "-" }}</td>
-            <td>{{ row.sort_order or 0 }}</td>
-            <td>
-              <div class="action-box">
-                <a href="{{ url_for('hierarchy.admin_edit', id=row.id) }}"
-                   class="btn-small btn-edit-small">
-                  Edit
-                </a>
-                {{ row_delete_button(row) }}
-              </div>
-            </td>
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="9" class="empty-box">No records found.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% endmacro %}
-
-{% set majlis_rows = rows | selectattr("doc_type", "equalto", "MAJLIS_TERTINGGI") | list %}
-{% set wanita_rows = rows | selectattr("doc_type", "equalto", "WANITA") | list %}
-{% set generasi_muda_rows = rows | selectattr("doc_type", "equalto", "GENERASI_MUDA") | list %}
-{% set pemuda_rows = rows | selectattr("doc_type", "equalto", "PEMUDA") | list %}
-{% set bahagian_rows = rows | selectattr("doc_type", "equalto", "BAHAGIAN") | list %}
-{% set cawangan_rows = rows | selectattr("doc_type", "equalto", "CAWANGAN") | list %}
-
-<div class="hierarchy-admin-wrap">
-
-  <div class="page-header">
-    <h1 class="page-title">Manage Hierarchy</h1>
-    <div class="page-subtitle">
-      Records are separated by Majlis Tertinggi, Wanita, Generasi Muda, Pemuda, Bahagian, and Cawangan for easier viewing and editing.
-    </div>
-  </div>
-
-  <div class="quick-actions">
-    <a href="{{ url_for('hierarchy.admin_add', doc_type='MAJLIS_TERTINGGI') }}" class="quick-card">
-      <div class="quick-icon">🏛️</div>
-      <div class="quick-title">Majlis Tertinggi Parti</div>
-      <div class="quick-desc">Add Presiden, Timbalan Presiden, Naib Presiden, AMT and central-level positions.</div>
-    </a>
-
-    <a href="{{ url_for('hierarchy.admin_add', doc_type='BAHAGIAN') }}" class="quick-card">
-      <div class="quick-icon">🏢</div>
-      <div class="quick-title">Bahagian</div>
-      <div class="quick-desc">Add or update Bahagian committee records.</div>
-    </a>
-
-    <a href="{{ url_for('hierarchy.admin_add', doc_type='CAWANGAN') }}" class="quick-card">
-      <div class="quick-icon">📍</div>
-      <div class="quick-title">Cawangan</div>
-      <div class="quick-desc">Add or update Cawangan committee records.</div>
-    </a>
-
-    <a href="{{ url_for('hierarchy.admin_add', doc_type='WANITA') }}" class="quick-card">
-      <div class="quick-icon">♀</div>
-      <div class="quick-title">Wanita</div>
-      <div class="quick-desc">Add or update Jawatankuasa Wanita records.</div>
-    </a>
-
-    <a href="{{ url_for('hierarchy.admin_add', doc_type='PEMUDA') }}" class="quick-card">
-      <div class="quick-icon">👥</div>
-      <div class="quick-title">Pemuda</div>
-      <div class="quick-desc">Add or update Pergerakan Pemuda records.</div>
-    </a>
-
-      <a href="{{ url_for('hierarchy.admin_add', doc_type='GENERASI_MUDA') }}" class="quick-card">
-      <div class="quick-icon">⚡</div>
-      <div class="quick-title">Generasi Muda</div>
-      <div class="quick-desc">Add or update Generasi Muda records.</div>
-    </a>
-
-
-  </div>
-
-  <div class="toolbar-card">
-    <input class="search-input"
-           id="hierarchySearch"
-           type="text"
-           placeholder="Search title, bahagian, cawangan, jawatan, or name...">
-    <button class="toolbar-btn" type="button" onclick="expandAllGroups()">Expand All</button>
-    <button class="toolbar-btn" type="button" onclick="collapseAllGroups()">Collapse All</button>
-  </div>
-
-  <div class="section-card searchable-group" data-search="majlis tertinggi parti">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">🏛️</div>
-        <div>
-          <h2 class="section-title">Majlis Tertinggi Parti</h2>
-          <div class="section-subtitle">Central-level party hierarchy records.</div>
-        </div>
-      </div>
-
-      <div class="section-actions">
-        <div class="section-count">{{ majlis_rows|length }} records</div>
-        {% if majlis_rows %}
-          <a class="btn-small btn-edit-form"
-             href="{{ url_for('hierarchy.admin_edit_document', doc_type='MAJLIS_TERTINGGI') }}">
-            Edit Whole Form
-          </a>
-          {{ document_delete_button("MAJLIS_TERTINGGI", "", "", "Delete Whole Form") }}
-        {% endif %}
-      </div>
+<div class="wrap">
+  <div class="page-head"><div><h1 class="page-title">Manage Hierarchy</h1><p class="page-sub">Each saved election form is now kept as a separate historical hierarchy document.</p></div><input id="search" class="search" type="search" placeholder="Search title, term, Bahagian, Cawangan, Jawatan or name"></div>
+  <div class="quick-row">
+    <div class="quick">
+      {% for t,l in [('MAJLIS_TERTINGGI','Majlis Tertinggi'),('BAHAGIAN','Bahagian'),('CAWANGAN','Cawangan')] %}
+        <a class="btn btn-primary" href="{{ url_for('hierarchy.admin_add', doc_type=t) }}">+ New {{ l }}</a>
+        <a class="btn btn-layout" href="{{ url_for('hierarchy.admin_form_layout', doc_type=t) }}">Edit {{ l }} Jawatan/Bil</a>
+      {% endfor %}
     </div>
 
-    <div class="section-body">
-      {% if majlis_rows %}
-        {{ hierarchy_table(majlis_rows) }}
-      {% else %}
-        <div class="empty-box">No Majlis Tertinggi records yet.</div>
-      {% endif %}
+    <div class="collapse-tools">
+      <button class="btn" id="expandAll" type="button">Expand All</button>
+      <button class="btn" id="collapseAll" type="button">Collapse All</button>
     </div>
   </div>
+  {% for type_value in ['MAJLIS_TERTINGGI','BAHAGIAN','CAWANGAN'] %}
+    {% set docs=documents_by_type[type_value] %}
+    <section class="section">
+      <div class="section-head"><h2>{{ doc_labels[type_value] }}</h2><span class="section-count">{{ docs|length }} saved document{% if docs|length != 1 %}s{% endif %}</span></div>
+      {% if docs %}
+        {% for doc in docs %}
+          <article class="doc-card searchable" data-search="{{ doc.search_text|e }}">
+            <div class="doc-summary">
+              <button
+                class="doc-toggle"
+                type="button"
+                aria-expanded="false"
+                title="Expand or collapse this hierarchy form"
+              >
+                <span class="chevron">▶</span>
+                <span class="doc-summary-copy">
+                  <span class="doc-title">{{ doc.title }}</span>
+                  <span class="doc-meta">
+                    {{ doc.term }}
+                    {% if doc.bahagian %} · Bahagian {{ doc.bahagian }}{% endif %}
+                    {% if doc.cawangan %} · Cawangan {{ doc.cawangan }}{% endif %}
+                    {% if doc.meeting_date %} · {{ doc.meeting_date.strftime('%d/%m/%Y') }}{% endif %}
+                    · {{ doc.count }} rows
+                  </span>
+                </span>
+              </button>
 
-  <div class="section-card searchable-group"
-       data-search="wanita jawatankuasa wanita">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">♀</div>
-        <div>
-          <h2 class="section-title">Wanita</h2>
-          <div class="section-subtitle">
-            Jawatankuasa Wanita hierarchy records.
-          </div>
-        </div>
-      </div>
+              <div class="doc-actions">
+                <a class="btn" href="{{ doc.href }}">View</a>
+                <a class="btn btn-edit" href="{{ url_for('hierarchy.admin_edit_document', document_key=doc.document_key) }}">Edit Whole Form</a>
 
-      <div class="section-actions">
-        <div class="section-count">{{ wanita_rows|length }} records</div>
-
-        {% if wanita_rows %}
-          <a class="btn-small btn-edit-form"
-             href="{{ url_for('hierarchy.admin_edit_document', doc_type='WANITA') }}">
-            Edit Whole Form
-          </a>
-
-          {{ document_delete_button("WANITA", "", "", "Delete Whole Form") }}
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="section-body">
-      {% if wanita_rows %}
-        <details class="group-card searchable-group"
-                 data-search="wanita jawatankuasa wanita">
-          <summary class="group-summary">
-            <div class="summary-line">
-              <div class="summary-main">
-                <div class="summary-title">Jawatankuasa Wanita</div>
-                <div class="summary-meta">
-                  Click to expand or collapse Wanita records.
-                </div>
-              </div>
-
-              <div class="count-pill">{{ wanita_rows|length }} records</div>
-            </div>
-          </summary>
-
-          {{ hierarchy_table(wanita_rows) }}
-        </details>
-      {% else %}
-        <div class="empty-box">No Wanita records yet.</div>
-      {% endif %}
-    </div>
-  </div>
-
-
-  <div class="section-card searchable-group"
-       data-search="pemuda pergerakan pemuda jawatankuasa pemuda">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">👥</div>
-        <div>
-          <h2 class="section-title">Pemuda</h2>
-          <div class="section-subtitle">
-            Pergerakan Pemuda UPKO Pusat hierarchy records.
-          </div>
-        </div>
-      </div>
-
-      <div class="section-actions">
-        <div class="section-count">{{ pemuda_rows|length }} records</div>
-
-        {% if pemuda_rows %}
-          <a class="btn-small btn-edit-form"
-             href="{{ url_for('hierarchy.admin_edit_document', doc_type='PEMUDA') }}">
-            Edit Whole Form
-          </a>
-
-          {{ document_delete_button("PEMUDA", "", "", "Delete Whole Form") }}
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="section-body">
-      {% if pemuda_rows %}
-        <details class="group-card searchable-group"
-                 data-search="pemuda pergerakan pemuda">
-          <summary class="group-summary">
-            <div class="summary-line">
-              <div class="summary-main">
-                <div class="summary-title">
-                  Jawatankuasa Pergerakan Pemuda
-                </div>
-                <div class="summary-meta">
-                  Click to expand or collapse Pemuda records.
-                </div>
-              </div>
-
-              <div class="count-pill">
-                {{ pemuda_rows|length }} records
+                <form
+                  method="post"
+                  action="{{ url_for('hierarchy.admin_delete_document', document_key=doc.document_key) }}"
+                  onsubmit="return confirm('Delete this saved hierarchy document only? Other election documents will remain.');"
+                >
+                  <button class="btn btn-danger" type="submit">Delete Whole Form</button>
+                </form>
               </div>
             </div>
-          </summary>
 
-          {{ hierarchy_table(pemuda_rows) }}
-        </details>
-      {% else %}
-        <div class="empty-box">No Pemuda records yet.</div>
-      {% endif %}
-    </div>
-  </div>
+            <div class="doc-body">
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th style="width:55px">#</th>
+                      <th class="bil">Bil</th>
+                      <th>Jawatan</th>
+                      <th>Nama</th>
+                      <th style="width:90px">Action</th>
+                    </tr>
+                  </thead>
 
-
-
-<div class="section-card searchable-group"
-       data-search="generasi muda jawatankuasa generasi muda">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">⚡</div>
-        <div>
-          <h2 class="section-title">Generasi Muda</h2>
-          <div class="section-subtitle">
-            Generasi Muda hierarchy records.
-          </div>
-        </div>
-      </div>
-
-      <div class="section-actions">
-        <div class="section-count">{{ generasi_muda_rows|length }} records</div>
-
-        {% if generasi_muda_rows %}
-          <a class="btn-small btn-edit-form"
-             href="{{ url_for('hierarchy.admin_edit_document', doc_type='GENERASI_MUDA') }}">
-            Edit Whole Form
-          </a>
-
-          {{ document_delete_button("GENERASI_MUDA", "", "", "Delete Whole Form") }}
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="section-body">
-      {% if generasi_muda_rows %}
-        <details class="group-card searchable-group"
-                 data-search="generasi muda exco">
-          <summary class="group-summary">
-            <div class="summary-line">
-              <div class="summary-main">
-                <div class="summary-title">Jawatankuasa Generasi Muda</div>
-                <div class="summary-meta">
-                  Click to expand or collapse Generasi Muda records.
-                </div>
+                  <tbody>
+                    {% for row in doc.rows %}
+                      <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ row.bil or '-' }}</td>
+                        <td class="jawatan">{{ row.position }}</td>
+                        <td class="name">{{ row.candidate_name }}</td>
+                        <td>
+                          <form
+                            method="post"
+                            action="{{ url_for('hierarchy.admin_delete', id=row.id) }}"
+                            onsubmit="return confirm('Delete this one row from this document?');"
+                          >
+                            <button class="btn btn-danger" type="submit">Delete</button>
+                          </form>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
               </div>
-
-              <div class="count-pill">{{ generasi_muda_rows|length }} records</div>
             </div>
-          </summary>
-
-          {{ hierarchy_table(generasi_muda_rows) }}
-        </details>
-      {% else %}
-        <div class="empty-box">No Generasi Muda records yet.</div>
-      {% endif %}
-    </div>
-  </div>
-
-
-  <div class="section-card searchable-group" data-search="bahagian">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">🏢</div>
-        <div>
-          <h2 class="section-title">Bahagian</h2>
-          <div class="section-subtitle">Grouped by Bahagian name for easier editing.</div>
-        </div>
-      </div>
-      <div class="section-count">{{ bahagian_rows|length }} records</div>
-    </div>
-
-    <div class="section-body">
-      {% if bahagian_rows %}
-        {% for group in bahagian_rows | groupby("bahagian") %}
-          <details class="group-card searchable-group"
-                   data-search="bahagian {{ group.grouper or '' }}">
-            <summary class="group-summary">
-              <div class="summary-line">
-                <div class="summary-main">
-                  <div class="summary-title">{{ group.grouper or "No Bahagian Name" }}</div>
-                  <div class="summary-meta">Click to view and edit this Bahagian committee.</div>
-                </div>
-
-                <div class="summary-actions">
-                  <div class="count-pill">{{ group.list|length }} records</div>
-
-                  <a class="btn-small btn-edit-form"
-                     onclick="event.stopPropagation();"
-                     href="{{ url_for('hierarchy.admin_edit_document', doc_type='BAHAGIAN', bahagian=group.grouper) }}">
-                    Edit Whole Form
-                  </a>
-
-                  {{ document_delete_button("BAHAGIAN", group.grouper, "", "Delete Whole Form") }}
-                </div>
-              </div>
-            </summary>
-
-            {{ hierarchy_table(group.list) }}
-          </details>
+          </article>
         {% endfor %}
-      {% else %}
-        <div class="empty-box">No Bahagian records yet.</div>
-      {% endif %}
-    </div>
-  </div>
-
-  <div class="section-card searchable-group" data-search="cawangan">
-    <div class="section-head">
-      <div class="section-title-wrap">
-        <div class="section-icon">📍</div>
-        <div>
-          <h2 class="section-title">Cawangan</h2>
-          <div class="section-subtitle">Grouped by Bahagian first, then Cawangan name.</div>
-        </div>
-      </div>
-      <div class="section-count">{{ cawangan_rows|length }} records</div>
-    </div>
-
-    <div class="section-body">
-      {% if cawangan_rows %}
-        {% for bahagian_group in cawangan_rows | groupby("bahagian") %}
-          <details class="group-card searchable-group"
-                   data-search="cawangan bahagian {{ bahagian_group.grouper or '' }}">
-            <summary class="group-summary">
-              <div class="summary-line">
-                <div class="summary-main">
-                  <div class="summary-title">{{ bahagian_group.grouper or "No Bahagian Name" }}</div>
-                  <div class="summary-meta">Click to view Cawangan records under this Bahagian.</div>
-                </div>
-                <div class="count-pill">{{ bahagian_group.list|length }} records</div>
-              </div>
-            </summary>
-
-            {% for cawangan_group in bahagian_group.list | groupby("cawangan") %}
-              <div class="subgroup searchable-group"
-                   data-search="{{ bahagian_group.grouper or '' }} {{ cawangan_group.grouper or '' }}">
-                <div class="subgroup-head">
-                  <div>
-                    <div class="subgroup-title">{{ cawangan_group.grouper or "No Cawangan Name" }}</div>
-                    <div class="subgroup-meta">Bahagian: {{ bahagian_group.grouper or "-" }}</div>
-                  </div>
-
-                  <div class="subgroup-actions">
-                    <div class="count-pill">{{ cawangan_group.list|length }} records</div>
-
-                    <a class="btn-small btn-edit-form"
-                       href="{{ url_for('hierarchy.admin_edit_document', doc_type='CAWANGAN', bahagian=bahagian_group.grouper, cawangan=cawangan_group.grouper) }}">
-                      Edit Whole Form
-                    </a>
-
-                    {{ document_delete_button("CAWANGAN", bahagian_group.grouper, cawangan_group.grouper, "Delete Whole Form") }}
-                  </div>
-                </div>
-
-                {{ hierarchy_table(cawangan_group.list) }}
-              </div>
-            {% endfor %}
-          </details>
-        {% endfor %}
-      {% else %}
-        <div class="empty-box">No Cawangan records yet.</div>
-      {% endif %}
-    </div>
-  </div>
-
+      {% else %}<div class="empty">No saved {{ doc_labels[type_value] }} hierarchy documents yet.</div>{% endif %}
+    </section>
+  {% endfor %}
 </div>
-
 <script>
-  function expandAllGroups() {
-    document.querySelectorAll("details.group-card").forEach((el) => {
-      el.open = true;
-    });
+(function () {
+  const searchInput = document.getElementById("search");
+  const cards = Array.from(document.querySelectorAll(".doc-card"));
+  const expandAll = document.getElementById("expandAll");
+  const collapseAll = document.getElementById("collapseAll");
+
+  function setExpanded(card, expanded) {
+    card.classList.toggle("expanded", expanded);
+
+    const toggle = card.querySelector(".doc-toggle");
+    if (toggle) {
+      toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+    }
   }
 
-  function collapseAllGroups() {
-    document.querySelectorAll("details.group-card").forEach((el) => {
-      el.open = false;
-    });
-  }
+  cards.forEach(function (card) {
+    const toggle = card.querySelector(".doc-toggle");
 
-  const searchInput = document.getElementById("hierarchySearch");
-
-  if (searchInput) {
-    searchInput.addEventListener("input", function () {
-      const keyword = this.value.toLowerCase().trim();
-
-      document.querySelectorAll(".searchable-group").forEach((el) => {
-        const text = el.innerText.toLowerCase() + " " + (el.dataset.search || "").toLowerCase();
-
-        if (!keyword || text.includes(keyword)) {
-          el.classList.remove("hidden-by-search");
-
-          if (keyword && el.tagName.toLowerCase() === "details") {
-            el.open = true;
-          }
-        } else {
-          el.classList.add("hidden-by-search");
-        }
+    if (toggle) {
+      toggle.addEventListener("click", function () {
+        setExpanded(card, !card.classList.contains("expanded"));
       });
-    });
-  }
-</script>
+    }
+  });
 
+  expandAll.addEventListener("click", function () {
+    cards.forEach(function (card) {
+      if (!card.classList.contains("hidden")) {
+        setExpanded(card, true);
+      }
+    });
+  });
+
+  collapseAll.addEventListener("click", function () {
+    cards.forEach(function (card) {
+      setExpanded(card, false);
+    });
+  });
+
+  searchInput.addEventListener("input", function () {
+    const query = searchInput.value.trim().toLowerCase();
+
+    cards.forEach(function (card) {
+      const matches =
+        !query ||
+        (card.dataset.search || "").toLowerCase().includes(query);
+
+      card.classList.toggle("hidden", !matches);
+
+      // When searching, automatically open matches so the user can
+      // immediately see the matching Jawatan/name inside the document.
+      if (query && matches) {
+        setExpanded(card, true);
+      } else if (!query) {
+        setExpanded(card, false);
+      }
+    });
+  });
+})();
+</script>
 {% endblock %}
