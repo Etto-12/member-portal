@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import hashlib
 
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort, jsonify
@@ -19,6 +20,19 @@ id_assignment_bp = Blueprint(
 START_NOID = 162687
 INITIAL_BATCH_SIZE = 5000
 GENERATE_BATCH_SIZE = 500
+
+MALAYSIA_TZ = ZoneInfo("Asia/Kuala_Lumpur")
+
+
+def format_myt(value):
+    if not value:
+        return ""
+
+    # assigned_at values are stored as naive UTC datetimes
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+
+    return value.astimezone(MALAYSIA_TZ).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def normalize_text(value):
@@ -154,7 +168,7 @@ def index():
     ensure_initial_ids()
 
     page = request.args.get("page", 1, type=int)
-    status = request.args.get("status", "").strip()
+    status = request.args.get("status", "available").strip()
     search = request.args.get("q", "").strip()
 
     query = IdAssignment.query
@@ -212,6 +226,7 @@ def index():
         assigned_legend=assigned_legend,
         access_users=access_users,
         current_admin_color=current_admin_color,
+        format_myt=format_myt,
     )
 
 
@@ -296,7 +311,7 @@ def assign_id():
         "noid": noid,
         "assigned_by_username": username,
         "assigned_color": color,
-        "assigned_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "assigned_at": format_myt(now),
     })
 
 
@@ -376,7 +391,7 @@ def status():
                 "is_assigned": row.is_assigned,
                 "assigned_by_username": row.assigned_by_username,
                 "assigned_color": row.assigned_color,
-                "assigned_at": row.assigned_at.strftime("%Y-%m-%d %H:%M:%S") if row.assigned_at else "",
+                "assigned_at": format_myt(row.assigned_at),
             }
             for row in rows
         ]

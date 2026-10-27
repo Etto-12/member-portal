@@ -38,7 +38,7 @@
 
   .choice-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 18px;
     margin-top: 20px;
   }
@@ -297,6 +297,26 @@
         <div class="choice-title">Cawangan</div>
         <div class="choice-desc">Add Cawangan committee hierarchy records.</div>
       </a>
+
+      <a href="{{ url_for('hierarchy.admin_add', doc_type='WANITA') }}" class="choice-card">
+        <div class="choice-icon">♀</div>
+        <div class="choice-title">Wanita</div>
+        <div class="choice-desc">Add Jawatankuasa Wanita hierarchy records.</div>
+      </a>
+
+      <a href="{{ url_for('hierarchy.admin_add', doc_type='PEMUDA') }}" class="choice-card">
+        <div class="choice-icon">👥</div>
+        <div class="choice-title">Pemuda</div>
+        <div class="choice-desc">Add Pergerakan Pemuda hierarchy records.</div>
+      </a>
+
+      <a href="{{ url_for('hierarchy.admin_add', doc_type='GENERASI_MUDA') }}" class="choice-card">
+        <div class="choice-icon">⚡</div>
+        <div class="choice-title">Generasi Muda</div>
+        <div class="choice-desc">Add Generasi Muda hierarchy records.</div>
+      </a>
+
+
     </div>
   </div>
 {% else %}
@@ -308,6 +328,12 @@
           Borang Jawatankuasa Cawangan
         {% elif doc_type == "BAHAGIAN" %}
           Borang Jawatankuasa Bahagian
+        {% elif doc_type == "WANITA" %}
+          Borang Jawatankuasa Wanita
+        {% elif doc_type == "GENERASI_MUDA" %}
+          Borang Jawatankuasa Generasi Muda
+        {% elif doc_type == "PEMUDA" %}
+          Borang Susunan Ahli-Ahli Jawatankuasa Pergerakan Pemuda UPKO Pusat
         {% else %}
           Borang Majlis Tertinggi Parti
         {% endif %}
@@ -341,7 +367,7 @@
             type="text"
             name="title"
             value="{{ title or '' }}"
-            placeholder="Example: AHLI JAWATANKUASA BAHAGIAN W.P LABUAN"
+            placeholder="Example: {{ doc_label }} UPKO"
             required
           >
         </div>

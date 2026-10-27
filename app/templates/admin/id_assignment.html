@@ -188,7 +188,7 @@
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
     margin-bottom: 18px;
     display: grid;
-    grid-template-columns: 1fr auto auto auto;
+    grid-template-columns: 1fr auto auto;
     gap: 10px;
     align-items: center;
   }
@@ -377,6 +377,78 @@
     }
   }
 
+
+  .status-tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .status-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 950;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .status-tab:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
+  }
+
+  .status-tab.active {
+    color: #ffffff;
+    border-color: transparent;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.25);
+  }
+
+  .status-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 24px;
+    margin-left: 8px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #eef2ff;
+    color: #3730a3;
+    font-size: 12px;
+    font-weight: 950;
+  }
+
+  .status-tab.active .status-count {
+    background: rgba(255, 255, 255, 0.20);
+    color: #ffffff;
+  }
+
+  .empty-state {
+    grid-column: 1 / -1;
+    padding: 44px 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    background: #ffffff;
+    text-align: center;
+    color: #64748b;
+    font-weight: 800;
+  }
+
   @media(max-width: 700px) {
     .id-grid,
     .stats-grid,
@@ -466,7 +538,27 @@
     </div>
   </div>
 
+  <div class="status-tabs">
+    <a
+      class="status-tab {% if status == 'available' %}active{% endif %}"
+      href="{{ url_for('id_assignment.index', status='available') }}"
+    >
+      Available IDs
+      <span class="status-count">{{ available_count }}</span>
+    </a>
+
+    <a
+      class="status-tab {% if status == 'assigned' %}active{% endif %}"
+      href="{{ url_for('id_assignment.index', status='assigned') }}"
+    >
+      Assigned IDs
+      <span class="status-count">{{ assigned_count }}</span>
+    </a>
+  </div>
+
   <form method="get" class="toolbar">
+    <input type="hidden" name="status" value="{{ status }}">
+
     <input
       class="input"
       type="text"
@@ -475,17 +567,19 @@
       placeholder="Search exact ID..."
     >
 
-    <select class="select" name="status">
-      <option value="" {% if not status %}selected{% endif %}>All Status</option>
-      <option value="available" {% if status == "available" %}selected{% endif %}>Available Only</option>
-      <option value="assigned" {% if status == "assigned" %}selected{% endif %}>Assigned Only</option>
-    </select>
+    <button class="btn btn-primary" type="submit">
+      Search
+    </button>
 
-    <button class="btn btn-primary" type="submit">Search / Filter</button>
-
-    <a class="btn btn-secondary" href="{{ url_for('id_assignment.index') }}">Reset</a>
+    <a
+      class="btn btn-secondary"
+      href="{{ url_for('id_assignment.index', status=status) }}"
+    >
+      Reset Search
+    </a>
   </form>
 
+  {% if status == "available" %}
   <div class="confirm-box">
     <div>
       <div class="confirm-text">
@@ -500,6 +594,7 @@
       Confirm Selected IDs
     </button>
   </div>
+  {% endif %}
 
   <div class="id-grid" id="idGrid">
     {% for row in rows %}
@@ -524,7 +619,7 @@
         <div class="id-meta">
           {% if row.is_assigned %}
             Assigned by: <strong>{{ row.assigned_by_username or '-' }}</strong><br>
-            Time: {{ row.assigned_at.strftime('%Y-%m-%d %H:%M:%S') if row.assigned_at else '-' }}
+            Time: {{ format_myt(row.assigned_at) if row.assigned_at else '-' }} MYT
           {% else %}
             Not assigned yet.
           {% endif %}
@@ -549,6 +644,14 @@
             <span class="id-meta">Select this ID</span>
           {% endif %}
         </div>
+      </div>
+    {% else %}
+      <div class="empty-state">
+        {% if status == "assigned" %}
+          No assigned IDs were found.
+        {% else %}
+          No available IDs were found.
+        {% endif %}
       </div>
     {% endfor %}
   </div>
@@ -597,7 +700,7 @@ function updateCardAsAssigned(noid, username, color, assignedAt) {
   if (meta) {
     meta.innerHTML = `
       Assigned by: <strong>${username || "-"}</strong><br>
-      Time: ${assignedAt || "-"}
+      Time: ${assignedAt ? assignedAt + " MYT" : "-"}
     `;
   }
 
@@ -676,7 +779,7 @@ async function confirmSelectedIds() {
     }
   }
 
-  updateSelectedCount();
+  window.location.reload();
 }
 
 async function releaseId(noid) {
@@ -695,7 +798,7 @@ async function releaseId(noid) {
   const data = await res.json();
 
   if (data.ok) {
-    updateCardAsAvailable(noid);
+    window.location.reload();
   } else {
     alert(data.message || "Could not release this ID.");
     await refreshVisibleIds();

@@ -30,7 +30,7 @@
 
   .quick-actions {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
     margin-bottom: 22px;
   }
@@ -458,7 +458,25 @@
         {% for row in items %}
           <tr>
             <td>{{ loop.index }}</td>
-            <td><span class="badge">{{ row.doc_type }}</span></td>
+            <td>
+              <span class="badge">
+                {% if row.doc_type == "MAJLIS_TERTINGGI" %}
+                  Majlis Tertinggi
+                {% elif row.doc_type == "GENERASI_MUDA" %}
+                  Generasi Muda
+                {% elif row.doc_type == "WANITA" %}
+                  Wanita
+                {% elif row.doc_type == "PEMUDA" %}
+                  Pemuda
+                {% elif row.doc_type == "BAHAGIAN" %}
+                  Bahagian
+                {% elif row.doc_type == "CAWANGAN" %}
+                  Cawangan
+                {% else %}
+                  {{ row.doc_type }}
+                {% endif %}
+              </span>
+            </td>
             <td>{{ row.title or "-" }}</td>
             <td>{{ row.bahagian or "-" }}</td>
             <td>{{ row.cawangan or "-" }}</td>
@@ -486,6 +504,9 @@
 {% endmacro %}
 
 {% set majlis_rows = rows | selectattr("doc_type", "equalto", "MAJLIS_TERTINGGI") | list %}
+{% set wanita_rows = rows | selectattr("doc_type", "equalto", "WANITA") | list %}
+{% set generasi_muda_rows = rows | selectattr("doc_type", "equalto", "GENERASI_MUDA") | list %}
+{% set pemuda_rows = rows | selectattr("doc_type", "equalto", "PEMUDA") | list %}
 {% set bahagian_rows = rows | selectattr("doc_type", "equalto", "BAHAGIAN") | list %}
 {% set cawangan_rows = rows | selectattr("doc_type", "equalto", "CAWANGAN") | list %}
 
@@ -494,7 +515,7 @@
   <div class="page-header">
     <h1 class="page-title">Manage Hierarchy</h1>
     <div class="page-subtitle">
-      Records are separated by Majlis Tertinggi, Bahagian, and Cawangan for easier viewing and editing.
+      Records are separated by Majlis Tertinggi, Wanita, Generasi Muda, Pemuda, Bahagian, and Cawangan for easier viewing and editing.
     </div>
   </div>
 
@@ -516,6 +537,26 @@
       <div class="quick-title">Cawangan</div>
       <div class="quick-desc">Add or update Cawangan committee records.</div>
     </a>
+
+    <a href="{{ url_for('hierarchy.admin_add', doc_type='WANITA') }}" class="quick-card">
+      <div class="quick-icon">♀</div>
+      <div class="quick-title">Wanita</div>
+      <div class="quick-desc">Add or update Jawatankuasa Wanita records.</div>
+    </a>
+
+    <a href="{{ url_for('hierarchy.admin_add', doc_type='PEMUDA') }}" class="quick-card">
+      <div class="quick-icon">👥</div>
+      <div class="quick-title">Pemuda</div>
+      <div class="quick-desc">Add or update Pergerakan Pemuda records.</div>
+    </a>
+
+      <a href="{{ url_for('hierarchy.admin_add', doc_type='GENERASI_MUDA') }}" class="quick-card">
+      <div class="quick-icon">⚡</div>
+      <div class="quick-title">Generasi Muda</div>
+      <div class="quick-desc">Add or update Generasi Muda records.</div>
+    </a>
+
+
   </div>
 
   <div class="toolbar-card">
@@ -557,6 +598,170 @@
       {% endif %}
     </div>
   </div>
+
+  <div class="section-card searchable-group"
+       data-search="wanita jawatankuasa wanita">
+    <div class="section-head">
+      <div class="section-title-wrap">
+        <div class="section-icon">♀</div>
+        <div>
+          <h2 class="section-title">Wanita</h2>
+          <div class="section-subtitle">
+            Jawatankuasa Wanita hierarchy records.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-actions">
+        <div class="section-count">{{ wanita_rows|length }} records</div>
+
+        {% if wanita_rows %}
+          <a class="btn-small btn-edit-form"
+             href="{{ url_for('hierarchy.admin_edit_document', doc_type='WANITA') }}">
+            Edit Whole Form
+          </a>
+
+          {{ document_delete_button("WANITA", "", "", "Delete Whole Form") }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="section-body">
+      {% if wanita_rows %}
+        <details class="group-card searchable-group"
+                 data-search="wanita jawatankuasa wanita">
+          <summary class="group-summary">
+            <div class="summary-line">
+              <div class="summary-main">
+                <div class="summary-title">Jawatankuasa Wanita</div>
+                <div class="summary-meta">
+                  Click to expand or collapse Wanita records.
+                </div>
+              </div>
+
+              <div class="count-pill">{{ wanita_rows|length }} records</div>
+            </div>
+          </summary>
+
+          {{ hierarchy_table(wanita_rows) }}
+        </details>
+      {% else %}
+        <div class="empty-box">No Wanita records yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <div class="section-card searchable-group"
+       data-search="pemuda pergerakan pemuda jawatankuasa pemuda">
+    <div class="section-head">
+      <div class="section-title-wrap">
+        <div class="section-icon">👥</div>
+        <div>
+          <h2 class="section-title">Pemuda</h2>
+          <div class="section-subtitle">
+            Pergerakan Pemuda UPKO Pusat hierarchy records.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-actions">
+        <div class="section-count">{{ pemuda_rows|length }} records</div>
+
+        {% if pemuda_rows %}
+          <a class="btn-small btn-edit-form"
+             href="{{ url_for('hierarchy.admin_edit_document', doc_type='PEMUDA') }}">
+            Edit Whole Form
+          </a>
+
+          {{ document_delete_button("PEMUDA", "", "", "Delete Whole Form") }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="section-body">
+      {% if pemuda_rows %}
+        <details class="group-card searchable-group"
+                 data-search="pemuda pergerakan pemuda">
+          <summary class="group-summary">
+            <div class="summary-line">
+              <div class="summary-main">
+                <div class="summary-title">
+                  Jawatankuasa Pergerakan Pemuda
+                </div>
+                <div class="summary-meta">
+                  Click to expand or collapse Pemuda records.
+                </div>
+              </div>
+
+              <div class="count-pill">
+                {{ pemuda_rows|length }} records
+              </div>
+            </div>
+          </summary>
+
+          {{ hierarchy_table(pemuda_rows) }}
+        </details>
+      {% else %}
+        <div class="empty-box">No Pemuda records yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+
+
+<div class="section-card searchable-group"
+       data-search="generasi muda jawatankuasa generasi muda">
+    <div class="section-head">
+      <div class="section-title-wrap">
+        <div class="section-icon">⚡</div>
+        <div>
+          <h2 class="section-title">Generasi Muda</h2>
+          <div class="section-subtitle">
+            Generasi Muda hierarchy records.
+          </div>
+        </div>
+      </div>
+
+      <div class="section-actions">
+        <div class="section-count">{{ generasi_muda_rows|length }} records</div>
+
+        {% if generasi_muda_rows %}
+          <a class="btn-small btn-edit-form"
+             href="{{ url_for('hierarchy.admin_edit_document', doc_type='GENERASI_MUDA') }}">
+            Edit Whole Form
+          </a>
+
+          {{ document_delete_button("GENERASI_MUDA", "", "", "Delete Whole Form") }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="section-body">
+      {% if generasi_muda_rows %}
+        <details class="group-card searchable-group"
+                 data-search="generasi muda exco">
+          <summary class="group-summary">
+            <div class="summary-line">
+              <div class="summary-main">
+                <div class="summary-title">Jawatankuasa Generasi Muda</div>
+                <div class="summary-meta">
+                  Click to expand or collapse Generasi Muda records.
+                </div>
+              </div>
+
+              <div class="count-pill">{{ generasi_muda_rows|length }} records</div>
+            </div>
+          </summary>
+
+          {{ hierarchy_table(generasi_muda_rows) }}
+        </details>
+      {% else %}
+        <div class="empty-box">No Generasi Muda records yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
 
   <div class="section-card searchable-group" data-search="bahagian">
     <div class="section-head">

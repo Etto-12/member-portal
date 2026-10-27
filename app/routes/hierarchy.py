@@ -139,11 +139,130 @@ POSITION_PRESETS = {
         "Ahli Jawatankuasa",
         "Ahli Jawatankuasa",
     ],
+
+    "WANITA": [
+        "Pengerusi Tetap",
+        "Timbalan Pengerusi Tetap",
+        "Ketua Wanita",
+        "Timbalan Ketua Wanita",
+        "Naib Ketua I",
+        "Naib Ketua II",
+        "Naib Ketua III",
+        "Setiausaha",
+        "Penolong Setiausaha",
+        "Bendahari",
+        "Penolong Bendahari",
+        "Pegawai Penerangan",
+        "Penolong Pegawai Penerangan",
+        "Setiausaha Penganjur",
+        "Penolong Setiausaha Penganjur",
+
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "1"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "2"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "3"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "4"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "5"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "6"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "7"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "8"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "9"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "10"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "11"},
+        {"position": "Ahli Jawatankuasa (AJK)", "bil": "12"},
+
+        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "1"},
+        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "2"},
+        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "3"},
+        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "4"},
+        {"position": "Ahli Jawatankuasa (Lantikan)", "bil": "5"},
+    ],
+
+    "GENERASI_MUDA": [
+        "Pengerusi Tetap",
+        "Timbalan Pengerusi Tetap",
+        "Ketua Generasi Muda",
+        "Timbalan Ketua Generasi Muda",
+        "Naib Ketua Generasi Muda",
+
+        {"position": "Ahli Exco Biasa", "bil": "1"},
+        {"position": "Ahli Exco Biasa", "bil": "2"},
+        {"position": "Ahli Exco Biasa", "bil": "3"},
+        {"position": "Ahli Exco Biasa", "bil": "4"},
+        {"position": "Ahli Exco Biasa", "bil": "5"},
+        {"position": "Ahli Exco Biasa", "bil": "6"},
+        {"position": "Ahli Exco Biasa", "bil": "7"},
+        {"position": "Ahli Exco Biasa", "bil": "8"},
+        {"position": "Ahli Exco Biasa", "bil": "9"},
+        {"position": "Ahli Exco Biasa", "bil": "10"},
+        {"position": "Ahli Exco Biasa", "bil": "11"},
+        {"position": "Ahli Exco Biasa", "bil": "12"},
+
+        {"position": "Ahli Exco (Lantikan)", "bil": "1"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "2"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "3"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "4"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "5"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "6"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "7"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "8"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "9"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "10"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "11"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "12"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "13"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "14"},
+        {"position": "Ahli Exco (Lantikan)", "bil": "15"},
+    ],
+    "PEMUDA": [
+        "Pengerusi Tetap",
+        "Timbalan Pengerusi Tetap",
+        "Ketua Pemuda",
+        "Timbalan Ketua Pemuda",
+        "Naib Ketua I",
+        "Naib Ketua II",
+        "Naib Ketua III",
+        "Naib Ketua IV",
+        "Setiausaha",
+        "Penolong Setiausaha I",
+        "Penolong Setiausaha II",
+        "Bendahari",
+        "Penolong Bendahari I",
+        "Penolong Bendahari II",
+        "Pegawai Penerangan",
+        "Penolong Pegawai Penerangan I",
+        "Penolong Pegawai Penerangan II",
+        "Setiausaha Penganjur",
+        "Penolong Setiausaha Penganjur I",
+        "Penolong Setiausaha Penganjur II",
+
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "1"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "2"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "3"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "4"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "5"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "6"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "7"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "8"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "9"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "10"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "11"},
+        {"position": "Ahli Jawatankuasa (AJK) Dipilih", "bil": "12"},
+
+        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "1"},
+        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "2"},
+        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "3"},
+        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "4"},
+        {"position": "Ahli Jawatankuasa (AJK) Dilantik", "bil": "5"},
+    ],
+
 }
 
 
 DOC_LABELS = {
     "MAJLIS_TERTINGGI": "Majlis Tertinggi Parti",
+    "WANITA": "Wanita",
+    "GENERASI_MUDA": "Generasi Muda",
+    "PEMUDA": "Pemuda",
     "BAHAGIAN": "Bahagian",
     "CAWANGAN": "Cawangan",
 }
@@ -215,6 +334,27 @@ def view_hierarchy():
         doc_type="MAJLIS_TERTINGGI"
     ).order_by(HierarchyDocument.sort_order, HierarchyDocument.id).all()
 
+    wanita = HierarchyDocument.query.filter_by(
+        doc_type="WANITA"
+    ).order_by(
+        HierarchyDocument.sort_order,
+        HierarchyDocument.id
+    ).all()
+
+    generasi_muda = HierarchyDocument.query.filter_by(
+        doc_type="GENERASI_MUDA"
+    ).order_by(
+        HierarchyDocument.sort_order,
+        HierarchyDocument.id
+    ).all()
+
+    pemuda = HierarchyDocument.query.filter_by(
+        doc_type="PEMUDA"
+    ).order_by(
+        HierarchyDocument.sort_order,
+        HierarchyDocument.id
+    ).all()
+
     bahagian_names = db.session.query(HierarchyDocument.bahagian)\
         .filter(HierarchyDocument.doc_type == "BAHAGIAN")\
         .filter(HierarchyDocument.bahagian.isnot(None))\
@@ -237,6 +377,9 @@ def view_hierarchy():
     return render_template(
         "hierarchy/view_hierarchy.html",
         majlis=majlis,
+        wanita=wanita,
+        generasi_muda=generasi_muda,
+        pemuda=pemuda,
         bahagian_names=bahagian_names,
         cawangan_names=cawangan_names
     )
@@ -502,7 +645,7 @@ def admin_edit(id):
 
     row = HierarchyDocument.query.get_or_404(id)
 
-    if row.doc_type == "MAJLIS_TERTINGGI":
+    if row.doc_type in ("MAJLIS_TERTINGGI", "WANITA", "GENERASI_MUDA", "PEMUDA"):
         return redirect(url_for(
             "hierarchy.admin_edit_document",
             doc_type=row.doc_type
@@ -558,7 +701,7 @@ def admin_delete_document(doc_type):
         label = f"Cawangan form: {cawangan} ({bahagian})"
 
     else:
-        label = "Majlis Tertinggi form"
+        label = f"{DOC_LABELS.get(doc_type, doc_type)} form"
 
     rows = query.all()
     count = len(rows)

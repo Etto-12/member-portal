@@ -9,7 +9,7 @@ class HierarchyDocument(db.Model):
     doc_type = db.Column(
         db.String(30),
         nullable=False
-    )  # MAJLIS_TERTINGGI / BAHAGIAN / CAWANGAN
+    )  # MAJLIS_TERTINGGI / WANITA / GENERASI_MUDA / PEMUDA / BAHAGIAN / CAWANGAN
 
     title = db.Column(db.String(200), nullable=False)
 

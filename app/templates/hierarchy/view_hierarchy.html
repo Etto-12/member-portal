@@ -47,7 +47,7 @@
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 24px;
 }
@@ -253,16 +253,11 @@
   <div class="hero-card">
     <h1 class="hero-title">UPKO Hierarchy</h1>
     <p class="hero-subtitle">
-      View the party leadership structure, Bahagian committee documents and Cawangan committee documents in one place.
+      View the party leadership structure, Wanita, Generasi Muda, Pemuda, Bahagian and Cawangan committee documents in one place.
     </p>
   </div>
 
   <div class="summary-grid">
-    <div class="summary-card">
-      <div class="summary-label">Majlis Tertinggi</div>
-      <div class="summary-value">{% if majlis %}1{% else %}0{% endif %}</div>
-    </div>
-
     <div class="summary-card">
       <div class="summary-label">Bahagian Documents</div>
       <div class="summary-value">{{ bahagian_names|length }}</div>
@@ -303,6 +298,129 @@
       <div class="empty-box">No Majlis Tertinggi Parti data added yet.</div>
     {% endif %}
   </div>
+
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Wanita</h2>
+        <p class="section-subtitle">
+          View the full Jawatankuasa Wanita leadership document.
+        </p>
+      </div>
+      <span class="badge">
+        {% if wanita %}Document Available{% else %}No Document{% endif %}
+      </span>
+    </div>
+
+    {% if wanita %}
+      <a class="main-doc"
+         href="{{ url_for('hierarchy.document_view', type='WANITA') }}">
+        <div class="main-doc-title">
+          Open Jawatankuasa Wanita Document
+        </div>
+        <div class="main-doc-desc">
+          View the full Wanita leadership positions and names.
+        </div>
+      </a>
+
+      <div class="preview-grid">
+        {% for row in wanita[:4] %}
+          <div class="preview-card">
+            <div class="preview-position">{{ row.position }}</div>
+            <div class="preview-name">{{ row.candidate_name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">
+        No Wanita hierarchy data added yet.
+      </div>
+    {% endif %}
+  </div>
+
+
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Pemuda</h2>
+        <p class="section-subtitle">
+          View the full Pergerakan Pemuda UPKO Pusat leadership document.
+        </p>
+      </div>
+
+      <span class="badge">
+        {% if pemuda %}Document Available{% else %}No Document{% endif %}
+      </span>
+    </div>
+
+    {% if pemuda %}
+      <a class="main-doc"
+         href="{{ url_for('hierarchy.document_view', type='PEMUDA') }}">
+        <div class="main-doc-title">
+          Open Pergerakan Pemuda Document
+        </div>
+
+        <div class="main-doc-desc">
+          View the full Pemuda leadership positions and names.
+        </div>
+      </a>
+
+      <div class="preview-grid">
+        {% for row in pemuda[:4] %}
+          <div class="preview-card">
+            <div class="preview-position">{{ row.position }}</div>
+            <div class="preview-name">{{ row.candidate_name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">
+        No Pemuda hierarchy data added yet.
+      </div>
+    {% endif %}
+  </div>
+
+
+
+<div class="section-card">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Generasi Muda</h2>
+        <p class="section-subtitle">
+          View the full Jawatankuasa Generasi Muda leadership document.
+        </p>
+      </div>
+      <span class="badge">
+        {% if generasi_muda %}Document Available{% else %}No Document{% endif %}
+      </span>
+    </div>
+
+    {% if generasi_muda %}
+      <a class="main-doc"
+         href="{{ url_for('hierarchy.document_view', type='GENERASI_MUDA') }}">
+        <div class="main-doc-title">
+          Open Jawatankuasa Generasi Muda Document
+        </div>
+        <div class="main-doc-desc">
+          View the full Generasi Muda leadership positions and names.
+        </div>
+      </a>
+
+      <div class="preview-grid">
+        {% for row in generasi_muda[:4] %}
+          <div class="preview-card">
+            <div class="preview-position">{{ row.position }}</div>
+            <div class="preview-name">{{ row.candidate_name }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-box">
+        No Generasi Muda hierarchy data added yet.
+      </div>
+    {% endif %}
+  </div>
+
 
   <div class="section-card">
     <div class="section-head">
